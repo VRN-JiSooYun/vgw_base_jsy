@@ -1,0 +1,144 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+	<table class="table table-sm">
+		<tr>
+			<th colspan="2">
+			</th>
+			{% if LIST_HR_WORKING_TIME_TABLE_COLUMN_INDEX_TYPE.0.0 in q_mysettings_hr.list_selected_field_name_for_wkt_analytics_type %}
+				<th colspan="3" class="text-center" style="background-color:rgb(0,255,255,0.15)">
+					<button type="submit" name="button-hr-workingtime-control-select-workingtime-analytics-table-column-type" value="{{ LIST_HR_WORKING_TIME_TABLE_COLUMN_INDEX_TYPE.0.0 }}" class="btn btn-link btn-sm">
+						{{ LIST_HR_WORKING_TIME_TABLE_COLUMN_INDEX_TYPE.0.1 }}
+					</button>
+				</th>
+			{% else %}
+			{% endif %}
+
+			{% if LIST_HR_WORKING_TIME_TABLE_COLUMN_INDEX_TYPE.1.0 in q_mysettings_hr.list_selected_field_name_for_wkt_analytics_type %}
+				<th colspan="16" class="text-center" style="background-color:rgb(255,255,0,0.25)">
+					<button type="submit" name="button-hr-workingtime-control-select-workingtime-analytics-table-column-type" value="{{ LIST_HR_WORKING_TIME_TABLE_COLUMN_INDEX_TYPE.1.0 }}" class="btn btn-link btn-sm">
+						{{ LIST_HR_WORKING_TIME_TABLE_COLUMN_INDEX_TYPE.1.1 }}
+					</button>
+				</th>
+			{% else %}
+			{% endif %}
+
+			{% if LIST_HR_WORKING_TIME_TABLE_COLUMN_INDEX_TYPE.2.0 in q_mysettings_hr.list_selected_field_name_for_wkt_analytics_type %}
+				<th colspan="4" class="text-center" style="background-color:rgb(255,0,255,0.15)">
+					<button type="submit" name="button-hr-workingtime-control-select-workingtime-analytics-table-column-type" value="{{ LIST_HR_WORKING_TIME_TABLE_COLUMN_INDEX_TYPE.2.0 }}" class="btn btn-link btn-sm">
+						{{ LIST_HR_WORKING_TIME_TABLE_COLUMN_INDEX_TYPE.2.1 }}
+					</button>
+				</th>
+			{% else %}
+			{% endif %}
+			<th>
+			</th>
+		</tr>
+		<tr>
+			<th>
+			</th>
+			<th >
+				<button type="submit" name="button-hr-workingtime-control-select-workingtime-analytics-table-column-index" value="{{ LIST_WORKING_TIME_TABLE_COLUMN_INDEX_FOR_ANALYTICS.1.0 }}" class="btn btn-link btn-sm">
+					{{ LIST_WORKING_TIME_TABLE_COLUMN_INDEX_FOR_ANALYTICS.1.1 }}
+				</button>
+				<br>
+				<button type="submit" name="button-hr-workingtime-control-select-workingtime-analytics-table-column-index" value="{{ LIST_WORKING_TIME_TABLE_COLUMN_INDEX_FOR_ANALYTICS.2.0 }}" class="btn btn-link btn-sm">
+					{{ LIST_WORKING_TIME_TABLE_COLUMN_INDEX_FOR_ANALYTICS.2.1 }}
+				</button>
+			</th>
+			{% for ITEM in LIST_WORKING_TIME_TABLE_COLUMN_INDEX_FOR_ANALYTICS %}
+
+				{% if LIST_HR_WORKING_TIME_TABLE_COLUMN_INDEX_TYPE.0.0 in q_mysettings_hr.list_selected_field_name_for_wkt_analytics_type %}
+					{% if forloop.counter == 4 or forloop.counter == 5 %}
+					<th>
+						{% if ITEM.0 == LIST_WORKING_TIME_TABLE_COLUMN_INDEX_FOR_ANALYTICS.0 %}
+							<input type="checkbox" name="checkbox-hr-workingtime-select-member" value="all">
+						{% endif %}
+						<button type="submit" name="button-hr-workingtime-control-select-workingtime-analytics-table-column-index" value="{{ ITEM.0 }}" class="btn btn-link btn-sm">
+							{{ ITEM.1 }}
+						</button>
+					</th>
+					{% endif %}
+				{% else %}
+				{% endif %}
+
+				{% if LIST_HR_WORKING_TIME_TABLE_COLUMN_INDEX_TYPE.1.0 in q_mysettings_hr.list_selected_field_name_for_wkt_analytics_type %}
+					{% if forloop.counter >= 6 and forloop.counter <= 20 %}
+					<th>
+						{% if ITEM.0 == LIST_WORKING_TIME_TABLE_COLUMN_INDEX_FOR_ANALYTICS.0 %}
+							<input type="checkbox" name="checkbox-hr-workingtime-select-member" value="all">
+						{% endif %}
+						<button type="submit" name="button-hr-workingtime-control-select-workingtime-analytics-table-column-index" value="{{ ITEM.0 }}" class="btn btn-link btn-sm">
+							{{ ITEM.1 }}
+						</button>
+					</th>
+					{% endif %}
+				{% else %}
+				{% endif %}
+
+				{% if LIST_HR_WORKING_TIME_TABLE_COLUMN_INDEX_TYPE.2.0 in q_mysettings_hr.list_selected_field_name_for_wkt_analytics_type %}
+					{% if forloop.counter >= 21 %}
+					<th>
+						{% if ITEM.0 == LIST_WORKING_TIME_TABLE_COLUMN_INDEX_FOR_ANALYTICS.0 %}
+							<input type="checkbox" name="checkbox-hr-workingtime-select-member" value="all">
+						{% endif %}
+						<button type="submit" name="button-hr-workingtime-control-select-workingtime-analytics-table-column-index" value="{{ ITEM.0 }}" class="btn btn-link btn-sm">
+							{{ ITEM.1 }}
+						</button>
+					</th>
+					{% endif %}
+				{% else %}
+				{% endif %}
+
+			{% endfor %}
+			<th>
+				비고
+			</th>
+
+
+		</tr>
+
+		<!--
+			선택한 근무 컨트롤 쿼리
+		-->
+		{% for q_wkt_control in qs_wkt_control %}
+			{% if q_wkt_control == q_mysettings_hr.workingtime_control and 'first_date' in request.get_full_path and 'second_date' in request.get_full_path %}
+				{% include 'hr/hr_workingtime_control_analytics_by_period_table_row.html' %}
+			{% elif q_wkt_control == q_mysettings_hr.workingtime_control %}
+				{% include 'hr/hr_workingtime_control_analytics_table_row.html' %}
+			{% endif %}
+		{% endfor %}
+
+		<!--
+			검색된 근무시간 쿼리 (선택된 쿼리 제외)
+		-->
+		{% for q_wkt_control in qs_wkt_control %}
+
+				{% if q_wkt_control.id in q_mysettings_hr.list_wkt_control_id_searched and q_wkt_control != q_mysettings_hr.workingtime_control %}
+					{% include 'hr/hr_workingtime_control_analytics_table_row.html' %}
+				{% endif %}
+
+		{% endfor %}
+
+
+		<!--
+			나머지
+		-->
+		{% for q_wkt_control in qs_wkt_control %}
+			{% if q_wkt_control == q_mysettings_hr.workingtime_control %}
+			{% else %}
+				{% if not q_wkt_control.id in q_mysettings_hr.list_wkt_control_id_searched and not 'first_date' in request.get_full_path and not 'second_date' in request.get_full_path %}
+					{% include 'hr/hr_workingtime_control_analytics_table_row.html' %}
+				{% elif not q_wkt_control.id in q_mysettings_hr.list_wkt_control_id_searched %}
+					{% include 'hr/hr_workingtime_control_analytics_table_by_period_row.html' %}
+				{% endif %}
+			{% endif %}
+		{% endfor %}
+	</table>
+
+</div>

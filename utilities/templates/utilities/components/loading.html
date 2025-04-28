@@ -1,0 +1,34 @@
+{% load static %}
+<template id="loading">
+    <div v-show="isloading" style="position: absolute; z-index:9999" :style="{height: height, left: left, top: top}">
+        <img src="{% static 'images/Spinner-1s-300px.svg' %}"/>
+    </div>
+</template>
+
+
+<script>
+    const loadingComponent = {
+        delimiters: ["[[", "]]"],
+        props: {
+            isloading: {
+                type: Boolean,
+                default: false
+            },
+            height: {
+                type: String,
+            },
+            left: {
+                type: String,
+            },
+            top: {
+                type: String,
+            },
+        },
+        data() {
+            return {}
+        },
+        methods : {},
+        mounted: function() {},
+        template:'#loading',
+    }
+</script>

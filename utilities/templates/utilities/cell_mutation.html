@@ -1,0 +1,1169 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load floatFormatter %}
+{% load isnan %}
+{% load filters %}
+{% load my_filter %}
+{% load getItem %}
+{% block content %}
+
+{% include 'utilities/navbar.html' %}
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.3/css/fixedHeader.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.1.0/css/fixedColumns.dataTables.min.css">
+<style>
+    .admin-td {
+        border-left: 1px lightgray solid;
+    }
+
+    .column-checkbox-div > div {
+        float:left; background-color: white; border:1px solid; padding:6px; cursor: pointer; 
+    }
+    .column-checkbox-div > div > label {
+        cursor: pointer; 
+    }
+    .col-in {
+        /*padding-left: 0px;
+        padding-right: 0px;*/
+    }
+    .btn-c-w {
+        color:#fff;
+    }
+
+    .form-label {
+        display:inline;
+        vertical-align: text-bottom;
+    }
+    .dataTable td {
+        vertical-align: middle;
+    }
+    table.dataTable {
+        background: #fff;
+    }
+    .bold {
+        font-weight:bold;
+    }
+    .title0 {
+        font-weight: bold;
+        font-size: 20px;
+        padding: 5px 0px 0px 0px;
+    }
+    .title1 {
+        font-weight: bold;
+        font-size: 16px;
+        padding: 5px 0px 5px 0px;
+    }
+    .title2 {
+        font-size: 14px;
+        padding: 0px 0px 5px 0px;
+    }
+    .small {
+        font-size:60%;
+    }
+    
+    .fs-wrap {
+        display:block;
+        width:100%;
+    }
+    
+    .fs-label-wrap {
+        height: calc(1.5em + 1.1rem + 2px);
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.25rem;
+    }
+    .font-red {
+        color:#ff0000;
+    }
+    .font-green {
+        color:#17a2b8;
+    }
+    .date_search {
+        width:150px;
+        display:inline-block;
+    }
+    
+    .row_b_1 {
+        border-bottom: 1px dotted #ababab;
+    }
+    .row_t_p_1 {
+        padding-top: 10px;
+    }
+    
+    .modal-dialog {
+        max-width: 500px;
+    }
+    .modal-content {
+        width: 650px;
+    }
+    
+    .result_reg_form {
+        width: 100%;
+        border: 1px solid #aaa;
+    }
+    
+    .result_reg_form th {
+        border: 1px solid #aaa;
+        background-color:#eee;
+    }
+    .result_reg_form td {
+        border: 1px solid #aaa;
+    }
+    .table_title {
+        font-size:16px;
+        font-weight:bold;
+    }
+    .table_sub_title {
+        height:50px;
+        background-color: #dadada !important;
+    }
+    {% comment %} #result_table th, #result_table td { white-space: nowrap; } {% endcomment %}
+    table.dataTable thead tr>.dtfc-fixed-left, table.dataTable thead tr>.dtfc-fixed-right {
+        background-color: black;
+    }
+    div.dtfc-left-top-blocker, div.dtfc-right-top-blocker {
+        background-color: initial;
+    }
+    {% comment %} .dtfc-fixed-left {
+        color:#fff;
+    } {% endcomment %}
+    
+    .top_line {
+        border-top: 1px dotted #000;
+        padding-top: 10px;
+    }
+
+    .table th {
+        white-space:nowrap;
+    }
+    
+    .table td, .table th {
+        vertical-align:bottom;
+    }
+
+    .fs-dropdown {
+        width:50%;
+    }
+
+    .table.dataTable {
+        margin-left:0px;
+    }
+    
+    .searchHisI {
+        font-size:25px;
+    }
+
+    .searchHisTable td {
+        /* height:200px; */
+        background-color:rgb(255,255,255,0.85);
+        border:1px solid #ccc;
+    }
+
+    #searchHisDiv {
+        /*display: none;*/
+    }
+
+
+    /* select button */
+    .fs-buttons {
+        padding: 0;
+        text-align: center;
+    }
+    
+    .fs-buttons > div {
+        display: inline-block;
+        text-align: center;
+        width: 50%;
+        border-right: 1px solid #eee;
+    }
+    
+    .fs-buttons > div:last-child {
+        border-right: none;
+        width: calc(50% - 1px);
+    }
+    
+    .fs-button {
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+        display: block;
+        padding: 6px 8px;
+        text-align: center;
+        border: none;
+        background: none;
+        outline: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .last_date {
+        right: 0px;
+        position: absolute;
+        top: 40px;
+    }
+
+    .fixedHeader-floating {
+        table-layout: auto !important;;
+    }
+
+    .btn-info-p {
+        color:#fff;
+        background-color: #387cf7;
+        border-color: #387cf7;
+    }
+    .filter_key_column {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+    .filter_type_column {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+    .filter_value_column {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        width: 140px;
+    }
+    .filter_condition_column {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+    .filter_table {
+        white-space:nowrap;
+    }
+
+    .filter_table input {
+        vertical-align: middle;
+    }
+
+    .dtl_label {
+        /*position:relative;
+        bottom: -8px;*/
+    }
+
+    #ext_search_div {
+        z-index: 2;
+        text-align: center;
+        margin: -1px auto;
+    }
+    #ext_search_span {
+        border-right: 1px solid #c1c1c1;
+        border-left: 1px solid #c1c1c1;
+        border-bottom: 1px solid #c1c1c1;
+        display: inline-block;
+        width: 100px;
+        background-color: #ebeff5;
+        cursor:pointer;
+    }
+    .search_text {
+        width:450px;
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+    .filter-projects-condition {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+    .filter_table {
+        background: #fff;
+    }
+    .filter_table td, .filter_table th {
+        border: 1px solid #575757;
+        padding: 5px;
+        padding-bottom: 0px;
+        vertical-align: middle;
+    }
+    
+    .filter_table input {
+        vertical-align: middle;
+    }
+
+    .smile_input_st {
+        width: 80%;
+        height: calc(1.3em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+    .dt-buttons {
+        padding-bottom:10px;
+    }
+    .paging_simple_numbers {
+        padding-top:10px;
+    }
+</style>
+<style>
+    /* Safari */
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+<style>
+    html, body { overscroll-behavior: none; overflow-x: hidden;}
+    
+    .wrapper {
+        overflow-x:scroll;
+        width:100%;
+    }
+    table {
+        table-layout: fixed; 
+        width:100%;
+        border-collapse: collapse;
+        font-size: 15px;
+    }
+    td,th {
+        text-align: center;
+        vertical-align:middle;
+        width:110px;
+        padding: 5px;
+        background-color: white;
+        overflow-wrap: break-word; white-space: normal;
+    }
+    
+    .th {
+        cursor: pointer;
+    }
+
+    .fix {
+        position:sticky;
+        background: white;
+        border-right:1px gray solid;
+        left:0;
+        width:220px;
+        /* width:80px; */
+        /* text-overflow: ellipsis; */
+        overflow-wrap: break-word;
+        overflow:hidden;
+        white-space:normal;
+        padding: 20px 0px;
+    }
+
+    .fix2 {
+        position:sticky;
+        background: white;
+        /* width:80px; */
+        width:50px;
+
+        border-right:2px gray solid;
+
+        /* left:220px; */
+        left:80px;
+        text-overflow: ellipsis;
+        overflow:hidden;
+        white-space:nowrap;
+    }
+
+    th:not(.regTable *),th.fix,th.fix2 {
+        background-color: black;
+        /* background-color: lightblue; */
+        color:white;
+        /* position: relative; */
+    }
+
+    thead:not(.regTable *) {
+        position: sticky; top:0px;
+        z-index: 5;
+    }
+
+    ::placeholder {
+        color: lightgray;
+        opacity: 1; /* Firefox */
+    }
+</style>
+
+<div style="padding-bottom:10px; width:100%;">
+    <legend class="" style="float:left;">Cell Mutation</legend>
+    <button class="btn btn-md btn-danger" onclick="$('#cell_mutation_example-modal').modal('show'); $('.modal-backdrop').css('display', 'none');" style="float:right; margin-top:10px; margin-right:30px;">검색 예제</button>
+    <a class="download-excel btn btn-md btn-info" style="float:right; margin-top:10px; margin-right:30px; color:white;">검색결과 다운로드</a>
+    {% if request.user.email == 'jaeheon12@voronoi.io' or request.user.email == 'k3363@voronoi.io' or request.user.email == 'jhchoi@voronoi.io' or request.user.email == 'syje@voronoi.io' %}
+    <button class="btn btn-md btn-primary" onclick="$('.actionType').val('UPLOAD'); $('#cell_mutation-modal').modal('show'); $('.modal-backdrop').css('display', 'none');" style="float:right; margin-top:10px; margin-right:30px;">Upload</button>
+    {% endif %}
+</div>
+
+<hr>
+
+<form name="searchForm" id="searchForm">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-12">
+            <div id="filter_area" style="padding-top: 5px;">
+                <button class="btn btn-info-p btn-sm add-filter-btn" style='color: #fff;margin-top: -5px;'>필터 추가</button>
+                필터들을
+                <select class="filter_conjunction" name="filter_conjunction">
+                    <option value="and">교집합 (and)</option>
+                    <option value="or">합집합 (or)</option>
+                </select>
+                조건으로
+                <select class="target_column" name="target_column">
+                    <option value="all">모든 Column</option>
+                    <option value="cell_name">Cell Line</option>
+                </select>
+                에 대하여
+                <button class="search-btn btn btn-md btn-success" style="padding: 2px 70px;">검색</button>
+                <span>
+                    <input type="checkbox" id="search-within-results" name="search-within-results">
+                    <label for="search-within-results">결과내 재검색</label>
+                </span>
+                <button class="reset-search-list btn btn-sm btn-outline-info" style="padding: 2px 10px; font-size: 16px;">검색 초기화</button>
+            </div>
+        </div>
+        <div class="col-md-12" style="margin-top:10px;">
+            <select class="filter_group_condition" name="filter_group_condition" style="display: none;">
+                <option value="">위 조건을 포함하는 Cell Line으로 검색</option>
+                <option value="NOT">위 조건을 포함하지 않는 Cell Line으로 검색</option>
+            </select>
+        </div>
+    </div>
+</form>
+
+<hr>
+<style>
+    .searched-filters > div {
+        margin-bottom: 7px;
+    }
+    .searched-filters span {
+        background-color: white;
+        padding: 5px 12px;
+    }
+</style>
+<div class="searched-filters" style="font-size:14px;">
+</div>
+<hr>
+
+<div class="row">
+    <div class="col-md-12">
+        <div style="width: 100%; overflow-x: scroll; background-color: initial; border: none; white-space: nowrap; font-size:14px;">
+            <!-- <span style="border:1px solid; background-color: white; padding:0px 5px; margin-right:-5px;"><input class="filtering-checkbox-all" type="checkbox" id="checkbox-all" checked> <label for="checkbox-all">전체 선택</label></span> -->
+            {% for column in columns %}
+            <span style="border:1px solid; background-color: white; padding:0px 5px; margin-right:-5px;"><input class="filtering-checkbox" type="checkbox" id="checkbox-{{ column.table_column_name }}" value="{{ column.table_column_name }}" checked> <label for="checkbox-{{ column.table_column_name }}">{{ column.column_name }}</label></span>
+            {% endfor %}
+        </div>
+        <select class="num-rows-per-page" style="width:120px; height:30px; text-align:center; background-color: rgb(221,221,221); margin-top: 12px;">
+            <option value="10">Show 10 rows</option>
+            <option value="25" selected>Show 25 rows</option>
+            <option value="50">Show 50 rows</option>
+            <option value="100">Show 100 rows</option>
+        </select>
+        <div class="total-rows-count" value="0" style="margin-bottom: 10px; width:100%; text-align: center; font-size: 20px;"></div>
+        <div style="float:right;">&#8251; Copy number 가 Normal 에 해당하거나 Copy number  데이터가 없는 경우 표시되지 않음</div>
+    </div>
+    
+    <div class="col-md-12">
+        <div class="table-div volume-weight-div wrapper" measure="volume-weight" style="width:100%; margin: 0 auto; align-content: center;">
+            <table class="data-table" style="width:100%; text-align: center; overflow: scroll;">
+                <thead style="position: relative;">
+                    <tr>
+                        {% for column in columns %}
+                        <th class="th {% if column.column_name == 'cell_name' %}fix{% endif %}" column="{{ column.table_column_name }}" order="">
+                            {% replace column.column_name '_' ' ' %}
+                            <div style="float:right; width:10px; pointer-events: none; font-size:20px; line-height: 6px;">
+                                <span class="asc" style="font-size:10px;">&#9650;</span>
+                                <span class="desc" style="font-size:10px;">&#9660;</span>
+                            </div>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody id="search-result">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="dataTables_paginate">
+    </div>
+</div>
+
+{% include 'utilities/cell_mutation_modal.html' %}
+<script>
+    // var latest_filter = [];
+    var loadingList = {'partial': false, 'total': false};
+    var latest_filter = {};
+    var curThead = $('.data-table thead');
+    var originTheadPos = $(curThead).offset().top;
+    
+    $(window).on('scroll', e => {
+        locateThead();
+    });
+
+    $(window).on('resize', e => {
+        originTheadPos = $(curThead).offset().top;
+        locateThead();
+    });
+
+    function locateThead() {
+        var tableTop = $('.data-table').offset().top;
+        var scrollPosition = $(document).scrollTop();
+
+        if (scrollPosition < originTheadPos + curThead.height()) curThead.css('top', '');
+        else curThead.css('top', (scrollPosition - tableTop) + 'px');
+    }
+
+    $('.th').on('click', e => {
+        if (e.ctrlKey) {
+            var order = $(e.target).attr('order');
+            if (order == "") {
+                $(e.target).find('span').css('color', 'white');
+                $(e.target).attr('order', 'desc');
+                $(e.target).find('.desc').css('color', 'RoyalBlue');
+            }
+            else if (order == "desc") {
+                $(e.target).find('span').css('color', 'white');
+                $(e.target).attr('order', 'asc');
+                $(e.target).find('.asc').css('color', 'RoyalBlue');
+            }
+            else if (order == "asc") {
+                $(e.target).find('span').css('color', 'white');
+                $(e.target).attr('order', '');
+            }
+        }
+        else {
+            var order = $(e.target).attr('order');
+            if (order == "") {
+                $('.th').attr('order', '');
+                $('.th').find('span').css('color', 'white');
+                $(e.target).attr('order', 'desc');
+                $(e.target).find('.desc').css('color', 'RoyalBlue');
+            }
+            else if (order == "desc") {
+                $('.th').attr('order', '');
+                $('.th').find('span').css('color', 'white');
+                $(e.target).attr('order', 'asc');
+                $(e.target).find('.asc').css('color', 'RoyalBlue');
+            }
+            else if (order == "asc") {
+                $('.th').attr('order', '');
+                $('.th').find('span').css('color', 'white');
+                $(e.target).attr('order', '');
+            }
+        }
+
+        var current_result_number = parseInt($('.total-rows-count').attr('value'));
+        if (current_result_number > 0) {
+            $('.loadingDiv').show();
+            partialSearch(pageNum=pageNum, searchType='ORDER_BY', filters=latest_filter);
+        }
+    });
+</script>
+
+<script>
+    $('.search-btn').on('click', e => {
+        e.preventDefault();
+
+        var didPass = true;
+        $.each($('.filter_div'), (i, v) => {
+            var column = $(v).find('.filter_key_column').val();
+            var condition = $(v).find('.filter_condition_column').val();
+            var value = $(v).find('.filter_value_column').val();
+            var type = $(v).find('.filter_condition_column').attr('type');
+            if (column == "" || column == null) {didPass=false; return false;}
+            if (condition == "" || condition == null) {didPass=false; return false;}
+            if (type != "bool" && type != "select" && (value == "" || value == null)) {didPass=false; return false;}
+        });
+
+        if (!didPass) {
+            alert("필터에 값을 입력해주세요.");
+            return;
+        }
+
+        if ($('#search-within-results').prop('checked') == false) {
+            searchType='NEW-SEARCH';
+            // latest_filter = [];
+            latest_filter = {};
+            $('.searched-filters').html('');
+        }
+        else {
+            searchType='SEARCH-WITHIN-RESULTS';
+        }
+
+        var dict_list = [];
+        var searchFilterGroupSentence = '';
+        $.each($('.filter_div'), (i, v) => {
+            var column = $(v).find('.filter_key_column').val();
+            var condition = $(v).find('.filter_condition_column').val();
+            var value = $(v).find('.filter_value_column').val();
+            var filter_group_condition = $('.filter_group_condition').val();
+
+            dict_list.push({'filter_column': column, 'filter_condition': condition, 'filter_value': value, 'filter_conjunction': $('.filter_conjunction').val(), 'filter_group_condition': filter_group_condition});
+
+            var col_name = $(v).find('.filter_key_column').find('option:selected').text().replaceAll(' ', '').replaceAll('\n', '').replaceAll(/\u00a0/g, '').split('[')[0]
+            var condition_name = $(v).find('.filter_condition_column').find('option:selected').html();
+            searchFilterGroupSentence += `<span>${col_name} 이(가) ${value} ${condition_name}</span> ` + (i == $('.filter_div').length - 1 ? '' : $('.filter_conjunction').val() + ' ');
+        });
+        
+        if ($('.filter_div').length > 0) {
+            for (var i = 0; i < 100; i++) {
+                var rand_no = parseInt(Math.floor(Math.random() * 100));
+                if (rand_no in latest_filter == false) {
+                    latest_filter[ rand_no ] = dict_list;
+
+                    var filter_group_condition_sentence = $('.filter_group_condition').val();
+                    $('.searched-filters').append(`
+                        <div class="filter-condition-sentence-div" key=${rand_no} style="margin-top:15px; background-color:yellow;">
+                            ${ $('.filter-condition-sentence-div').length > 0 ? '<select class="filter-group-conjunction-select"><option value="AND">and</option><option value="OR">or</option></select>' : '' }
+                            현재 적용된 필터 그룹: <b> ${$('.target_column').val() == 'all' ? '' : filter_group_condition_sentence}</b> ${searchFilterGroupSentence}
+                            <button class="remove-filter-group-btn btn btn-sm btn-warning" key=${rand_no}>이 필터그룹 제거</button>
+                        </div>
+                    `);
+
+                    break;
+                }
+            }
+            // latest_filter.push(dict_list);
+        }
+        
+        loadingList['partial'] = false;
+        loadingList['total'] = false;
+        $('.loadingDiv').show();
+
+        partialSearch(pageNum=1, searchType=searchType, filters=latest_filter);
+        totalSearch(filters=latest_filter);
+
+        $($(".filter-condition-sentence-div")[$(".filter-condition-sentence-div").length-1]).animate({
+            backgroundColor: "rgba(255, 255, 0, 0.5)"
+        }, 20 )
+        .delay(1000)
+        .animate({
+            backgroundColor: 'transparent'
+        }, 3000 );
+    });
+
+    $(document).on('click', '.remove-filter-group-btn', e => {
+        e.preventDefault();
+        var key = parseInt($(e.target).attr('key'));
+        delete latest_filter[key];
+
+        if ($('.filter-condition-sentence-div[key='+ key +']').find('.filter-group-conjunction-select').length == 0) {
+            $($('.filter-group-conjunction-select')[0]).remove();
+        }
+
+        $('.filter-condition-sentence-div[key='+ key +']').remove();
+
+        loadingList['partial'] = false;
+        loadingList['total'] = false;
+        $('.loadingDiv').show();
+
+        partialSearch(pageNum=1, searchType='SEARCH-WITHIN-RESULTS', filters=latest_filter);
+        totalSearch(filters=latest_filter);
+    });
+
+    $(document).on('change', '.filter-group-conjunction-select', e => {
+        e.preventDefault();
+
+        loadingList['partial'] = false;
+        loadingList['total'] = false;
+        $('.loadingDiv').show();
+        
+        partialSearch(pageNum=1, searchType='SEARCH-WITHIN-RESULTS', filters=latest_filter);
+        totalSearch(filters=latest_filter);
+    });
+
+    $('.reset-search-list').on('click', e => {
+        e.preventDefault();
+
+        latest_filter = {};
+        $('.searched-filters').html('');
+        $('#search-result').html('');
+        $('.total-rows-count').html('');
+        $('.dataTables_paginate').html('');
+    });
+
+    function getTr(v, column_list) {
+        var line = '';
+        $.each(column_list, (idx, column_name) => {
+            line += `<td ${column_name == 'mut.cell_name' ? 'class="fix"' : ''} column="${column_name}">${v[column_name.split('.')[1]]}</td>`;
+        });
+        return `<tr>${line}</tr>`;
+    }
+
+    function partialSearch(pageNum, searchType, filters) {
+
+        var order_list = [];
+        $.each($('.th'), (i, v) => {
+            var order = $(v).attr('order');
+            if (order == '') return;
+            var column_name = $(v).attr('column');
+            order_list.push({'column_name': column_name, 'order': order});
+        });
+
+        var column_list = [];
+        if ($('.target_column').val() == 'all') {
+            $.each($('.filtering-checkbox'), (i, v) => {
+                var column_name = $(v).val();
+                if ($(v).prop("checked")) {
+                    column_list.push(column_name);
+                    $('.th[column="' + column_name + '"],td[column="' + column_name + '"]').css('display', '');
+                }
+                else $('.th[column="' + column_name + '"],td[column="' + column_name + '"]').css('display', 'none');
+            });
+        }
+        else if ($('.target_column').val() == 'cell_name') {
+            // column_list.push('mut.cell_name');
+            $.each($('.filtering-checkbox'), (i, v) => {
+                var column_name = $(v).val();
+                // if (column_name == 'mut.cell_name') {
+                if (column_name == 'mut.cell_name' || column_name.includes('info.')) {
+                    column_list.push(column_name);
+                    $(v).prop("checked", true);
+                    $('.th[column="' + column_name + '"],td[column="' + column_name + '"]').css('display', '');
+                }
+                else {
+                    $(v).prop("checked", false);
+                    $('.th[column="' + column_name + '"],td[column="' + column_name + '"]').css('display', 'none');
+                }
+            });
+        }
+        console.log(column_list);
+
+        var filter_group_conjunction_list = [];
+        $.each($('.filter-group-conjunction-select'), (i, v) => {
+            filter_group_conjunction_list.push($(v).val());
+        });
+
+        $.ajax({
+            type: 'POST',
+            url : '/utilities/cell-mutation',
+            dataType: 'json',
+            data: $('#searchForm').serialize() + '&filter_dict=' + JSON.stringify(filters) + '&order_dict=' + JSON.stringify(order_list) + '&actionType=PARTIAL-SEARCH&num-rows-per-page=' + $('.num-rows-per-page').val() + '&filter_group_conjunction_list=' + JSON.stringify(filter_group_conjunction_list) + '&page-no=' + pageNum,
+            success: function(data) {
+                console.log(data);
+
+                if (data[0]) {
+                    let listStr = '';
+                    $.each(data[2].data, (i, v) => {
+                        listStr += getTr(v, column_list);
+                    });
+
+                    $('#search-result').html(listStr);
+                }
+                else {
+                    alert(data[2]);
+                }
+
+                locateThead();
+
+                loadingList['partial'] = true;
+                if (loadingList['total'] == true) $('.loadingDiv').hide();
+            }
+        });
+    }
+
+    function totalSearch(filters) {
+        $('.total-rows-count').html("검색 결과: 총 결과 카운트 중 ..");
+        $('.dataTables_paginate').html("페이지 버튼 생성 중 ..");
+
+        var filter_group_conjunction_list = [];
+        $.each($('.filter-group-conjunction-select'), (i, v) => {
+            filter_group_conjunction_list.push($(v).val());
+        });
+
+        $.ajax({
+            type: 'POST',
+            url : '/utilities/cell-mutation',
+            dataType: 'json',
+            data: $('#searchForm').serialize() + '&filter_dict=' + JSON.stringify(filters) + '&filter_group_conjunction_list=' + JSON.stringify(filter_group_conjunction_list) + '&actionType=TOTAL-SEARCH',
+            success: function(data) {
+                console.log(data);
+
+                if (data[0]) {
+                    $('.total-rows-count').html(`검색 결과: <b>${data[2].total}</b>`);
+                    $('.total-rows-count').attr('value', data[2].total);
+                    paginateNavbar(1);
+                }
+                else {
+                    alert(data[2]);
+                }
+
+                loadingList['total'] = true;
+                if (loadingList['partial']) $('.loadingDiv').hide();
+            }
+        });
+    }
+</script>
+
+<script>
+    $(document).on('click', '.add-filter-btn', e => {
+        e.preventDefault();
+        $("#filter_area").append(`
+            <div class='filter_div'>
+                <select class='filter_key_column' style="font-family: monospace; font-size:15px;">
+                    <option value="">Select Column</option>
+                    {% for column in columns %}
+                        
+                        <option value="{{ column.type }}#{{ column.table_column_name }}">
+                            {{ column.column_name }}
+                            {% with column.column_name|length|add:"-21" as n %}
+                                {% widthratio n 1 -1 as number %}
+                                {% with ''|center:number as range %}
+                                    {% for _ in range %}&nbsp;{% endfor %}
+                                {% endwith %}
+                            {% endwith %}
+                            {% if column.type == 'str' %}[문자열]{% elif column.type == 'num' %}[숫자]{% elif column.type == 'bool' %}[T or F]{% elif column.type == 'select' %}[선택]{% endif %}
+                        </option>
+                        
+                    {% endfor %}
+                </select>
+                이(가)
+                <input type='text' class='filter_value_column' placeholder='입력값' style='display:none;'>
+                <select class='filter_condition_column' style='display:none;'>
+                </select>
+                <button type='button' class='btn btn-info-p btn-sm' onclick="removeFilter(this)" style='color: #fff;'>Del</button>
+            </div>
+        `);
+    });
+
+    $(document).on('change', '.filter_condition_column', e => {
+        var condition = $(e.target).val();
+        var data_type = $(e.target).attr('type');
+        if (data_type == 'select' || condition == '%s IS NOT NULL %s' || condition == '%s IS NULL %s') {
+            $(e.target).siblings('.filter_value_column').css('display', 'none');
+            $(e.target).siblings('.filter_value_column').val('');
+        }
+        else {
+            $(e.target).siblings('.filter_value_column').css('display', '');
+        }
+    });
+
+    $(document).on('change', '.filter_key_column', e => {
+        var data_type = $(e.target).val().split('#')[0];
+        var table_column_name = $(e.target).val().split('#')[1];
+
+        if (data_type == 'str') {
+            $(e.target).siblings('.filter_condition_column').attr('type', 'text');
+
+            $(e.target).siblings('.filter_condition_column').html(`
+                <option value="%s ilike '%s'">과 같다</option>
+                <option value="%s ilike '%%%s%%'">를 포함한다</option>
+                <option value="%s not ilike '%%%s%%'">를 포함하지 않는다</option>
+                <option value="%s >= '%s'">보다 (사전순으로) 크거나 같다</option>
+                <option value="%s <= '%s'">보다 (사전순으로) 작거나 같다</option>
+                <option value="%s IS NOT NULL %s">null값이 아니다</option>
+                <option value="%s IS NULL %s">null값이다</option>
+            `);
+
+            $(e.target).siblings('.filter_value_column').val('');
+            $(e.target).siblings('.filter_value_column').attr('type', 'text');
+
+            $(e.target).siblings('.filter_condition_column,.filter_value_column').css('display', '');
+        }
+        else if (data_type == 'num') {
+            $(e.target).siblings('.filter_condition_column').attr('type', 'text');
+
+            $(e.target).siblings('.filter_condition_column').html(`
+                <option value="%s >= %s">보다 크거나 같다</option>
+                <option value="%s = %s">과 같다</option>
+                <option value="%s <= %s">보다 작거나 같다</option>
+                <option value="%s IS NOT NULL %s">null값이 아니다</option>
+                <option value="%s IS NULL %s">null값이다</option>
+            `);
+
+            $(e.target).siblings('.filter_value_column').val('');
+            $(e.target).siblings('.filter_value_column').attr('type', 'number');
+
+            $(e.target).siblings('.filter_condition_column,.filter_value_column').css('display', '');
+        }
+        else if (data_type == 'bool') {
+            $(e.target).siblings('.filter_condition_column').attr('type', 'bool');
+            $(e.target).siblings('.filter_condition_column').html(`
+                <option value='%s = true %s'>True</option>
+                <option value="%s = false %s">False</option>
+                <option value="%s IS NOT NULL %s">null값이 아니다</option>
+                <option value="%s IS NULL %s">null값이다</option>
+            `);
+
+            $(e.target).siblings('.filter_value_column').val('');
+            $(e.target).siblings('.filter_value_column').attr('type', 'text');
+            $(e.target).siblings('.filter_value_column').css('display', 'none');
+
+            $(e.target).siblings('.filter_condition_column').css('display', '');
+            
+        }
+        else if (data_type == 'select') {
+            $(e.target).siblings('.filter_condition_column').attr('type', 'select');
+
+            if (table_column_name == 'mut.mutation_effect') {
+                $(e.target).siblings('.filter_condition_column').html(`
+                    <option value="%s ilike 'Unknown' %s">Unknown</option>
+                    <option value="%s ilike 'Likely Loss-of-function' %s">Likely Loss-of-function</option>
+                    <option value="%s ilike 'Gain-of-function' %s">Gain-of-function</option>
+                    <option value="%s ilike 'Inconclusive' %s">Inconclusive</option>
+                    <option value="%s ilike 'Likely Gain-of-function' %s">Likely Gain-of-function</option>
+                    <option value="%s ilike 'Likely Neutral' %s">Likely Neutral</option>
+                    <option value="%s ilike 'Loss-of-function' %s">Loss-of-function</option>
+                    <option value="%s IS NOT NULL %s">null값이 아니다</option>
+                    <option value="%s IS NULL %s">null값이다</option>
+                `);
+            }
+            else if (table_column_name == 'mut.oncogenic') {
+                $(e.target).siblings('.filter_condition_column').html(`
+                    <option value="%s ilike 'Unknown' %s">Unknown</option>
+                    <option value="%s ilike 'Likely Oncogenic' %s">Likely Oncogenic</option>
+                    <option value="%s ilike 'Inconclusive' %s">Inconclusive</option>
+                    <option value="%s ilike 'Oncogenic' %s">Oncogenic</option>
+                    <option value="%s ilike 'Likely Neutral' %s">Likely Neutral</option>
+                    <option value="%s IS NOT NULL %s">null값이 아니다</option>
+                    <option value="%s IS NULL %s">null값이다</option>
+                `);
+            }
+            else if (table_column_name == 'info.lineage') {
+                $(e.target).siblings('.filter_condition_column').html(`
+                    {% for lineage, subtypes in lineages.items %}
+                    <option value="%s ilike '{{ lineage }}' %s">{{ lineage }}</option>
+                    {% endfor %}
+                    <option value="%s IS NOT NULL %s">null값이 아니다</option>
+                    <option value="%s IS NULL %s">null값이다</option>
+                `);
+            }
+            else if (table_column_name == 'info.subtype') {
+                $(e.target).siblings('.filter_condition_column').html(`
+                    {% for lineage, subtypes in lineages.items %}
+                        {% for subtype in subtypes %}
+                        <option value="%s ilike '{{ subtype }}' %s">[{{ lineage }}] {{ subtype }}</option>
+                        {% endfor %}
+                    {% endfor %}
+                    <option value="%s IS NOT NULL %s">null값이 아니다</option>
+                    <option value="%s IS NULL %s">null값이다</option>
+                `);
+            }
+            else if (table_column_name == 'msi.gdsc_msi') {
+                $(e.target).siblings('.filter_condition_column').html(`
+                    <option value="%s ilike 'MSS/MSI-L' %s">MSS/MSI-L</option>
+                    <option value="%s ilike 'MSI-H' %s">MSI-H</option>
+                    <option value="%s ilike 'MSS' %s">MSS</option>
+                    <option value="%s IS NOT NULL %s">null값이 아니다</option>
+                    <option value="%s IS NULL %s">null값이다</option>
+                `);
+            }
+            else if (table_column_name == 'msi.ccle_msi') {
+                $(e.target).siblings('.filter_condition_column').html(`
+                    <option value="%s ilike 'MSI' %s">MSI</option>
+                    <option value="%s ilike 'MSS' %s">MSS</option>
+                    <option value="%s IS NOT NULL %s">null값이 아니다</option>
+                    <option value="%s IS NULL %s">null값이다</option>
+                `);
+            }
+
+            $(e.target).siblings('.filter_value_column').val('');
+            $(e.target).siblings('.filter_value_column').attr('type', 'text');
+            $(e.target).siblings('.filter_value_column').css('display', 'none');
+
+            $(e.target).siblings('.filter_condition_column').css('display', '');
+        }
+    });
+
+    function removeFilter(obj) {
+        $(obj).parent().remove();
+    }
+    
+    function paginateNavbar(pageNum) {
+        var numRowsPerPage = parseInt($('.num-rows-per-page').val());
+        let batchSize = numRowsPerPage;
+        let total = parseInt($('.total-rows-count').attr("value"));
+        let batchCount = Math.ceil(total / batchSize);
+
+        var paginationStr = '';
+        for (var i = 1; i <= batchCount; i++) {
+            if (i == pageNum || i == pageNum - 1 || i == pageNum + 1) paginationStr += `<button class="pagination-page-num pagination-btn ${(i == pageNum) ? 'current-page' : ''}" page="${i}" style="border: 1px black solid; ${(i == pageNum) ? 'background-color:lightgray' : ''}">${i}</button>`;
+        }
+
+        $('.dataTables_paginate').html(`
+            <button class="first-page-btn pagination-btn" page=1 style="border: 1px black solid;"><<</button>
+            ${(2 < pageNum) ? '...' : ''}
+            ${paginationStr}
+            ${(batchCount > pageNum + 1) ? '...' : ''}
+            <button class="last-page-btn pagination-btn" page="${batchCount}" style="border: 1px black solid;">>></button>
+        `);
+    }
+
+    $(document).on('click', '.pagination-btn', e => {
+        e.preventDefault();
+        $('.loadingDiv').show();
+        var pageNum = parseInt($(e.target).attr('page'));
+        var numRowsPerPage = parseInt($('.num-rows-per-page').val());
+
+        var offset = (pageNum - 1) * numRowsPerPage;
+        var limit = numRowsPerPage;
+
+        // var listOnPage = totalList.slice(offset, offset + limit);
+
+        loadingList['partial'] = false;
+        loadingList['total'] = true;
+        $('.loadingDiv').show();
+        partialSearch(pageNum=pageNum, searchType='PAGINATE', filters=latest_filter);
+        paginateNavbar(pageNum);
+    });
+
+    // $('.filtering-checkbox-all').on('change', e => {
+    //     if ($(e.target).prop("checked")) $('.filtering-checkbox').prop('checked', true);
+    //     else $('.filtering-checkbox').prop('checked', false);
+    // });
+
+    $('.filtering-checkbox').on('change', e => {
+        var column_name = $(e.target).val();
+        if ($(e.target).prop("checked")) $('.th[column="' + column_name + '"],td[column="' + column_name + '"]').css('display', '');
+        else $('.th[column="' + column_name + '"],td[column="' + column_name + '"]').css('display', 'none');
+    });
+
+    $('.target_column').on('change', e => {
+        var column_name = $(e.target).val();
+        $('#search-within-results').prop('checked', false);
+        $('.searched-filters').html('');
+        // latest_filter = [];
+        latest_filter = {};
+        if (column_name == 'cell_name') {
+            $('.filtering-checkbox').prop('checked', false);
+            $('.filtering-checkbox[value="mut.cell_name"]').prop('checked', true);
+            $('.filter_group_condition').css('display', '');
+
+            // $('#search-within-results,[for="search-within-results"]').css('pointer-events', 'auto');
+            // $('[for="search-within-results"]').css('color', 'black');
+        }
+        else {
+            $('.filtering-checkbox').prop('checked', true);
+            $('.filter_group_condition').css('display', 'none');
+
+            // $('#search-within-results,[for="search-within-results"]').css('pointer-events', 'none');
+            // $('[for="search-within-results"]').css('color', 'lightgray');
+        }
+
+        $.each($('.th'), (i, v) => {
+            $(v).find('span').css('color', 'white');
+            $(v).attr('order', '');
+        });
+    });
+
+    $('.download-excel').click(function(e){
+        e.preventDefault();
+
+        var current_result_number = parseInt($('.total-rows-count').attr('value'));
+        if (current_result_number == 0) {alert('현재 검색결과가 없습니다.'); return;}
+
+        if (!confirm('총 검색결과 수가 너무 많으면 다운로드 시간이 오래 걸릴 수 있습니다.\n계속 진행하시겠습니까?')) return;
+        $('.loadingDiv').show();
+
+        var order_list = [];
+        $.each($('.th'), (i, v) => {
+            var order = $(v).attr('order');
+            if (order == '') return;
+            var column_name = $(v).attr('column');
+            order_list.push({'column_name': column_name, 'order': order});
+        });
+
+        var filter_group_conjunction_list = [];
+        $.each($('.filter-group-conjunction-select'), (i, v) => {
+            filter_group_conjunction_list.push($(v).val());
+        });
+
+        $.ajax({
+            url: '/utilities/cell-mutation/download-excel',
+            method: 'POST',
+            data: $('#searchForm').serialize() + '&filter_dict=' + JSON.stringify(latest_filter) + '&order_dict=' + JSON.stringify(order_list) + '&filter_group_conjunction_list=' + JSON.stringify(filter_group_conjunction_list) + '&csrfmiddlewaretoken={{ csrf_token }}',
+            xhrFields: {
+                responseType: 'blob'  // 바이너리 데이터를 반환하기 위함
+            },
+            success: function(data) {
+                // 엑셀 파일을 브라우저에서 다운로드
+                var a = document.createElement('a');
+                var url = window.URL.createObjectURL(data);
+                a.href = url;
+                a.download = 'data.xlsx';
+                document.body.append(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+
+                $('.loadingDiv').hide();
+            },
+            error: function(xhr, status, error) {
+                $('.loadingDiv').hide();
+                alert('Failed to download Excel file:' + error);
+            }
+        });
+    });
+</script>
+<script>
+    {% if 'cell_name' in request.get_full_path  %}
+        console.log('cell_name:{{ request.GET.cell_name }}');
+        
+        $('.add-filter-btn').trigger('click');
+        $('.filter_key_column').val('str#mut.cell_name');
+        $('.filter_key_column').trigger('change');
+        $('.filter_value_column').val('{{ request.GET.cell_name }}');
+
+        $('.add-filter-btn').trigger('click');
+        $($('.filter_key_column')[1]).val('str#mut.gene');
+        $($('.filter_key_column')[1]).trigger('change');
+        $($('.filter_value_column')[1]).val('{{ request.GET.gene }}');
+
+        $('.search-btn').trigger('click');
+    {% else %}
+        console.log('else');
+    {% endif %}
+</script>
+{% endblock content %}

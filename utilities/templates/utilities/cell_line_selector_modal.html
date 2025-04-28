@@ -1,0 +1,592 @@
+{% load static %}
+
+
+<div class="modal fade" id="cell-line-selector-upload-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document" style="max-width: 550px;">
+      <div class="modal-content" style="max-width: 520px;">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Gene Set 등록</h4>
+        </div>
+        <div class="modal-body" style="overflow-y: auto;height: 450px;">
+            <form name="formLayer" id="formLayer">
+                {% csrf_token %} 
+                <input type="hidden" name="actionType" class="actionType" value="UPLOAD"/>
+                <input type="hidden" name="req_id" class="req_id" value=""/>
+                
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">Normal format (category, set, gene)</label>
+                        <input type="file" class="normal-format form-control" name="normal-format" enctype='multipart/form-data'>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">Normal format to display (category, set)</label>
+                        <input type="file" class="normal-format-to-display form-control" name="normal-format-to-display" enctype='multipart/form-data'>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">Tree format (code, name, namespace, level, parents, children, definition, genes, gene_Symbol)</label>
+                        <input type="file" class="tree-format form-control" name="tree-format" enctype='multipart/form-data'>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">Tree format to display (category, code)</label>
+                        <input type="file" class="tree-format-to-display form-control" name="tree-format-to-display" enctype='multipart/form-data'>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">Cell names map (model ID, cell name)</label>
+                        <input type="file" class="cell-names-map form-control" name="cell_names_map" enctype='multipart/form-data'>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">Data to presave (.zip)</label>
+                        <input type="file" class="data-to-presave form-control" name="data-to-presave" enctype='multipart/form-data'>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">depmap all gene list</label>
+                        <input type="file" class="depmap-all-gene-list form-control" name="depmap_all_gene_list" enctype='multipart/form-data'>
+                    </div>
+                </div>
+        </div>
+        <div class="modal-footer">
+            <input type="checkbox" name="count-nodes" value="Count Nodes" checked> Count Nodes
+            <button type="button" class="saveBtn btn btn-default btn-info">저장</button>
+        </div>
+        </form>
+      </div>
+    </div>
+</div>
+<script>
+    $(".saveBtn,.countBtn").on("click", function(e) {
+        e.preventDefault();
+
+        $(".loadingDiv").show();
+
+        var formData = new FormData($("#formLayer")[0]);
+        formData.append('normal_format', $('.normal-format')[0].files[0]);
+        formData.append('tree_format', $('.tree-format')[0].files[0]);
+        formData.append('normal_format_to_display', $('.normal-format-to-display')[0].files[0]);
+        formData.append('tree_format_to_display', $('.tree-format-to-display')[0].files[0]);
+        formData.append('cell_names_map', $('.cell-names-map')[0].files[0]);
+        formData.append('data_to_presave', $('.data-to-presave')[0].files[0]);
+        formData.append('depmap_all_gene_list', $('.depmap-all-gene-list')[0].files[0]);
+
+        $.ajax({
+            url:"/utilities/cell-line-selector",
+            type:"post",
+            data:formData,
+            contentType: false,
+            processData: false,
+            success:function(msg){
+                $(".loadingDiv").hide();
+                console.log(msg);
+                if( msg[0] ) {
+                    // window.location.reload();
+                } else {
+                    $.notify("등록에 실패했습니다.\n"+msg[2], {
+                        className:"error", 
+                        position:"right bottom", 
+                        autoHideDelay:10000 }
+                    );
+                }
+            }
+        });
+    });
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src='https://cdn.plot.ly/plotly-2.11.1.min.js'></script>
+<script src="{% static '/js/tree.min.js' %}"></script>
+<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+
+<script>
+    let cell_names_map = {
+        {% for map in cell_names_map %}
+        '{{ map.cell_name }}': '{{ map.model_id }}',
+        {% endfor %}
+    }
+
+    let trees = {
+        'tree':{},
+        'normal': {}
+    };
+
+    let freeze = false;
+
+    let prevReqList = [];
+    let prevResList = null;
+    let prevGeneList = [];
+
+    const NOT_SELECTED = 1;
+    const SELECTED = 2;
+
+    function getGeneList(structure, category, placeToDisplay, data) {
+        
+        trees[ structure ][ category ] = {}
+
+        trees[ structure ][ category ][ 'tree' ] = new Tree(placeToDisplay, {
+            data : data,
+            closeDepth: 7,
+            onChange: function () {
+                if (freeze) return;
+                console.log('#############################################################################################');
+                console.log('#############################################################################################');
+                console.log('   onChange');
+                console.log('#############################################################################################');
+                console.log('#############################################################################################');
+
+                $('.loadingDiv').show();
+                // console.log(this.values);
+                console.log('this.selectedNodes:', this.selectedNodes);
+                // return;
+                $('.remove-from-depmap-all-text').remove();
+                $('.tree-label-text').css('text-decoration', 'auto');
+
+                var selectedGeneStr = '<ul>';
+
+                let list_to_req = [];
+
+                $.each(trees, (struct, value) => {
+                    $.each(trees[ struct ], (cat, val) => {
+                        // console.log(struct, cat, val.values);
+                        if (val.tree.values.length > 0) {
+                            checked_list = [];
+
+                            selectedGeneStr += '<li>' + cat + '<ul>';
+
+                            $.each(val.tree.selectedNodes, (i, v) => {
+                                if (v.attributes.level != 0 && v.status == SELECTED) {
+                                    
+                                    if ($('.check-all').prop('checked')) {
+                                        $('.tree-label[set="'+ v.id +'"],.tree-label[code="'+ v.id +'"]').prepend('<span class="remove-from-depmap-all-text"><b>(depmap all에서 제외)</b></span>');
+                                        $('.tree-label[set="'+ v.id +'"] .tree-label-text,.tree-label[code="'+ v.id +'"] .tree-label-text').css('text-decoration', 'line-through');
+                                    }
+
+                                    checked_list.push({'value': v.id, 'parent': v.attributes.parent});
+
+                                    selectedGeneStr += '<li>' + v.id + '</li>';
+                                }
+                            })
+
+                            list_to_req.push({'structure': struct, 'category': cat, 'checked_list': checked_list});
+
+                            selectedGeneStr += '</ul></li>';
+                        }
+                    });
+                });
+
+                console.log('list_to_req:', list_to_req);
+
+                selectedGeneStr += '</ul>';
+
+                $('.display-selected-gene-sets-div').html('<div style="padding-left:8px;">' + ($('.check-all').prop('checked') ? '아래 목록을 depmap all에서 제외:' : '') + '</div>' + selectedGeneStr);
+
+                console.log("list_to_req.length:", list_to_req.length);
+                if (list_to_req.length == 0) {
+                    $('.total-selected-gene-num').html('');
+                    $('.tree-num-children').html('');
+                    $('.selected-genes-per-category').html('');
+
+                    console.log("$('.check-all').prop('checked'):", $('.check-all').prop('checked'));
+
+                    if ($('.check-all').prop('checked')) {
+                        $('.total-selected-gene-num').html('선택된 gene 총 개수: 24380 [<a class="display-selected-gene-list-btn" style="color:#387cf7; cursor:pointer;">보기</a>]');
+                        $('.display-selected-gene-sets-div').html('<div style="padding-left:8px;">depmap all</div>');
+                    }
+                    else {
+                        $('.total-selected-gene-num').html('');
+                        $('.display-selected-gene-sets-div').html('');
+                    }
+
+                    $('.loadingDiv').hide();
+                    return;
+                }
+                
+                $.ajax({
+                    type: 'POST',
+                    url : '/utilities/cell-line-selector',
+                    dataType: 'json',
+                    data: 'actionType=GET-CHILDREN-NUM&list_to_req=' + JSON.stringify(list_to_req) + '&prev_req=' + JSON.stringify(prevResList) + '&prevGeneList=' + JSON.stringify(prevGeneList),
+                    success: function(data) {
+                        console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+                        console.log(' Data Arrival');
+                        console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+                        console.log(data[2]);
+                        $('.loadingDiv').show();
+
+                        if (data[0]) {
+
+                            $.each(data[2].list_to_req, (i, v) => {
+
+                                var count_per_category = 0;
+                                // console.log('v.checked_list:', v.checked_list);
+                                $.each(v.checked_list, (idx, val) => {
+                                    if (v.structure == 'normal') $('.tree-num-children[set="'+ val.value +'"]').html(' (' + val.count + ')');
+                                    else $('.tree-num-children[code="'+ val.value +'"]').html(' (' + val.count + ')');
+                                });
+
+                                count_per_category = data[2].gene_list_per_cat[ v.category ];
+                                
+                                $('.selected-genes-per-category[category="' + v.category + '"]').html(' <b>' + count_per_category + '개의 gene이 선택됨</b>');
+                            });
+
+
+                            $('.total-selected-gene-num').html('선택된 gene 총 개수: ' + ( $('.check-all').prop('checked') ? 24380 - data[2].gene_set_list.length : data[2].gene_set_list.length) + ' [<a class="display-selected-gene-list-btn" style="color:#387cf7; cursor:pointer;">보기</a>]');
+                            $('.total-selected-gene-num').attr('total_count', data[2].gene_set_list.length);
+                            $('.loadingDiv').hide();
+
+                            prevReqList = [];
+                            $.each(list_to_req, (index, elem) => {
+                                prevReqList.push(elem);
+                            });
+
+                            prevResList = data[2].list_to_req;
+
+                            prevGeneList = data[2].total_list;
+                        }
+                        else {
+                            alert(data[2]);
+                        }
+                        
+                        $('.loadingDiv').hide();
+                    }
+                });
+            },
+            loaded: function () {
+                //this.values = ['0-0-0', '0-1-1'];
+                // ccList = this.values;
+                //this.disables = ['0-0-0', '0-0-1', '0-0-2']
+                // this.values = ['1119'];
+                // this.values = [];
+                
+                // $(placeToDisplay).val(['1-26']);
+
+                
+                // setTimeout(() => {
+                //     this.collapseAll();
+                //     $($('.treejs-switcher')[0]).trigger('click');
+                // }, 500);
+
+                $.each($('.treejs-label'), (i, v) => {
+                    // console.log($(v).html());
+                    $(v).html($(v).html().replaceAll('&lt;', '<').replaceAll('\&gt;', '>'));
+                });
+
+            },
+        });
+    }
+
+    {% for gene in gene_normal_structure %}
+    getGeneList(structure='normal', category='{{ gene.category }}', placeToDisplay='.gene-set-tree.{{ gene.category }}', data={{gene.tree_dict|safe}});
+    {% endfor %}
+
+    {% for gene in gene_tree_structure %}
+    getGeneList(structure='tree', category='{{ gene.category }}', placeToDisplay='.gene-set-tree.{{ gene.category }}', data={{gene.tree_dict|safe}});
+    {% endfor %}
+
+    function callOnChange() {
+        $.each(trees, (structure, items) => {
+            $.each(items, (category, elems) => {
+                elems.tree.options.onChange();
+                return false;
+            });
+            return false;
+        });
+    }
+
+    // $('.filter-genes-by-keyword-btn').on('click', e => {
+    //     e.preventDefault();
+    function filterGenesByKeyword() {
+        console.log('filterGenesByKeyword()');
+
+        if ($('.main-search-keyword').val().trim() == '') { return; }
+
+        $('.loadingDiv').show();
+
+        $.ajax({
+            type: 'POST',
+            url : '/utilities/cell-line-selector',
+            dataType: 'json',
+            data: 'actionType=CHECK-KEYWORD-FROM-DEPMAP&keyword=' + $('.main-search-keyword').val(),
+            success: function(data) {
+                console.log(data);
+
+                if (data[2] != '') {
+                    alert(data[2]);
+                    $('.loadingDiv').hide();
+                    return;
+                }
+
+                $('.dropdown').css('display', '');
+
+                $('.set-count').html('');
+                $('.tree-label').css('background-color', 'white');
+
+                freeze = true;
+
+                // var children_to_disable = {};
+                prevReqList = [];
+                $('.total-selected-gene-num').html('선택된 gene 총 개수: ' + ($('.check-all').prop('checked') ? 24380 : 0 ) + ' [<a class="display-selected-gene-list-btn" style="color:#387cf7; cursor:pointer;">보기</a>]');
+                $('.total-selected-gene-num').attr('total_count', ($('.check-all').prop('checked') ? 24380 : 0 ));
+
+                $.each(trees, (structure, items) => {
+                    $.each(items, (category, elems) => {
+                        console.log(category, '1:',elems.tree.values);
+                        elems.tree.values = [];
+                        console.log(category, '2:',elems.tree.values);
+                    });
+                });
+
+                // console.log('children_to_disable::', children_to_disable);
+
+                freeze = false;
+
+                $.each(trees, (structure, items) => {
+                    $.each(items, (category, elems) => {
+                        elems.tree.options.onChange();
+                        return false;
+                    });
+                    return false;
+                });
+
+                $.ajax({
+                    type: 'POST',
+                    url : '/utilities/cell-line-selector',
+                    dataType: 'json',
+                    data: 'actionType=FILTER-GENE-LIST&keyword=' + $('.main-search-keyword').val(),
+                    success: function(data) {
+                        console.log(data);
+
+                        if (data[0]) {
+                            $.each(data[2].set_list, (i,v) => {
+                                $('.set-count[category="'+ v.category +'"]').html(v.count + '/');
+                            });
+
+                            // $.each(trees, (category, sets) => {
+                                
+                            //     $.each(sets, (set, nodes) => {
+                            //         // nodes.disables=nodes.treeNodes;
+
+                            //         var children_to_disable = [];
+                            //         if (set == 'gene_ontology') console.log(category, ':', set, ':', nodes.treeNodes[0].children[0].children, nodes.treeNodes[0].children[1].children, nodes.treeNodes[0].children[2].children );
+                            //         else {
+                            //             // console.log(category, ':', set, ':', nodes.tree.treeNodes[0].children );
+
+                            //             $.each(nodes.tree.treeNodes[0].children, (child, elem) => {
+                            //                 // console.log(category, ':', set, ':', child, ':', elem.id);
+                            //                 children_to_disable.push(elem.id);
+                            //             });
+                            //         }
+
+                            //         // console.log(category, '::', set, ':disables:', children_to_disable);
+                            //         nodes.disables=children_to_disable;
+                            //     });
+                                
+                            // });
+
+                            //==================================================================================================================================
+                            //==================================================================================================================================
+                            // Normal Structure 표시 (yellow 표시 및 disable)
+                            //==================================================================================================================================
+                            //==================================================================================================================================
+                            // var prevCat = '';
+                            // var children_to_enable = [];
+                            $.each(data[2].normal_list, (i,v) => {
+
+                                // if (prevCat != '' && prevCat != v.category && children_to_enable.length > 0) {
+                                //     console.log(prevCat, '::', children_to_enable);
+                                //     children_to_disable[prevCat] = children_to_disable[prevCat].filter(value => !children_to_enable.includes(value));
+                                //     trees.normal[prevCat].tree.disables=children_to_disable[prevCat];
+                                //     children_to_enable = [];
+                                // }
+                                // prevCat = v.category;
+
+                                if (v.count > 0) {
+                                    $('span[set="'+ v.set +'"]').css('background-color', 'yellow');
+                                    // children_to_enable.push(v.set);
+                                }
+                            });
+
+                            // if (children_to_enable.length > 0) {
+                            //     console.log(prevCat, '::', children_to_enable);
+                            //     children_to_disable[prevCat] = children_to_disable[prevCat].filter(value => !children_to_enable.includes(value));
+                            //     trees.normal[prevCat].tree.disables=children_to_disable[prevCat];
+                            //     children_to_enable = [];
+                            // }
+
+                            //==================================================================================================================================
+                            //==================================================================================================================================
+                            // Tree Structure 표시 (yellow 표시 및 disable)
+                            //==================================================================================================================================
+                            //==================================================================================================================================
+                            // children_to_enable = [];
+                            $.each(data[2].code_list, (i,v) => {
+                                // console.log(v.code);
+                                $('span[code="'+ v.code +'"]').css('background-color', 'yellow');
+                                // children_to_enable.push(v.code);
+                            });
+
+                            // children_to_disable['gene_ontology'] = children_to_disable['gene_ontology'].filter(value => !children_to_enable.includes(value));
+                            // trees.tree['gene_ontology'].tree.disables = children_to_disable['gene_ontology'];
+
+                            //==================================================================================================================================
+                            // 각 set 별 gene 개수 표시
+                            //==================================================================================================================================
+                            $.each(data[2].tree_list, (i,v) => {
+                                $('.set-count[category="'+ v.category +'"]').html(v.count + '/');
+                            });
+                        }
+                        else {
+                            alert(data[2]);
+                        }
+                        
+                        $('.loadingDiv').hide();
+                    }
+                });
+            }
+        });
+    }
+
+    $(document).on('click', '.show-genes', e => {
+        e.preventDefault();
+        $('.loadingDiv').show();
+
+        $.ajax({
+            type: 'POST',
+            url : '/utilities/cell-line-selector',
+            dataType: 'json',
+            data: 'actionType=GET-CHILDREN-GENE-LIST&structure=' + $(e.target).attr('structure') + '&category=' + $(e.target).attr('category') + '&value=' + $(e.target).attr('value'),
+            success: function(data) {
+                console.log(data);
+
+                if (data[0]) {
+                    var list = '';
+                    $.each(data[2], (i,v) => {
+                        list += v + '<br>';
+                    });
+
+                    $('.selected-gene-list').html(list);
+                    $('.selected-gene-list-div').css('left', $('.dropdown').width() + 'px');
+                    $('.selected-gene-list-div').css('top', '0px' );
+                    $('.selected-gene-list-div').css('display', '');
+                    $('.selected-gene-name').html( ($(e.target).attr('structure') == 'normal' ? $(e.target).attr('value') : $(e.target).attr('node_name')) + ' (' + data[2].length + ')' );
+                }
+                else {
+                    alert(data[2]);
+                }
+                
+                $('.loadingDiv').hide();
+            }
+        });
+    });
+
+    $('.check-all').on('change', e => {
+
+        if ($('.check-all').is(':checked')) {
+            
+            $.each(trees, (struct, value) => {
+                $.each(trees[ struct ], (cat, val) => {
+                    // console.log(struct, cat, val.values);
+                    if (val.tree.values.length > 0) {
+                        checked_list = [];
+
+                        $.each(val.tree.selectedNodes, (i, v) => {
+                            if (v.status == SELECTED) {
+
+                                if ($('.check-all').prop('checked')) {
+                                    $('.tree-label[set="'+ v.id +'"],.tree-label[code="'+ v.id +'"]').prepend('<span class="remove-from-depmap-all-text"><b>(depmap all에서 제외)</b></span>');
+                                    $('.tree-label[set="'+ v.id +'"] .tree-label-text,.tree-label[code="'+ v.id +'"] .tree-label-text').css('text-decoration', 'line-through');
+                                }
+
+                                checked_list.push({'value': v.id, 'parent': v.attributes.parent});
+                            }
+                        })
+                    }
+                });
+            });
+        
+            console.log($('.total-selected-gene-num').attr('total_count'));
+            var total_selected_gene_count = $('.total-selected-gene-num').attr('total_count') == null ? 0 : parseInt($('.total-selected-gene-num').attr('total_count'));
+            $('.total-selected-gene-num').html('선택된 gene 총 개수: ' + ($('.check-all').prop('checked') ? 24380 - total_selected_gene_count : total_selected_gene_count ) + ' [<a class="display-selected-gene-list-btn" style="color:#387cf7; cursor:pointer;">보기</a>]');
+            
+            // $('.selected-genes-per-category[category="all"]').html(' <b>' + {{ total_num_genes }} + '개의 gene이 선택됨</b>');
+            // $('.check-all').prop('checked', true);
+
+            // freeze = true;
+
+            // $.each(trees, (structure, items) => {
+            //     $.each(items, (category, elems) => {
+            //         $.each(elems.treeNodes, (idx, elem) => {
+            //             var values = [];
+            //             $.each(elem.children, (i, child) => {
+            //                 // console.log(child.id);
+            //                 values.push(child.id);
+            //             });
+            //             elems.values = values;
+            //         });
+            //     });
+            // });
+
+            // freeze = false;
+
+            // $.each(trees, (structure, items) => {
+            //     $.each(items, (category, elems) => {
+            //         elems.options.onChange();
+            //         return false;
+            //     });
+            //     return false;
+            // });
+        }
+        else {
+
+            $('.remove-from-depmap-all-text').remove();
+            $('.tree-label-text').css('text-decoration', 'auto');
+
+            freeze = true;
+
+            $.each(trees, (structure, items) => {
+                $.each(items, (category, elems) => {
+                    $.each(elems.treeNodes, (idx, elem) => {
+                        elems.tree.values = [];
+                    });
+                });
+            });
+
+            freeze = false;
+
+            $.each(trees, (structure, items) => {
+                $.each(items, (category, elems) => {
+                    elems.tree.options.onChange();
+                    return false;
+                });
+                return false;
+            });
+        }
+    });
+
+</script>
+<script>
+    function getGeneCategoryInfo(category) {
+        if (category == 'addgene') {
+            $('a[[category="' + category + '"]]').attr('href', 'https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp');
+            $('.tooltiptext[category="' + category + '"]').html(`
+                << 웹사이트를 방문하려면 클릭하세요. >><br><br>
+                <b>H: hallmark Filter genes</b><br><br>
+                Hallmark Filter genes summarize and represent specific well-defined biological states or processes and display coherent expression. These Filter genes were generated by a computational methodology based on identifying Filter genes overlaps and retaining genes that display coordinate expression.<br>
+            `);
+        }
+    }
+</script>

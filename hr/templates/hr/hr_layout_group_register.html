@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% block content %}
+{% include 'hr/hr_navbar_layout.html' %}
+{% include 'hr/hr_navbar_layout_register_group.html' %}
+
+
+
+<div class="row">
+
+    <div class="col-md-12">
+    <legend class="border-bottom mb-4">
+            그룹 관리
+    </legend>
+    </div>
+
+    <div class="col-md-9">
+        <div class="card card-body" style="background-color:rgb(255,255,255,0.5)">
+            <table class="table table-hover table-striped">
+                <tr>
+                    <th>
+                        등록된 그룹명
+                    </th>
+                    <th>
+                        그룹에 등록된 회사명
+                    </th>
+                    <th>
+                        코멘트
+                    </th>
+                    <th>
+                        수정
+                    </th>
+                </tr>
+
+                {% for q_group in qs_group %}
+                    <tr>
+                        <td>
+                            {{ q_group.group_name }}
+                        </td>
+                        <td>
+                            {% for k_q_group , v_qs_c2g in dict_c2g.items %}
+                                {% if q_group == k_q_group %}
+                                    <ul>
+                                    {% for v_q_c2g in v_qs_c2g %}
+                                        <li>
+                                            {{ v_q_c2g.company.company_name }}
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {{ q_group.comment }}
+                        </td>
+                        <td>
+                            <a href="{% url 'hr-layout-update-group' q_group.id %}" type="button" class="btn btn-info btn-sm" >Update</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+            <form method = "POST" action = "{% url 'hr-layout-register-group' %}">
+                {% csrf_token %}
+                {{ form|bootstrap}}
+                <button  name="button-register-group-individual" value="true" type="submit" class="btn btn-info btn-lg" >Save</button>
+            </form>
+        </div>
+
+
+    </div>
+
+
+
+
+
+</div>
+
+{% endblock content %}
+
+
+{% comment %}
+<hr>
+
+<legend class="border-bottom mb-4">
+    Group 파일로 등록하기
+</legend>
+<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+    <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Excel파일 업로드하기</legend>
+        <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+            <form method="POST" action="{% url 'hr-layout-register-group' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <h6>파일 업로드를 통해 VGW DB에 Group 등록하기</h6>
+                <input class="btn btn-sm btn-success" type="file" name="group-upload"><br>
+
+                <small class="text-muted">
+                    <ul>
+                        <li>
+                            Upload Member Profile CSV Format File
+                        </li>
+                        <li>
+                            Check The Layout Before Submitting The File
+                        </li>
+                        <li>
+                            파일명은 영어/숫자만 인식
+                        </li>
+                    </ul>
+                </small>
+
+                <button class="btn btn-primary btn-lg" name="button-register-group-file" value="true" type="submit">Upload Group File</button>
+            </form>
+        </div>
+        <br>
+    </fieldset>
+</div>
+{% endcomment %}

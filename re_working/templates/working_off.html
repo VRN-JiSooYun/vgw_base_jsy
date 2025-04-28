@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'home/navbar/re_navbar.html' %}
+
+<div id="working_off" class="row" style="padding: 1%; background-color: #f9f9f9;">
+    <div class="col-md-18" style="position: relative;">
+        <div style="flex: auto; margin: auto; width: 97vw; height: 18vh; padding: 1%; border-radius:25px; background-color: #ffffff;">
+            <div class="row" style="padding-top: 20px;">
+                <div class="col-6">
+                    <span style="font-size: 15px;">나의 연차</span>
+                    &nbsp;
+                    <button type="button" class="btn btn-sm btn-outline-info" @click="showWorkingOffYearly">더보기</button>
+                    <table class="table table-hover" style="margin-top: 10px">
+                        <thead>
+                            <tr>
+                                <th scope="col">전체일수</th>
+                                <th scope="col">사용일수</th>
+                                <th scope="col">잔여일수</th>
+                                <th scope="col">연차 사용 기간</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td v-html="member.working_off_days + member.working_off_etc_days"></td>
+                                <td v-html="approvalRequestUseNum(member.working_off_use_days)"></td>
+                                <td v-html="member.working_off_remain_days"></td>
+                                <td v-html="workingOffDate(member.working_off_start_date)"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-6" v-if="member.working_off_add_days > 0">
+                    <span style="font-size: 15px;">나의 대체휴가</span>
+                    <table class="table table-hover" style="margin-top: 10px">
+                        <thead>
+                            <tr>
+                                <th scope="col">전체일수</th>
+                                <th scope="col">사용일수</th>
+                                <th scope="col">잔여일수</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td v-html="member.working_off_add_days"></td>
+                                <td v-html="approvalRequestAddUseNum(member.working_off_add_use_days)"></td>
+                                <td v-html="member.working_off_add_remain_days"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div style="flex: auto; margin: 3vh auto; width: 97vw; min-height: 53vh; padding: 2%; border-radius:25px; background-color: #ffffff">
+            <div class="row" style="padding-bottom: 1vh;">
+                <div class="col-8" style="display: flex">
+                    <input type="date" class="form-control" style="width: 10vw" v-model="startDate">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="date" class="form-control" style="width: 10vw" v-model="endDate">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button type="button" class="btn btn-outline-danger" @click="getWorkingOffs">검색</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button v-if="member.is_leader == 'Y'" type="button" class="btn btn-outline-info" @click="showWorkingOffTeam">팀 휴가일수</button>
+                </div>
+                <div class="col-4" style="text-align:end">
+                    <button type="button" class="btn btn-outline-primary" @click="showWorkingOff()">휴가신청</button>
+                </div>
+            </div>
+
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">번호</th>
+                        <th scope="col">결재번호</th>
+                        <th scope="col">제목</th>
+                        <th scope="col">기간</th>
+                        <th scope="col">휴가 유형</th>
+                        <th scope="col">사용 일수</th>
+                        <th scope="col">결재상태</th>
+                        <th scope="col">결재일시</th>
+                        <th scope="col">기능</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in workingOffForms">
+                        <td scope="row" v-html="num(index)"></td>
+                        <td v-html="item.approval_id"></td>
+                        <td v-html="item.working_off_form_title"></td>
+                        <td v-html="date(item.working_off_form_start_date, item.working_off_form_end_date)"></td>
+                        <td v-html="type(item.working_off_form_type)"></td>
+                        <td v-html="item.working_off_form_use_num"></td>
+                        <td v-html="state(item.working_off_form_state)"></td>
+                        <td v-html="approvalDatetime(item.approval_date, item.working_off_form_datetime)"></td>
+                        <td>
+                            <button type="button" class="btn btn-outline-success btn-sm" @click="showWorkingOffView(item.working_off_form_id)">상세보기</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<confirm></confirm>
+
+{% include "./layer/working_off_layer.html" %}
+{% include "./layer/working_off_view_layer.html" %}
+{% include "./layer/working_off_yearly_layer.html" %}
+{% include "./layer/working_off_team_layer.html" %}
+
+<script>
+    const vue = createApp({
+        data () {
+            return {
+                working_type_page: "working_off_page",
+                workingOffForms: [],
+                member: {},
+                startDate: "",
+                endDate: "",
+            }
+        },
+        methods: {
+            getMe() {
+                axios.get("/re-member/getMe")
+                .then((response) => {
+                    this.member = response.data
+
+                    var workingOffStartDate = this.member.working_off_start_date
+                    if (workingOffStartDate != undefined && workingOffStartDate != "") {
+                        this.startDate = workingOffStartDate
+                        this.endDate = ""
+                    }
+
+                    this.getWorkingOffs()
+                })
+            },
+            getWorkingOffs() {
+                axios.get("/re-working/getWorkingOffForms?startDate=" + this.startDate + "&endDate=" + this.endDate)
+                .then((response) => {
+                    let data = response.data
+                    this.workingOffForms = data.workingOffForms
+                })
+            },
+            num(index) {
+                return index + 1
+            },
+            approvalDatetime(approvalDate, workingOffFormDatetime) {
+                if (approvalDate == null) {
+                    return moment(workingOffFormDatetime).format('YYYY-MM-DD HH:mm:ss')
+                }
+                return moment(approvalDate).format('YYYY-MM-DD HH:mm:ss')
+            },
+            date(startDate, endDate) {
+                return startDate + " ~ " + endDate
+            },
+            type(workingOffFormType) {
+                return code_vue.getCodeDtl(workingOffFormType).cd_dtl_nm
+            },
+            state(workingOffFormState) {
+                return code_vue.getCodeDtl(workingOffFormState).cd_dtl_nm
+            },
+            approvalRequestUseNum(workingOffUseDays) {
+                var useNum = this.workingOffForms.reduce(function (acc, workingOffForm, inx) {
+                    if (workingOffForm.working_off_form_type == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_PRIVATE") && workingOffForm.working_off_form_state == code_vue.getCdDtlNoByAlias("APPROVAL_REQUEST")) {
+                        acc += workingOffForm.working_off_form_use_num
+                    }
+                    return acc
+                }, 0)
+                return workingOffUseDays + " (승인요청중 " + useNum + "일)"
+            },
+            approvalRequestAddUseNum(workingOffAddUseDays) {
+                var useNum = this.workingOffForms.reduce(function (acc, workingOffForm, inx) {
+                    if (workingOffForm.working_off_form_type == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_ADD") && workingOffForm.working_off_form_state == code_vue.getCdDtlNoByAlias("APPROVAL_REQUEST")) {
+                        acc += workingOffForm.working_off_form_use_num
+                    }
+                    return acc
+                }, 0)
+                return workingOffAddUseDays + " (승인요청중 " + useNum + "일)"
+            },
+            workingOffDate(workingOffStartDate) {
+                if (workingOffStartDate != undefined && workingOffStartDate != "") {
+                    return workingOffStartDate + " ~ " + moment(workingOffStartDate).add(1, 'years').add(-1, 'days').format("YYYY-MM-DD")
+                }
+
+                return ""
+            },
+            showWorkingOff() {
+                working_off_vue.getWorkingOffForm()
+                $("#working_off_modal").modal('show')
+            },
+            showWorkingOffView(workingOffFormId) {
+                working_off_view_vue.getWorkingOffView(workingOffFormId)
+                $("#working_off_view_modal").modal('show')
+            },
+            showWorkingOffYearly() {
+                working_off_yearly_vue.getWorkingOffYearlys()
+                $("#working_off_yearly_modal").modal('show')
+            },
+            showWorkingOffTeam() {
+                working_off_team_vue.loadData()
+                $("#working_off_team_modal").modal('show')
+            },
+        },
+        mounted: function() {
+            this.getMe()
+
+        }
+    }).mount('#working_off')
+</script>
+
+{% endblock content %}

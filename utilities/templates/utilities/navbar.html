@@ -1,0 +1,244 @@
+{% load static %}
+{% load split %}
+
+<style>
+table.dataTable thead th {
+  background: #343a40;
+  color: #fff;
+  text-align: center;
+  vertical-align: middle;
+}
+.beta {
+  font-style: italic;
+  font-weight: bold;
+  color: #ff6060;
+}
+</style>
+
+{% with request.path|split:"/" as urlPath %}
+<header class="site-header">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <small class="text-muted">VORONOI RESEARCH GROUPWARE</small>
+    {% comment %} <small class="text-muted" style="width:150px;"></small> {% endcomment %}
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a type="button"  class="btn {% if 'solubility' == urlPath.2 or 'pka' == urlPath.2 or 'logd' == urlPath.2 or 'combination' == urlPath.2 or 'herg' == urlPath.2 or 'charge' == urlPath.2 or 'psa' == urlPath.2 or 'hbda' == urlPath.2 or 'cns' == urlPath.2 or 'elemental' == urlPath.2 or 'tautomer_domi' == urlPath.2 or 'api' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-solubility-view' %}?wasm=1">
+            Chemaxon
+          </a>
+        </li>        
+
+        <li class="nav-item active">
+          <a type="button"  class="btn {% if 'cell-mutation' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="/utilities/cell-mutation">
+            Cell Mutation
+          </a>
+        </li>
+
+        <li class="nav-item active">
+          <a type="button" class="btn {% if 'cell-line-selector' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="/utilities/cell-line-selector">
+            Cell Line Selector <span class="beta">Beta</span>
+          </a>
+        </li>
+        
+        <li class="nav-item active">
+          <a type="button"  class="btn {% if '3dpsa' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-3dpsa-view'%}">
+            3D PSA <span class="beta">Beta</span>
+          </a>
+        </li>
+        <li class="nav-item active">
+          <a type="button"  class="btn {% if 'esol' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-esol-view'%}">
+            E-sol <span class="beta">Beta</span>
+          </a>
+        </li>
+        <li class="nav-item active">
+          <a type="button"  class="btn {% if 'deep_solubility' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-deep_solubility-view'%}">
+            Solubility DL <span class="beta">Beta</span>
+          </a>
+        </li>
+        
+
+        {%if request.user.email == "k3363@voronoi.io" %}
+        <li class="nav-item active">
+          <a type="button"  class="btn {% if 'etc' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-etc-view' %}?wasm=1">
+            ETC
+          </a>
+        </li>
+        {%endif%}
+      </ul>
+      <ul class="navbar-nav" style="position:absolute; right:10px;">
+        {% if 'solubility' in urlPath.2 %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-warning btn-sm" style="background-color: #ec4c23;border-color: #ec4c23;color: #fff;" href="javascript:callPopup('/inquiry/inquiries?page=utilities/solubility');">
+            문의 / 이용방법
+          </a>
+        </li>
+        {% elif 'pka' in urlPath.2 %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-warning btn-sm" style="background-color: #ec4c23;border-color: #ec4c23;color: #fff;" href="javascript:callPopup('/inquiry/inquiries?page=utilities/pka');">
+            문의 / 이용방법
+          </a>
+        </li>
+        {% elif 'logd' in urlPath.2 %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-warning btn-sm" style="background-color: #ec4c23;border-color: #ec4c23;color: #fff;" href="javascript:callPopup('/inquiry/inquiries?page=utilities/logd');">
+            문의 / 이용방법
+          </a>
+        </li>
+        {% elif 'combination' in urlPath.2 %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-warning btn-sm" style="background-color: #ec4c23;border-color: #ec4c23;color: #fff;" href="javascript:callPopup('/inquiry/inquiries?page=utilities/combination');">
+            문의 / 이용방법
+          </a>
+        </li>
+        {% elif 'charge' in urlPath.2 %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-warning btn-sm" style="background-color: #ec4c23;border-color: #ec4c23;color: #fff;" href="javascript:callPopup('/inquiry/inquiries?page=utilities/charge');">
+            문의 / 이용방법
+          </a>
+        </li>
+        {% elif 'herg' in urlPath.2 %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-warning btn-sm" style="background-color: #ec4c23;border-color: #ec4c23;color: #fff;" href="javascript:callPopup('/inquiry/inquiries?page=utilities/herg');">
+            문의 / 이용방법
+          </a>
+        </li>
+        {% elif 'psa' in urlPath.2 %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-warning btn-sm" style="background-color: #ec4c23;border-color: #ec4c23;color: #fff;" href="javascript:callPopup('/inquiry/inquiries?page=utilities/psa');">
+            문의 / 이용방법
+          </a>
+        </li>
+        {% elif 'hbda' in urlPath.2 %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-warning btn-sm" style="background-color: #ec4c23;border-color: #ec4c23;color: #fff;" href="javascript:callPopup('/inquiry/inquiries?page=utilities/hbda');">
+            문의 / 이용방법
+          </a>
+        </li>
+        {% elif 'cns' in urlPath.2 %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-warning btn-sm" style="background-color: #ec4c23;border-color: #ec4c23;color: #fff;" href="javascript:callPopup('/inquiry/inquiries?page=utilities/cns');">
+            문의 / 이용방법
+          </a>
+        </li>
+        {% elif 'elemental' in urlPath.2 %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-warning btn-sm" style="background-color: #ec4c23;border-color: #ec4c23;color: #fff;" href="javascript:callPopup('/inquiry/inquiries?page=utilities/elemental');">
+            문의 / 이용방법
+          </a>
+        </li>
+        {% elif 'tautomer-dominant' in urlPath.2 %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-warning btn-sm" style="background-color: #ec4c23;border-color: #ec4c23;color: #fff;" href="javascript:callPopup('/inquiry/inquiries?page=utilities/tautomer_domi');">
+            문의 / 이용방법
+          </a>
+        </li>
+        {% elif 'api' in urlPath.2 %}
+        {% comment %} <li class="nav-item active">
+          <a type="button" class="btn btn-warning btn-sm" style="background-color: #ec4c23;border-color: #ec4c23;color: #fff;" href="javascript:callPopup('/inquiry/inquiries?page=utilities/api');">
+            문의 / 이용방법
+          </a>
+        </li> {% endcomment %}
+        {% endif %}
+    </ul>
+    </div>
+  </nav>
+</header>
+
+{% if 'solubility' == urlPath.2 or 'pka' == urlPath.2 or 'logd' == urlPath.2 or 'combination' == urlPath.2 or 'herg' == urlPath.2 or 'charge' == urlPath.2 or 'psa' == urlPath.2 or 'hbda' == urlPath.2 or 'cns' == urlPath.2 or 'elemental' == urlPath.2 or 'tautomer_domi' == urlPath.2 or 'api' == urlPath.2 %}
+<header class="site-header">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <small class="text-muted">VORONOI RESEARCH GROUPWARE</small>
+    {% comment %} <small class="text-muted" style="width:150px;"></small> {% endcomment %}
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+          <li class="nav-item active">
+            <a type="button"  class="btn {% if 'solubility' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-solubility-view' %}?wasm=1">
+              Solubility
+            </a>
+            <!--
+            <div class="dropdown">
+              <a type="button" class="btn {% if 'solubility' == urlPath.2 or 'deep_learning_solubility' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm dropdown-toggle" href="{% url 'utilities-solubility-view' %}?wasm=1" role="button" data-toggle="dropdown" aria-expanded="false">
+                Solubility
+              </a>
+
+              <a type="button" class="btn {% if 'solubility' == urlPath.2 or 'deep_learning_solubility' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm dropdown-toggle" href="{% url 'utilities-solubility-view' %}?wasm=1" role="button" data-toggle="dropdown" aria-expanded="false">
+                Solubility
+              </a>
+              <div class="dropdown-menu btn-sm">
+                <a class="dropdown-item {% if 'solubility' == urlPath.2 %}active{% endif %}" href="{% url 'utilities-solubility-view' %}?wasm=1" >Solubility</a>
+                <a class="dropdown-item {% if 'deep_learning_solubility' == urlPath.2 %}active{% endif %}" href="{% url 'utilities-deep-learning-solubility-view' %}?wasm=1">Deep Learinng</a>
+              </div>
+            </div>
+            -->
+          </li>
+          <li class="nav-item active">
+            <a type="button"  class="btn {% if 'pka' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-pka-view' %}?wasm=1">
+              pKa
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a type="button"  class="btn {% if 'logd' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-logd-view' %}?wasm=1">
+              LogD&LogP
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a type="button"  class="btn {% if 'combination' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-combination-view' %}?wasm=1">
+              pKa/LogD&LogP
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a type="button"  class="btn {% if 'herg' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-herg-view' %}?wasm=1">
+              hERG
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a type="button"  class="btn {% if 'charge' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-charge-view' %}?wasm=1">
+              Charge
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a type="button"  class="btn {% if 'psa' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-psa-view' %}?wasm=1">
+              PSA
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a type="button"  class="btn {% if 'hbda' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-hbda-view' %}?wasm=1">
+              H-bond
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a type="button"  class="btn {% if 'cns' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-cns-view' %}?wasm=1">
+              CNS MPO
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a type="button"  class="btn {% if 'elemental' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-elemental-view' %}?wasm=1">
+              Elemental
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a type="button"  class="btn {% if 'tautomer_domi' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-tautomer_domi-view' %}?wasm=1">
+              Tautomer Dominant
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a type="button"  class="btn {% if 'api' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 'utilities-api-view' %}?wasm=1">
+              Calculator API
+            </a>
+          </li>
+
+      </ul>
+    </div>
+  </nav>
+</header>
+{% endif %}
+
+{% endwith %}

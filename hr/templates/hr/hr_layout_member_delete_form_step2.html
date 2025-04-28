@@ -1,0 +1,127 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+{% if q_mysettings_hr.resign_step >= 2 %}
+    {% if q_mysettings_hr.hrlayout_management == Null %}
+        <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+            <legend>
+                <strong>
+                    Step 2. 후임자 선택
+                </strong>
+            </legend>
+            <table class="table">
+                <tr class="text-center">
+                    <th>
+                        후임자
+                    </th>
+                    <td style="background-color:rgb(255,255,255,0.85);">
+                        <input type="radio" name="radio-resign-position-successor-check" value="true" required >
+                        후임자 있음
+                    </td>
+                    <td style="background-color:rgb(255,255,255,0.85);">
+                        <input type="radio" name="radio-resign-position-successor-check" value="false" required checked>
+                        후임자 없음
+                    </td>
+                </tr>
+
+                <tr class="text-center">
+                    <th>
+                        후임자 검색
+                    </th>
+                    <td style="background-color:rgb(255,255,255,0.85);">
+                        <input type="text" name="text-search-successor-member-name" class="form-control">
+                    </td>
+                    <td>
+                        <button type="submit" name="button-search-successor-member-name" class="btn btn-info btn-sm">
+                            Search
+                        </button>
+                    </td>
+                </tr>
+                {% if q_mysettings_hr.list_resign_successor_searched_member_id != Null %}
+                    <tr>
+                        <th class="text-center">
+                            검색된 멤버
+                        </th>
+                        <td colspan="2" style="background-color:rgb(255,255,255,0.85);">
+                            {% for q_member_all in qs_member_all %}
+                                {% if q_member_all.id in q_mysettings_hr.list_resign_successor_searched_member_id %}
+                                    <ul>
+                                        <li>
+                                            <input type="radio" name="radio-select-member-as-a-successor-member-id" value="{{ q_member_all.id}}"
+                                            {% if q_mysettings_hr.list_resign_successor_searched_member_id|length == 1 %}
+                                                checked
+                                            {% endif %}
+                                            >
+                                            {{ q_member_all.member_name }}
+                                        </li>
+                                    </ul>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endif %}
+            </table>
+            <hr>
+            <div class="text-right">
+                <button type="submit" name="button-successor-member-id-select" value="true" class="btn btn-info btn-lg">
+                    Select
+                </button>
+            </div>
+        </div>
+        <hr>
+    {% else %}
+        <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+            <legend>
+                <strong>
+                    Step 2. 후임자 선택
+                </strong>
+            </legend>
+            <table class="table">
+                <tr class="text-center">
+                    <th>
+                        후임자
+                    </th>
+                    <td style="background-color:rgb(255,255,255,0.85);">
+                        <input type="radio" name="radio-resign-position-successor-check" value="true" required
+                        {% if q_mysettings_hr.hrlayout_management.check_member_successor_exist == True %}
+                            checked
+                        {% endif %}
+                        disabled
+                        > 후임자 있음
+                    </td>
+                    <td style="background-color:rgb(255,255,255,0.85);">
+                        <input type="radio" name="radio-resign-position-successor-check" value="false" required
+                        {% if q_mysettings_hr.hrlayout_management.check_member_successor_exist == False %}
+                            checked
+                        {% endif %}
+                        disabled
+                        > 후임자 없음
+                    </td>
+                </tr>
+
+                {% if q_mysettings_hr.hrlayout_management.check_member_successor_exist == True %}
+                    <tr class="text-center">
+                        <th>
+                            후임자
+                        </th>
+                        <td colspan="2" style="background-color:rgb(255,255,255,0.85);">
+                            {{ q_mysettings_hr.hrlayout_management.member_successor.member_name }}
+                        </td>
+                    </tr>
+                {% endif %}
+            </table>
+            <hr>
+            {% if q_mysettings_hr.resign_step == 3 %}
+                <div class="text-right">
+                    <button type="submit" name="button-successor-member-id-select-reset" value="true" class="btn btn-dark btn-sm">
+                        Cancel
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+        <hr>
+    {% endif %}
+{% endif %}

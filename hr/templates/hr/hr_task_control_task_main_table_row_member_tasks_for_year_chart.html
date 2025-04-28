@@ -1,0 +1,218 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load mathfilters %}
+
+
+
+
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/series-label.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+
+<div class="card card-body" 
+{% if q_task_plan == q_mysettings_hr.task_plan %}
+	{% if q_task_plan.check_hr_confirmed == True %}
+		style="background-color:rgba(0, 255, 255, 0.15)"
+	{% else %}
+		style="background-color:rgba(255, 255, 0, 0.15)"
+	{% endif %}
+{% else %}
+	style="background-color:rgb(255,255,255,0.85)"
+{% endif %}
+id="hrTaskPlanContributionByMemberAnalysis">
+	<legend>
+		<strong>[[ selected_member_name ]]</strong>팀 프로젝트 분석 ([[ inputDateStart ]] ~ [[ inputDateEnd ]])
+	</legend>
+
+	<figure class="highcharts-figure">
+		<div id="container3" width="100%">
+
+		</div>
+
+	</figure>
+</div>
+
+
+
+
+<script>
+	
+	var chartData;
+	var chartTitleStr
+	var postHandling = createApp({
+        delimiters: ["[[", "]]"],
+        data() {
+        return {
+            list_project_analysis_pie_chart_selected_member_data: [],
+			selected_member_name: 'Selected Member Name Here',
+			inputDateStart:'',
+			inputDateEnd:'',
+        }
+        },
+        methods: {
+            refreshData() {
+                axios.get(variables.API_URL+'hr/hr_task_plan_modal_member_analysis_api_view/')
+				.then((response) => {
+                    this.list_project_analysis_pie_chart_selected_member_data = response.data['list_project_analysis_pie_chart_selected_member_data']
+					chartData = response.data['list_project_analysis_pie_chart_selected_member_data']
+					console.log(chartData)
+					drawChart();
+					this.selected_member_name = response.data['selected_member_name']
+					this.inputDateStart = response.data['list_date_project_analysis'][0]
+					this.inputDateEnd = response.data['list_date_project_analysis'][1]
+					chartTitleStr = response.data['member_chart_title']
+                })
+            },
+
+			f_inputDateStart(event) {
+				console.log('input date start changed')
+				console.log(this.inputDateStart)
+				axios.post(variables.API_URL+'my/my_workingtime_project_participant_member_analysis_update_inputdatestart_api_view/', {
+					'inputDateStart': this.inputDateStart,
+				}, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+					'X-CSRFToken': "{{ csrf_token }}"
+                }
+				})
+                .then((response) => {
+					this.refreshData()
+                    console.log(response)
+                })
+				.catch(() => {
+                    console.log('Error!')
+				})
+			},
+
+			f_inputDateEnd(event) {
+				console.log('input date end changed')
+				console.log(this.inputDateEnd)
+				axios.post(variables.API_URL+'my/my_workingtime_project_participant_member_analysis_update_inputdateend_api_view/', {
+					'inputDateEnd': this.inputDateEnd,
+				}, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+					'X-CSRFToken': "{{ csrf_token }}"
+                }
+				})
+                .then((response) => {
+					this.refreshData()
+                    console.log(response)
+                })
+				.catch(() => {
+                    console.log('Error!')
+				})
+			},
+        },
+		computed: {
+		},
+        mounted: function() {
+            this.refreshData()
+        }
+    }).mount('#hrTaskPlanContributionByMemberAnalysis')
+
+	function drawChart() {
+		var cData = [];
+		for(i=0;i<chartData.length;i++){
+			var cd = { "name": chartData[i]['name'],
+				"data": chartData[i]['data']};
+			cData.push(cd);
+		}
+
+		Highcharts.chart('container3', {
+			chart: {
+				type: 'area'
+			},
+			title: {
+				useHTML: true,
+				text: chartTitleStr,
+				align: 'left'
+			},
+			accessibility: {
+				point: {
+					valueDescriptionFormat: '{index}. {point.category}, {point.y:,.1f} billions, {point.percentage:.1f}%.'
+				}
+			},
+			yAxis: {
+				labels: {
+					format: '{value}%'
+				},
+				title: {
+					enabled: false
+				}
+			},
+			tooltip: {
+				pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.percentage:.1f}%</b> ({point.y:,.1f} billion Gt)<br/>',
+				split: true
+			},
+			plotOptions: {
+				series: {
+					pointStart: 0
+				},
+				area: {
+					stacking: 'percent',
+					marker: {
+						enabled: false
+					}
+				}
+			},
+			series: cData,
+		});
+	}
+</script>
+
+
+
+<style>
+	.highcharts-figure,
+	.highcharts-data-table table {
+		min-width: 1000px;
+		max-width: 1200px;
+		margin: 1em auto;
+	}
+
+	#container {
+		height: 420px;
+	}
+
+	.highcharts-data-table table {
+		font-family: Verdana, sans-serif;
+		border-collapse: collapse;
+		border: 1px solid #ebebeb;
+		margin: 10px auto;
+		text-align: center;
+		width: 100%;
+		max-width: 500px;
+	}
+
+	.highcharts-data-table caption {
+		padding: 1em 0;
+		font-size: 1.2em;
+		color: #555;
+	}
+
+	.highcharts-data-table th {
+		font-weight: 600;
+		padding: 0.5em;
+	}
+
+	.highcharts-data-table td,
+	.highcharts-data-table th,
+	.highcharts-data-table caption {
+		padding: 0.5em;
+	}
+
+	.highcharts-data-table thead tr,
+	.highcharts-data-table tr:nth-child(even) {
+		background: #f8f8f8;
+	}
+
+	.highcharts-data-table tr:hover {
+		background: #f1f7ff;
+	}
+</style>

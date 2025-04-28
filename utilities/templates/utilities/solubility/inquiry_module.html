@@ -1,0 +1,14 @@
+{% extends 'base_popup.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load floatFormatter %}
+{% block content %}
+<div class="inquiry-module" style="width: 100%;">
+    <div class="inquiry-page-title">
+        <input value="utilities/solubility" class="inquiry-page-value" type="hidden">
+        <span class="inquiry-page-title-kor">Solubility</span>
+    </div>
+    {% include 'inquiry/inquiry_page.html' %}
+</div>
+{% endblock content %}

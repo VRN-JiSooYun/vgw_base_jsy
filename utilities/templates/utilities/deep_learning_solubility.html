@@ -1,0 +1,464 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load floatFormatter %}
+{% load getItem %}
+{% load isnan %}
+{% load split %}
+{% load filters %}
+{% block content %}
+{% include 'utilities/navbar.html' %}
+
+<style>
+.cdd-logo {
+    display:none;
+}
+
+.both {
+    height:15px;
+}
+
+table {
+    --bs-table-striped-color: #85d1ee;
+}
+
+th, td { white-space: nowrap; }
+
+.table tbody td {
+    text-align:center;
+}
+
+</style>
+
+<div style="padding-top:30px; ">
+    <legend class="border-bottom mb-4">Deep Learning Solubility</legend>
+</div>
+
+<div class="both"></div>
+
+<div id="deep_learning_solubility">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="row" style="padding 10px 0px">
+                <div class="col-md-12">
+                    <div id="chemdrawjs-container" style="left:0; top: 0; width: 100%; height: 830px;"></div>
+                </div>
+                <div class="col-md-10" style="margin-top: 10px">
+                    <input type="text" id="smile" style="width:100%;" placeholder="smiles">
+                </div>
+                <div class="col-md-2" style="margin-top: 8px">
+                    <button class="btn btn-primary btn-sm" @click="apply">Apply</button>
+                </div>
+                <div class="col-md-10" style="margin-top: 10px">
+                    <input type="text" style="width: 100%" placeholder="csv 파일 업로드"  @click="showFile" v-model="displayFile" readonly>
+                    <input type="file" accept=".csv" id="csv-file"  ref="csvfile" style="display: none"  @change="handleFiles(this, this.files)" value="" >
+                </div>
+                <div class="col-md-2" style="margin-top: 8px">
+                    <button class="btn btn-success btn-sm" @click="applyFile">Apply</button>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div style="text-align: center">
+                <span style="font-size: 16px; font-weight: 600">pH = 7.4 에서의 용해도 예측값</span>
+            </div>
+            <div style="text-align: end; padding-right: 10px;">
+                <button type="button" class="btn btn-primary btn-sm" @click="download">Download</button>
+            </div>
+            <div style="margin-top: 20px;">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col" style=" text-align: center">구분</th>
+                            <th scope="col" style=" text-align: center">용해도 예측값 (𝜇M)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(solubility, index) in solubilitys">
+                            <td @click="showImage(index)" style="position: relative; cursor: pointer; width: 100px; text-align:left">
+                                [[ solubility.name ]] ([[ solubility.smiles ]])
+                                <div :id="`img_${index}`" class="data_img" style="position: absolute; left: -75px; top: 43px; width:180px; height:180px; display: none; z-index: 1">
+                                    <svg v-html="solubility.img"></svg>
+                                    <div style="width: 100%; text-align: center; margin-left: 9px">
+                                        <button type="button" class="btn btn-primary btn-sm" @click="copySmiles(solubility.smiles)">COPY</button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>[[ solubility.value ]]</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+<script>
+    const deep_learning_solubility_vue = createApp({
+        delimiters: ["[[", "]]"],
+        data () {
+            return {
+                displayFile: "",
+                file: {},
+                solubilitys: [],
+            }
+        },
+        methods: {
+            apply() {
+                var data = {
+                    smiles: $("#smile").val()
+                }
+
+                axios.post("deep_learning_solubility/getSolubilityPredit", {data: data})
+                .then((response) => {
+                    this.solubilitys = this.solubilitys.concat(response.data)
+                })
+            },
+            applyFile() {
+                var formData = new FormData()
+                formData.append("file", this.file);
+                axios.post("deep_learning_solubility/getSolubilityPreditFile", formData, {
+                    headers: {"Content-Type": "multipart/form-data"}
+                }).then((response) => {
+                    this.solubilitys = this.solubilitys.concat(response.data)
+                })
+            },
+            showFile() {
+                $("#csv-file").click()
+            },
+            handleFiles() {
+                var file = this.$refs.csvfile.files[0]
+                const fileTypes = ['text/csv']
+                if (!fileTypes.includes(file.type)) {
+                    alert(' csv 파일만 업로드가 가능합니다.')
+                    return;
+                }
+
+                this.displayFile = file.name
+                this.file = file
+            },
+            showImage(index) {
+                if ($("#img_" + index).css('display') == 'none') {
+                    $(".data_img").css('display', 'none')
+                    $("#img_" + index).css('display', 'block')
+                } else {
+                    $("#img_" + index).css('display', 'none')
+                }
+            },
+            copySmiles(smiles) {
+                navigator.clipboard.writeText(smiles)
+                .then(() => {
+                    console.log("Text copied to clipboard...")
+                })
+                .catch(err => {
+                    console.log('Something went wrong', err);
+                })
+            },
+            download() {
+                var data = [
+                    [ "구분", "용해도 예측값 (𝜇M)" ],
+                ]
+
+                for (solubility of this.solubilitys) {
+                    data.push(
+                        [
+                            solubility.name + " " + solubility.smiles
+                            ,solubility.value
+                        ]
+                    )
+                }
+
+                var ws = XLSX.utils.aoa_to_sheet(data);
+                var wb = XLSX.utils.book_new()
+
+                XLSX.utils.book_append_sheet(wb, ws, "Sheet1")
+                XLSX.writeFile(wb, 'solubility.xlsx')
+            }
+        },
+        mounted: function() {},
+    }).mount('#deep_learning_solubility')
+</script>
+
+<script src="{% static '/chemdrawweb/chemdrawweb.js' %}" async onLoad="javascript:perkinelmerInit()"></script>
+<script>
+    var chemdrawjsAttached = function (chemdraw) {
+        chemdrawjs = chemdraw;
+        // do something
+        chemdrawjs.setContentChangedHandler((e) => {
+            $("#smile").effect("highlight", {}, 1000);
+            chemdrawjs.getSMILES((e) => {
+                $("#smile").val(e)
+            })
+        })
+    }
+
+    var chemdrawjsFailed = function (error) {
+        alert(error)
+    };
+
+    function clear(){
+        chemdrawjs.clear()
+    }
+
+    function getSmiles(){
+        var returnVal
+        chemdrawjs.getSMILES(function(e) {
+            returnVal = e;
+        });
+        return returnVal;
+    }
+</script>
+
+<script>
+    function perkinelmerInit() {
+        /*
+         * ChemDrawJs 기동
+         */
+        perkinelmer.ChemdrawWebManager.attach({
+            id: 'chemdrawjs-container',
+            callback: chemdrawjsAttached,
+            errorCallback: chemdrawjsFailed,
+            //configUrl:'{% static '/js/chemdraw_config.json' %}',
+            config:{
+                "layout": {
+                "orientation": "Vertical",
+                "tools": [
+                    {
+                    "order": [
+                        "LassoSelection",
+                        "MarqueeSelection",
+                        "Undo",
+                        "Redo",
+                        "ZoomIn",
+                        "ZoomOut",
+                        "Copy",
+                        "Paste",
+                        "Eraser",
+                        {
+                        "group": "Single Bonds",
+                        "columns": "4",
+                        "collapse": "never",
+                        "order": [
+                            "SolidBond",
+                            "DashedBond",
+                            "BoldBond",
+                            "HashedBond",
+                            "WedgedBond",
+                            "HashedWedgedBond",
+                            "HollowWedgedBond",
+                            "WavyBond"
+                        ]
+                        },
+                        {
+                        "group": "Multiple Bonds",
+                        "columns": "4",
+                        "collapse": "always",
+                        "order": [
+                            "DoubleBond",
+                            "DashedDoubleBond",
+                            "DoubleEitherBond",
+                            "TripleBond",
+                            "BoldDoubleBond",
+                            "DoubleDashedDoubleBond",
+                            "DativeBond",
+                            "QuadrupleBond",
+                            "AnyBond",
+                            "SingleOrDoubleBond",
+                            "SingleOrAromaticBond",
+                            "DoubleOrAromaticBond"
+                        ]
+                        },
+                        {
+                        "group": "Chain Tools",
+                        "collapse": "always",
+                        "order": [
+                            "AcyclicChain",
+                            "SnakingChain"
+                        ]
+                        },
+                        {
+                        "group": "Arrows",
+                        "columns": "7",
+                        "collapse": "always",
+                        "order": [
+                            "ArrowSolidLarge",
+                            "ArrowSolidMedium",
+                            "ArrowSolidSmall",
+                            "ArrowHollowLarge",
+                            "ArrowHollowMedium",
+                            "ArrowRetrosyntheticLarge",
+                            "ArrowRetrosyntheticSmall",
+                            "ArrowBoldLarge",
+                            "ArrowBoldMedium",
+                            "ArrowBoldSmall",
+                            "Arrow270CW",
+                            "Arrow180CW",
+                            "Arrow120CW",
+                            "Arrow90CW",
+                            "ArrowDashedLarge",
+                            "ArrowDashedMedium",
+                            "ArrowDashedSmall",
+                            "Arrow270CCW",
+                            "Arrow180CCW",
+                            "Arrow120CCW",
+                            "Arrow90CCW",
+                            "ArrowOneSidedLeftLarge",
+                            "ArrowOneSidedLeftMedium",
+                            "ArrowOneSidedLeftSmall",
+                            "Arrow270SingleCW",
+                            "Arrow180SingleCW",
+                            "Arrow120SingleCW",
+                            "Arrow90SingleCW",
+                            "ArrowOneSidedRightLarge",
+                            "ArrowOneSidedRightMedium",
+                            "ArrowOneSidedRightSmall",
+                            "Arrow270SingleCCW",
+                            "Arrow180SingleCCW",
+                            "Arrow120SingleCCW",
+                            "Arrow90SingleCCW",
+                            "ArrowResonanceLarge",
+                            "ArrowResonanceMedium",
+                            "ArrowResonanceSmall",
+                            "Arrow270Double",
+                            "Arrow180Double",
+                            "Arrow120Double",
+                            "Arrow90Double",
+                            "ArrowNoGoCrossLarge",
+                            "ArrowNoGoCrossMedium",
+                            "ArrowNoGoCrossSmall",
+                            "ArrowEquilibriumLarge",
+                            "ArrowEquilibriumMedium",
+                            "ArrowEquilibriumSmall",
+                            "Arrow270ElipticalCW",
+                            "ArrowNoGoHashLarge",
+                            "ArrowNoGoHashMedium",
+                            "ArrowNoGoHashSmall",
+                            "ArrowUnbalancedELarge",
+                            "ArrowUnbalancedEMedium",
+                            "ArrowUnbalancedESmall",
+                            "Arrow270ElipticalCCW"
+                        ]
+                        },
+                        {
+                        "group": "Rings",
+                        "columns": "2",
+                        "collapse": "never",
+                        "writing-mode": "vertical",
+                        "order": [
+                            "Benzene",
+                            "Pentadiene",
+                            "Hexane",
+                            "Pentane",
+                            "Propane",
+                            "Butane",
+                            "Octane",
+                            "Heptane",
+                            "CyclohexaneChairRight",
+                            "CyclohexaneChairLeft"
+                        ]
+                        },
+                        "Text",
+                        "Formula",
+                        "Superscript",
+                        "Subscript",
+                        "Group",
+                        "Ungroup",
+                        "Integral",
+                        {
+                        "group": "Brackets",
+                        "collapse": "always",
+                        "columns": "4",
+                        "order": [
+                            "SquareBrackets",
+                            "RoundBrackets",
+                            "CurlyBrackets",
+                            "DoubleDaggerBrackets",
+                            "LeftSquareBracket",
+                            "LeftRoundBracket",
+                            "LeftCurlyBracket",
+                            "SingleDaggerBracket"
+                        ]
+                        },
+                        "StructureCleanup",
+                        "ReactionCleanup",
+                        "NameToStructure",
+                        "StructureToName",
+                        "ExpandLabel",
+                        "ContractLabel",
+                        "Templates",
+                        {
+                        "group": "Chemical Symbols",
+                        "columns": "2",
+                        "writingMode": "vertical",
+                        "collapse": "always",
+                        "order": [
+                            "CirclePlus",
+                            "CircleMinus",
+                            "Plus",
+                            "Minus",
+                            "RadicalCation",
+                            "RadicalAnion",
+                            "LonePair",
+                            "Radical",
+                            "ElectronPushing",
+                            "RadicalPushing",
+                            "HDot",
+                            "HDash",
+                            "AttachmentDiamond",
+                            "AttachmentStar",
+                            "AttachmentPolymerBead",
+                            "AttachmentWavy"
+                        ]
+                        },
+                        {
+                        "group": "Query Tools",
+                        "collapse": "always",
+                        "columns": "2",
+                        "order": [
+                            "AlternativeGroup",
+                            "ReactionAtomMap",
+                            "AddMultiCenterAttachment",
+                            "AddVariableAttachment"
+                        ]
+                        },
+                        "StructureProperties"
+                    ]
+                    }
+                ]
+                },
+                "features": {
+                "enabled": [
+                    "ShowWarnValence",
+                    "ShowWarnParens",
+                    "ShowWarnIsotopes",
+                    "ShowWarnStrayBonds",
+                    "ShowWarnStrayAtoms",
+                    "ShowWarnUndefinedStereo",
+                    "ShowWarnAmbigStereo",
+                    "ShowWarnStereoBtw",
+                    "ShowWarnLinearAtoms",
+                    "ShowWarnMisc",
+                    "AlwaysShowReactionMapping",
+                    "AutomaticReactionMapping",
+                    "ApplicationLogo",
+                    "WebService",
+                    "ExtendedCopyPaste"
+                ],
+                "disabled": [
+                    "AtomPropertiesDialog.ShowGenericLabels"
+                ]
+                },
+                "properties": {
+                "StyleSheet": "ACS Document 1996",
+                "chemservice": "https://chemdrawdirect.perkinelmer.cloud/rest/"
+                }
+            },
+            license:'<?xml version="1.0" encoding="UTF-8" standalone="no"?><License Version="1.0">  <!--PLEASE DO NOT MODIFY THIS FILE AND BE AWARE THAT THIS FILE CONTAINS CONFIDENTIAL INFORMATION.-->  <Field Name="ID" Value="fe147dc4-172a-4b45-8eb6-dd01855e3bf6"/>  <Field Name="Software" Value="ChemDraw JS"/>  <Field Name="Comment" Value="Generated by PerkinElmer Informatics, Inc."/>  <Signature Value="IGKpv95c5NsjhKb1nJzPEM97UiY="/></License>'
+        })
+    }
+</script>
+
+{% endblock content %}

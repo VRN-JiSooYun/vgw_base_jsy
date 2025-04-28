@@ -1,0 +1,86 @@
+<header id="site-header" class="site-header">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <small class="text-muted">VORONOI RESEARCH GROUPWARE</small>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a type="button" class="btn {% if urlPath.2 == '' or 'member-list-view' in urlPath.2 or 'member-view' in urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 're-member-list-home' %}">임직원</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button" class="btn {% if 'working-admin-view' == urlPath.2 or 'working-time-admin-view' == urlPath.2 or 'working-time-change-admin-view' == urlPath.2 or 'working-stat-admin-view' == urlPath.2 or 'working-weekend-note-admin-view' == urlPath.2 or 'working-part-admin-view' == urlPath.2 or 'working-part-admin-view' == urlPath.2 or 'working-weekend-stat-admin-view' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 're-working-time-admin-home' %}">출퇴근</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button" class="btn {% if 'working-month-admin-view' == urlPath.2 or 'working-week-admin-view' == urlPath.2  or 'working-off-admin-view' == urlPath.2 or 'holiday-view' == urlPath.2 or 'working-off-promote-admin-view' == urlPath.2 or 'working-off-yearly-admin-view' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 're-working-off-admin-home' %}">휴가</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button" class="btn {% if 'working-approval-admin-view' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 're-working-approval-admin-home' %}">결재함</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button" class="btn {% if 'group-view' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 're-group-home' %}">조직구성</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button" class="btn {% if 'auth-view' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 're-auth-home' %}">권한설정</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button" class="btn {% if 'working-certificate-admin-view' == urlPath.2 %}btn-warning {% else %}btn-dark{% endif %} btn-sm" href="{% url 're-working-certificate-admin-home' %}">증명서</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  {% if 'working-month-admin-view' == urlPath.2 or 'working-week-admin-view' == urlPath.2 or 'working-off-admin-view' == urlPath.2 or 'holiday-view' == urlPath.2 or 'working-off-promote-admin-view' == urlPath.2 or 'working-off-yearly-admin-view' == urlPath.2 %}
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="padding-left: 260px">
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a type="button" class="btn {% if 'working-off-admin-view' == urlPath.2 %}btn-secondary {% else %} btn-dark{% endif %} btn-sm" href="{% url 're-working-off-admin-home' %}">휴가 발행 및 관리</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button" class="btn {% if 'working-month-admin-view' == urlPath.2 or 'working-week-admin-view' == urlPath.2 %}btn-secondary {% else %} btn-dark{% endif %} btn-sm" href="{% url 're-working-month-admin-home' %}">휴가 Calendar</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button" class="btn {% if 'working-off-yearly-admin-view' == urlPath.2 %}btn-secondary {% else %} btn-dark{% endif %} btn-sm" href="{% url 're-working-off-yearly-admin-home' %}">연차 내역 관리</a>
+        </li>
+        <!--
+        <li class="nav-item active">
+          <a type="button" class="btn {% if 'working-off-promote-admin-view' == urlPath.2 %}btn-secondary {% else %} btn-dark{% endif %} btn-sm" href="{% url 're-working-off-promote-admin-home' %}">연차 촉진 관리</a>
+        </li>
+        -->
+        <li class="nav-item active">
+          <a type="button" class="btn {% if 'holiday-view' == urlPath.2 %}btn-secondary {% else %} btn-dark{% endif %} btn-sm" href="{% url 're-holiday-home' %}">공휴일 관리</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  {% endif %}
+
+  {% if 'working-admin-view' == urlPath.2 or 'working-time-admin-view' == urlPath.2 or 'working-time-change-admin-view' == urlPath.2 or 'working-stat-admin-view' == urlPath.2 or 'working-part-admin-view' == urlPath.2 or 'working-weekend-stat-admin-view' == urlPath.2 %}
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="padding-left: 220px">
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a type="button"  class="btn {% if 'working-time-admin-view' == urlPath.2 %}btn-secondary {% else %} btn-dark{% endif %} btn-sm" href="{% url 're-working-time-admin-home' %}">출퇴근 시간 관리</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button"  class="btn {% if 'working-admin-view' == urlPath.2 %}btn-secondary {% else %} btn-dark{% endif %} btn-sm" href="{% url 're-working-admin-home' %}">출퇴근 관리</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button"  class="btn {% if 'working-time-change-admin-view' == urlPath.2 %}btn-secondary {% else %} btn-dark{% endif %} btn-sm" href="{% url 're-working-time-change-admin-home' %}">출퇴근 시간 변경</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button"  class="btn {% if 'working-stat-admin-view' == urlPath.2 %}btn-secondary {% else %} btn-dark{% endif %} btn-sm" href="{% url 're-working-stat-admin-home' %}">근무 통계</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button"  class="btn {% if 'working-part-admin-view' == urlPath.2 %}btn-secondary {% else %} btn-dark{% endif %} btn-sm" href="{% url 're-working-part-admin-home' %}">참여율</a>
+        </li>
+        <li class="nav-item active">
+          <a type="button"  class="btn {% if 'working-weekend-stat-admin-view' == urlPath.2 %}btn-secondary {% else %} btn-dark{% endif %} btn-sm" href="{% url 're-working-weekend-stat-admin-home' %}">휴일 근무 관리</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  {% endif %}
+</header>

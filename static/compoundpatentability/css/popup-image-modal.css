@@ -1,0 +1,77 @@
+/* The Modal (background) */
+.image-background-to-popup {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.1);
+}
+
+/* Modal Content (image) */
+.popup-image-modal-content {
+    margin: auto;
+    display: block;
+    width: 50%;
+    /* max-width: 700px; */
+    box-shadow: 0px 0px 12px 12px rgba(0,0,0,0.15);
+}
+
+/* Caption of Modal Image */
+.popup-image-model-caption {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    color: #ccc;
+    padding: 10px 0;
+    height: 150px;
+}
+
+/* Add Animation */
+.popup-image-modal-content, .popup-image-model-caption {
+    -webkit-animation-name: popup-image-modal-zoom;
+    -webkit-animation-duration: 0.6s;
+    animation-name: popup-image-modal-zoom;
+    animation-duration: 0.6s;
+}
+
+@-webkit-keyframes popup-image-modal-zoom {
+    from {-webkit-transform:scale(0)} 
+    to {-webkit-transform:scale(1)}
+}
+
+@keyframes popup-image-modal-zoom {
+    from {transform:scale(0)} 
+    to {transform:scale(1)}
+}
+
+/* The Close Button */
+.popup-image-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+  
+.popup-image-modal-close:hover,
+.popup-image-modal-close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+  
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+    .popup-image-modal-content {
+      width: 100%;
+    }
+}

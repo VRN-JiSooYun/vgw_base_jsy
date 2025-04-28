@@ -1,0 +1,201 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<div class="col-md-9">
+
+
+		<div class="content-section">
+			<fieldset class="form-group">
+
+				<table class="table">
+					<tr>
+						<form method="POST" action="{% url 'hr-vacation-control' %}"  enctype="multipart/form-data">
+							{% csrf_token %}
+							<td>
+								<legend class="border-bottom mb-4">
+									보로노이 멤버 휴가 관리({{ q_mysettings_hr.year_vc_issued_selected }}년도)
+								</legend>
+							</td>
+						</form>
+						<form method="POST" action="{% url 'hr-vacation-control' %}"  enctype="multipart/form-data">
+							{% csrf_token %}
+							<td>
+								<input type="text" class="form-control" name="text-hr-vacation-control-member-search-keyword" placeholder="검색어 입력">
+							</td>
+							<td>
+								<button type="submit" name="button-hr-vacation-control-search-vacation-control" value="true" class="btn btn-info btn-md">Search</button>
+							</td>
+						</form>
+						<form method="POST" action="{% url 'hr-vacation-control' %}"  enctype="multipart/form-data">
+							{% csrf_token %}
+							<td>
+								<button type="submit" name="button-hr-vacation-control-select-vacation-control-multi" value="true" class="btn btn-primary btn-md">
+									Select
+								</button>
+							</td>
+							<td>
+								<button type="submit" name="button-hr-vacation-control-select-vacation-control-multi-reset" value="true" class="btn btn-dark btn-sm">
+									Reset
+								</button>
+							</td>
+							<td>
+								<button type="submit" name="button-hr-vacation-control-select-vacation-control-multi-refresh" value="true" class="btn btn-secondary btn-sm">
+									Refresh
+								</button>
+							</td>
+
+					</tr>
+
+				</table>
+
+
+				<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+						<table class="table table-sm">
+							<tr>
+								<th>
+									<input type="checkbox" name="checkbox-hr-vacation-control-select-vacation-control" value="all"
+									{% if 'all' in q_mysettings_hr.list_vacation_control_id_selected %}
+										checked
+									{% endif %}
+									>
+									이름
+								</th>
+								<th>입사일</th>
+								<th>미사용 만료 이월된<br>직전년차 연차개수</th>
+								<th>이번년차 받은 연차개수</th>
+								<th>신청중인 연차개수</th>
+								<th>사용된 연차개수</th>
+								<th>미사용 만료된 연차개수</th>
+								<th>미사용 만료 이월된<br>이번년차 연차개수</th>
+								<th>사용가능한 연차개수</th>
+								<th>연차외 휴가개수</th>
+								<th>선택한근무년차/<br>현재근무년차</th>
+							</tr>
+
+							<!--
+								선택한 휴가컨트롤
+							-->
+							{% for q_vacation_control in qs_vacation_control %}
+								{% if q_vacation_control.check_selected == True %}
+									{% if q_vacation_control == q_mysettings_hr.vacation_control %}
+										{% include 'hr/hr_vacation_control_register_member_vacation_table_row.html' %}
+									{% endif %}
+								{% endif %}
+							{% endfor %}
+
+							<!--
+								휴가 컨트롤 중 인사팀과 발행휴가 수정 커뮤니케이션 중인 휴가 컨트롤
+							-->
+							{% for q_vacation_control in qs_vacation_control %}
+								{% if q_vacation_control.check_selected == True %}
+									{% if q_vacation_control != q_mysettings_hr.vacation_control and q_vacation_control.check_hr_vc_issued_request_to_hr_activated == True %}
+										{% include 'hr/hr_vacation_control_register_member_vacation_table_row.html' %}
+									{% endif %}
+								{% endif %}
+							{% endfor %}
+
+							<!--
+								인사팀 커뮤니케이션 아니며 선택된 휴가컨트롤도 아닌 경우 이면서 검색된 경우
+							-->
+							{% for q_vacation_control in qs_vacation_control %}
+								{% if q_vacation_control.check_selected == True %}
+									{% if q_vacation_control != q_mysettings_hr.vacation_control and q_vacation_control.check_hr_vc_issued_request_to_hr_activated == False %}
+										{% if q_vacation_control.id in q_mysettings_hr.list_vacation_control_id_searched %}
+											{% include 'hr/hr_vacation_control_register_member_vacation_table_row.html' %}
+										{% endif %}
+									{% endif %}
+								{% endif %}
+							{% endfor %}
+
+							<!--
+								인사팀 커뮤니케이션 아니며 선택된 경우 아니며 검색된 경우도 아닌 경우
+							-->
+							{% for q_vacation_control in qs_vacation_control %}
+								{% if q_vacation_control.check_selected == True %}
+									{% if q_vacation_control != q_mysettings_hr.vacation_control and q_vacation_control.check_hr_vc_issued_request_to_hr_activated == False %}
+										{% if q_vacation_control.id in q_mysettings_hr.list_vacation_control_id_searched %}
+										{% else %}
+											{% include 'hr/hr_vacation_control_register_member_vacation_table_row.html' %}
+										{% endif %}
+									{% endif %}
+								{% endif %}
+							{% endfor %}
+						</table>
+					</form>
+				</div>
+			</fieldset>
+		</div>
+	</form>
+</div>
+
+
+<div class="col-md-3">
+
+	<form method="POST" action="{% url 'hr-vacation-control' %}"  enctype="multipart/form-data">
+		{% csrf_token %}
+		<ul class="nav nav-tabs">
+			{% for ITEM in LIST_HR_VACATION_CONTROL_ISSUED_SUBMENU_TYPE %}
+				<li class="nav-item">
+					<button type="submit" name="button-hr-vacation-control-type-switch-submenu-issued" value="{{ ITEM.0 }}"
+					{% if q_mysettings_hr.vacation_control_issued_submenu_type == ITEM.0 %}
+						class="btn btn-dark btn-sm"
+					{% else %}
+						class="nav-link"
+					{% endif %}
+					>
+						{{ ITEM.1 }}
+					</button>
+				</li>
+			{% endfor %}
+		</ul>
+
+	</form>
+	<hr>
+
+
+	{% if q_mysettings_hr.check_activate_form_date_joined == True %}
+		<form method="POST" action="{% url 'hr-vacation-control' %}"  enctype="multipart/form-data">
+			{% csrf_token %}
+
+			<div class="content-section">
+				<fieldset class="form-group">
+					<legend class="border-bottom mb-4">{{ q_mysettings_hr.vacation_control.owner.profile.name_korean }}님의 입사일 정보 등록</legend>
+					<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+						<fieldset class="form-group">
+							{{ form_hr_vacation_member_date_joined|bootstrap }}
+							<button type="submit" name="button-hr-vacation-control-register-profile-date-joined" class="btn btn-info">Register</button>
+							<button type="submit" name="button-hr-vacation-control-cancel-register-profile-date-joined" value="true" class="btn btn-dark btn-sm">Cancel</button>
+						</fieldset>
+					</div>
+				</fieldset>
+			</div>
+		</form>
+
+	{% endif %}
+
+
+	{% if q_mysettings_hr.vacation_control_issued_submenu_type == LIST_HR_VACATION_CONTROL_ISSUED_SUBMENU_TYPE.0.0 %}
+		<!--
+			(복수가능) 선택된 멤버 휴가 자동 발행
+		-->
+		{% include 'hr/hr_vacation_control_register_member_vacation_register_form_automatically.html' %}
+	{% elif q_mysettings_hr.vacation_control_issued_submenu_type == LIST_HR_VACATION_CONTROL_ISSUED_SUBMENU_TYPE.1.0 %}
+		<!--
+			선택된 멤버 한명에 대하여 휴가 수동 발행
+		-->
+		{% include 'hr/hr_vacation_control_register_member_vacation_register_form_manually.html' %}
+	{% elif q_mysettings_hr.vacation_control_issued_submenu_type == LIST_HR_VACATION_CONTROL_ISSUED_SUBMENU_TYPE.2.0 %}
+		<!--
+			휴가 관리 유지보수 내용 히스토리
+		-->
+		{% include 'hr/hr_vacation_control_register_member_vacation_maintenance_history.html' %}
+	 {% endif %}
+
+
+
+</div>
+

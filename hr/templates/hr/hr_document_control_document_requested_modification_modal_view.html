@@ -1,0 +1,316 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+
+<div class="modal fade bd-example-modal-xl" id="hrDocumentModificationCommunication" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" >
+	<div class="modal-dialog modal-xl" >
+		<div class="modal-content">
+
+
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">
+					<strong>
+						{{ q_mysettings_hr.document_issued.owner.profile.name_korean }}님의 등록문서 수정요청 {{ q_mysettings_hr.document_issued.code }}
+					</strong>
+					{% for ITEM in STATUS_HR_DOCUMENT_APPROVAL_PROCESS %}
+						{% if q_mysettings_hr.document_issued.hrapproval.status_document_approval_process == ITEM.0 %}
+							<button type="button" name="button-my-workingtime-plan-activate-approval-progress-modal-view-open" value="{{ q_workingtime_plan.id }}"
+							{% if q_mysettings_hr.document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.0.0 %}
+								class="btn btn-light btn-sm"
+							{% elif q_mysettings_hr.document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.1.0 %}
+								class="btn btn-info btn-sm"
+							{% elif q_mysettings_hr.document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.2.0 %}
+								class="btn btn-warning btn-sm"
+							{% elif q_mysettings_hr.document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.3.0 %}
+								class="btn btn-primary btn-sm"
+							{% elif q_mysettings_hr.document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.4.0 %}
+								class="btn btn-success btn-sm"
+							{% elif q_mysettings_hr.document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.5.0 %}
+								class="btn btn-danger btn-sm"
+							{% elif q_mysettings_hr.document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.6.0 %}
+								class="btn btn-secondary btn-sm"
+							{% else %}
+								class="btn btn-secondary btn-sm"
+							{% endif %}
+							>
+								{{ ITEM.1 }}
+							</button>
+						{% endif %}
+					{% endfor %}
+				</h5>
+
+				<button type="submit" name="button-hr-document-history-document-modification-communication-with-hr-modal-view-close" value="true" class="btn btn-dark btn-sm" aria-label="Close">
+					Close
+				</button>
+			</div>
+
+
+			<div class="modal-body">
+				<!--
+					문서 내용 표시 여부
+				-->
+				<div>
+					<template v-if="status_toggle_document_display == 'ACTIVE'">
+						* 수정요청 문서 숨기기
+						<button type="button" class="btn"
+
+						v-on:click="f_toggleDocumentDisplay('SWITCH')"
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-toggle-on" viewBox="0 0 16 16">
+								<path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10H5zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+							</svg>
+						</button>
+					</template>
+					<template v-else>
+						* 수정요청 문서 보기
+						<button type="button" class="btn"
+						v-on:click="f_toggleDocumentDisplay('SWITCH')"
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-toggle-off" viewBox="0 0 16 16">
+								<path d="M11 4a4 4 0 0 1 0 8H8a4.992 4.992 0 0 0 2-4 4.992 4.992 0 0 0-2-4h3zm-6 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM0 8a5 5 0 0 0 5 5h6a5 5 0 0 0 0-10H5a5 5 0 0 0-5 5z"/>
+							</svg>
+						</button>
+					</template>
+
+				</div>
+
+
+				<!-- 등록된 문서 보기-->
+				<template v-if="status_toggle_document_display == 'ACTIVE'">
+					<div class="card card-body" style="background-color:rgb(250,250,250,0.5);">
+						<div>
+							{% if q_mysettings_hr.document_issued.document_format.type_format == 'vacation_plan' %}
+								{% include 'hr/hr_document_control_document_requested_modal_form_registered_vacation_plan.html' %}
+							{% elif q_mysettings_hr.document_issued.document_format.type_format == 'workingtime_plan' %}
+								{% include 'hr/hr_document_control_document_requested_modal_form_registered_workingtime_plan.html' %}
+							{% else %}
+							{% endif %}
+						</div>
+						<div>
+							{% if q_mysettings_hr.document_issued.hrapproval.status_document_approval_process != 'CANCEL'%}
+ 								<div style="background-color:rgb(240,240,240,0.5);">
+									{% include 'my/my_document_approval_requested_hrapproval_process_validation_modal_table_history.html' %}
+								</div>
+							{% endif %}
+						</div>
+					</div>
+				</template>
+
+				<hr>
+				<br>
+
+				<!-- 커뮤니케이션 채팅창-->
+				<div >
+					{% include 'my/my_document_history_document_plan_modification_communication_modal_view_chat_display.html' %}
+				</div>
+			</div>
+
+
+			<!-- Footer -->
+			<div class="modal-footer">
+				작성완료
+				<button type="button" class="btn"
+				v-if="status_dam_modal_view_search_member == 'COMPLETED'"
+				v-on:click="f_selectSearchMemberMode('WRITING')"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-toggle-on" viewBox="0 0 16 16">
+						<path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10H5zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+					</svg>
+				</button>
+				<button type="button" class="btn"
+				v-else
+				v-on:click="f_selectSearchMemberMode('COMPLETED')"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-toggle-off" viewBox="0 0 16 16">
+						<path d="M11 4a4 4 0 0 1 0 8H8a4.992 4.992 0 0 0 2-4 4.992 4.992 0 0 0-2-4h3zm-6 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM0 8a5 5 0 0 0 5 5h6a5 5 0 0 0 0-10H5a5 5 0 0 0-5 5z"/>
+					</svg>
+				</button>
+
+				<button type="submit" name="button-hr-document-history-document-modification-communication-with-hr-modal-view-close" value="true" class="btn btn-dark btn-sm" aria-label="Close">
+					Close
+				</button>
+
+				<button type="submit" name="button-hr-document-history-document-modification-communication-with-hr-modal-view-confirm" value="true" class="btn btn-primary"
+				v-if="status_dam_modal_view_search_member == 'COMPLETED'"
+				>Confirm</button>
+
+				<button type="submit" name="button-hr-document-history-document-modification-communication-with-hr-modal-view-confirm" value="true" class="btn btn-primary"
+				disabled
+				v-else
+				>Confirm</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+
+<script>
+	// const { createApp } = Vue
+	var chartData;
+	var chartTitleStr
+	var postHandling = createApp({
+        delimiters: ["[[", "]]"],
+        data() {
+        return {
+			dict_communication_with_hr_for_my_xxx_document_plan: {},
+			list_dict_document_approver_validated: [],
+
+			my_name_korean: '',
+			list_dict_request_talk_for_document_management: [],
+			file: '',
+			file_name: '',
+			file_path: '',
+			img_src: '',
+
+			status_dam_modal_view_search_member: '',
+			status_toggle_document_display: 'ACTIVE',
+			inputTextReason: '',
+        }
+        },
+        methods: {
+            refreshData() {
+				axios.get(variables.API_URL+'hr/hr_xxx_document_modification_communication_modal_api_refresh_get_view/')
+				.then((response) => {
+					// this.dict_communication_with_hr_for_my_xxx_document_plan = response.data['dict_communication_with_hr_for_my_xxx_document_plan']
+					this.list_dict_document_approver_validated = response.data['list_dict_document_approver_validated']
+					this.my_name_korean = response.data['my_name_korean']
+					this.list_dict_request_talk_for_document_management = response.data['list_dict_request_talk_for_document_management']
+
+					console.log(response.data)
+                })
+				.catch(() => {
+                    console.log('Error!')
+				})
+            },
+
+			f_toggleDocumentDisplay(event) {
+				let result = this.status_toggle_document_display
+				if (result == 'ACTIVE') {
+					this.status_toggle_document_display = 'INACTIVE'
+				} else {
+					this.status_toggle_document_display = 'ACTIVE'
+				}
+			},
+
+			f_inputTextReason(event) {
+				this.inputTextReason = event.target.value
+			},
+
+			f_buttonTalkRegister(event) {
+				axios.post(variables.API_URL+'hr/hr_xxx_document_modification_communication_modal_api_post_talk_register_view/', {
+					'inputTextReason': this.inputTextReason
+				}, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+					'X-CSRFToken': "{{ csrf_token }}"
+                }
+				})
+                .then((response) => {
+					console.log(response)
+					this.inputTextReason = response.data['inputTextReason']
+					this.refreshData()
+				})
+				.catch(() => {
+                    console.log('Error!')
+				})
+			},
+
+			f_buttonTalkDelete(event) {
+				axios.post(variables.API_URL+'hr/hr_xxx_document_modification_communication_modal_api_post_talk_delete_view/', {
+					'talkDeleteID': event
+				}, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+					'X-CSRFToken': "{{ csrf_token }}"
+                }
+				})
+                .then((response) => {
+					console.log(response)
+					this.refreshData()
+				})
+				.catch(() => {
+                    console.log('Error!')
+				})
+			},
+
+			f_inputFileUpload(event) {
+				let file = event.target.files[0];
+				this.file = file
+				let name = file.name;
+				if (name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.png') || name.endsWith('.gif'))
+					this.img_src = URL.createObjectURL(file);
+				else
+					this.img_src = ""
+				console.log('image_src', this.img_src)
+			},
+
+			f_buttonFileUpload(event) {
+				let formData = new FormData()
+				formData.append('reference_file', this.file )
+				axios.post(variables.API_URL+'my/my_xxx_document_modification_communication_modal_api_post_inputfileupload_view/', formData, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+					'X-CSRFToken': "{{ csrf_token }}"
+				}
+				})
+				.then((response) => {
+					console.log(response)
+					this.img_src = response.data['img_src']
+					this.file_name = response.data['file_name']
+					this.file_path = response.data['file_path']
+					this.refreshData()
+				})
+				.catch(() => {
+					console.log('Error!')
+				})
+			},
+
+			f_check_completed(event) {
+				console.log(event)
+			},
+
+			toggle(event) {
+				if (!this.isActive) {
+					this.isActive = true;
+				} else {
+					this.isActive = false;
+				}
+			},
+
+
+
+			f_selectSearchMemberMode(event) {
+				this.status_dam_modal_view_search_member = event
+				status_dam_modal_view_search_member = this.status_dam_modal_view_search_member
+				console.log(this.status_dam_modal_view_search_member)
+				axios.get(variables.API_URL+'my/my_document_approval_management_register_modal_api_get_view_mode_switch/?status_dam_modal_view_search_member='+status_dam_modal_view_search_member)
+				.then((response) => {
+					this.refreshData()
+					console.log(response)
+				})
+			},
+
+
+        },
+		computed: {
+		},
+
+        mounted: function() {
+            this.refreshData()
+        }
+    }).mount('#hrDocumentModificationCommunication')
+
+</script>
+
+
+
+<style>
+	.modal-content {
+		max-width:none;
+	}
+</style>

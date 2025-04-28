@@ -1,0 +1,713 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load floatFormatter %}
+{% load getItem %}
+{% load isnan %}
+{% load split %}
+{% load filters %}
+{% block content %}
+{% include 'utilities/navbar.html' %}
+
+{% comment %} <link rel="stylesheet" href="https://cdn.datatables.net/1.12.0/css/jquery.dataTables.min.css"> {% endcomment %}
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.3/css/fixedHeader.dataTables.min.css">
+<style>
+    .cdd-logo {
+        display:none;
+    }
+    .both {
+        height:15px;
+    }
+    .date_search {
+        width:150px;
+        display:inline-block;
+    }
+
+    .font-12 {
+        font-size:12px;
+    }
+    .dataTables_wrapper .dataTables_scroll {
+        background: #fff;
+    }
+    table.dataTable thead th {
+        text-align:center;
+    }
+    th, td { white-space: nowrap; }
+    div.dataTables_wrapper {
+        width: 100%;
+        margin: 0 auto;
+    }
+    table.dataTable thead tr>.dtfc-fixed-left, table.dataTable thead tr>.dtfc-fixed-right {
+        background-color: black;
+    }
+    div.dtfc-left-top-blocker, div.dtfc-right-top-blocker {
+        background-color: initial;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        width: 300px;
+    }
+    table.fixedHeader-floating.no-footer {
+        table-layout:auto !important;
+    }
+    .numb{
+        text-align:right;
+    }
+    .center {
+        text-align:center;
+    }
+    .checkb {
+        width:20px;
+        height:20px;
+        outline:none;
+        float:left;
+    }
+    .checklabel {
+        padding-left:5px;
+    }
+
+    .chart_font_title {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        font-size:16px;
+        font-weight:700;
+    }
+    .chart_font_subtitle {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        font-size:13px;
+        font-weight:700;
+    }
+    .chart_font_content {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        font-size:14px;
+        font-weight:200;
+    }
+    .chart_font_content_num {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        font-size:30px;
+        font-weight:200;
+    }
+    #chartExt {
+        display:none;
+    }
+    #chartExt2 {
+        display:none;
+    }
+    .chartDescription {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        height: 100px;
+        background: #fff;
+        display: flex;
+    }
+    .chartDescription .play-highlight {
+        margin-right: 10px;
+        transition: background-color .3s;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .chartDescription .play-highlight {
+        min-width: 100px;
+    }
+    .chartDescription .play-highlight .highlighted-value {
+        font-size: 30px;
+        font-weight: 200;
+    }
+    .chartDescription .play-highlight .highlighted-label {
+        font-size: 14px;
+        color: #97a0b7;
+        font-weight: 200;
+    }
+    #downloadDiv{
+        display:none;
+    }
+    .downloadBtn {
+        width: 200px;
+        {% comment %} height: 200px; {% endcomment %}
+        vertical-align: middle;
+        {% comment %} font-size: 40px; {% endcomment %}
+        {% comment %} padding-top: 65px; {% endcomment %}
+        background-color: #6293e9;
+    }
+    .downloadBtn:hover {
+        background-color: #3b80f9;
+    }
+    .downloadBtn:active {
+        background-color: #3b80f9;
+    }
+    .downloadBtn:focus {
+        background-color: #3b80f9;
+    }
+    .property {
+        background-color: #fff;
+        margin-left: -15px;
+        display:none;
+    }
+    #chart_ext_div{
+        display:none;        
+    }
+    #chart_ext > svg {
+        width:200px;
+    }
+    #phDiv {
+        display:none;
+        background-color: #fff;
+        font-weight: bold;
+        padding: 10px;
+        float: left;
+    }
+    #phCusDiv{
+        display:none;
+        text-align: right;
+        background-color: #fff;
+        padding: 10px;
+    }
+    .strongest-pka .play-highlight {
+        padding: 10px;
+        border-radius: 5px;
+        transition: background-color .3s;
+    }
+    .play-highlight.acid .highlighted-value {
+        color: #c02727;
+    }
+    .play-highlight.basic .highlighted-value {
+        color: #3537c5;
+    }
+    .play-highlights .play-highlight .highlighted-value {
+        font-size: 30px;
+        font-weight: 200;
+    }
+    .play-highlights .play-highlight .highlighted-label {
+        font-size: 14px;
+        color: #97a0b7;
+        font-weight: 200;
+    }
+    .svg_imgs{
+        width:200px;
+        float:left;
+        padding-right:10px;
+    }
+    .title {
+        display:none;
+        background-color: #fff;
+        padding: 15px;
+        font-weight: bold;
+        font-size: 20px;
+        border-bottom: 1px solid #ccc;
+    }
+    .title_sub {
+        display:none;
+        height: 15px;
+        background-color: #fff;
+    }
+    #svgImg > svg {
+        cursor:pointer;
+    }
+    #chart_ext > div > svg {
+        cursor:pointer;
+    }
+    #modalText {
+        font-size: 14px;
+        font-weight: bold;
+    }
+    #ver {
+        float: right;
+        font-size: 14px;
+    }
+
+
+    sub {
+        bottom: -0.25em;
+    }
+
+    .disable_row {
+        background-color:#9d9d9d !important;
+    }
+    .dataTpTable {
+        width:50%;
+    }
+    .dataTpTable th{
+        border:1px solid #000;
+        text-align:center;
+        padding:5px;
+        background-color:#d8d8d8;
+    }
+    .dataTpTable td{
+        border:1px solid #000;
+        padding:3px;
+    }
+</style>
+
+<div style="padding-top:30px; ">
+    <legend class="border-bottom mb-4">
+        API Token 현황 <!--<span style="font-size: 12px;">(테스트는 <span style="font-weight: bold;">10월 19일</span>까지 가능합니다.)</span>-->
+    </legend>
+</div>
+<div class="both"></div>
+
+<div class="row">
+    <div class="col-md-12" style="padding-bottom: 10px;">
+        <a type="button" class="btn-info btn-sm" id="createBtn" style="color:#FFF;">&nbsp;&nbsp;Token 생 성&nbsp;&nbsp;</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped table-bordered display" id="data_table" style="width:100%;margin: 0 auto; margin-left: 0px;">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Name</th>
+                    <th>Token</th>
+                    <th>Limit Count</th>
+                    <th>등록일</th>
+                    <th>상태</th>
+                    {%if admin%}
+                    <th>발급자</th>
+                    <th>관리</th>
+                    {%endif%}
+                </tr>
+            </thead>
+            <tbody>
+            {% for data in datas %}
+            <tr>
+                <td class="{%if data.status == 'inactive'%}disable_row{%endif%}" style="text-align:right;">{{data.id}}</td>
+                <td class="{%if data.status == 'inactive'%}disable_row{%endif%}">{{data.name}}</td>
+                <td class="{%if data.status == 'inactive'%}disable_row{%endif%}">{{data.token}}</td>
+                <td class="{%if data.status == 'inactive'%}disable_row{%endif%}" style="text-align:right;">{{data.limit_count}}</td>
+                <td class="{%if data.status == 'inactive'%}disable_row{%endif%}" style="text-align:center;">{{data.date_created|date:"Y-m-d H:i:s"}}</td>
+                <td class="{%if data.status == 'inactive'%}disable_row{%endif%}" style="text-align:center;">{{data.status}}</td>
+                {%if admin%}
+                <td class="{%if data.status == 'inactive'%}disable_row{%endif%}" style="text-align:center;">{{data.owner_name|default:''}}</td>
+                <td class="{%if data.status == 'inactive'%}disable_row{%endif%}" style="text-align:center;"><a href="javascript:modify('{{data.id}}');">수정</a> / <a href="javascript:del('{{data.id}}');">삭제</a></td>
+                {%endif%}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row" style="padding-top:10px;">
+    <div class="col-md-12">
+        <div style="border: 1px solid #000;padding: 10px;background: #fff;">
+        API 사용방법
+        <ul>
+            <li>End point : {{current_url}}/utilities/api</li>
+            <li>Method : POST</li>
+            <li>Header에 발급된 Token 전송
+                <ul>
+                    <li><span style="color:red;">Voronoi-Token</span> : 발급받은 Token</li>
+                </ul>
+            </li>
+            <li>전송 parameter
+                <ul>
+                    <li style="padding-bottom: 10px;"><span style="color:red;">t</span> : api호출 타입
+                        <table class="dataTpTable">
+                            <tr>
+                                <th>호출 타입</th>
+                                <th>설명</th>
+                                <th width="20%">비고</th>
+                            </tr>
+                            <tr>
+                                <td>solubility</td>
+                                <td>Solubility calculation.</td>
+                                <td>전송 parameter에 <span style="color:red;">u</span> 추가 전달<br>
+                                    u값 : NM, UM, MM, LOGS, MGPERML, MOLPERL<br>&#8251; 의미(nM, uM, mM, logS, mg/ml, mol/l)</td>
+                            </tr>
+                            <tr>
+                                <td>pka</td>
+                                <td>pK<sub>a</sub> calculation.</td>
+                                <td rowspan="2">temperature:298</td>
+                            </tr>
+                            <tr>
+                                <td>pka-dist</td>
+                                <td>pK<sub>a</sub> distribution calculation.</td>
+                            </tr>
+                            <tr>
+                                <td>logd</td>
+                                <td>log D calculation.</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>logp</td>
+                                <td>log P calculation.</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>charge</td>
+                                <td>Charge calculation.</td>
+                                <td>전송 parameter에 <span style="color:red;">p</span> 추가 전달 </td>
+                            </tr>
+                            <tr>
+                                <td>herg-act</td>
+                                <td>hERG Activity model calculation.</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>herg-class</td>
+                                <td>hERG Classification model calculation.</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>psa</td>
+                                <td>Polar surface area(PSA) calculation.</td>
+                                <td>전송 parameter에 <span style="color:red;">p</span> 추가 전달 </td>
+                            </tr>
+                            <tr>
+                                <td>hbda</td>
+                                <td>H-bond donors/acceptors caclulation.</td>
+                                <td>전송 parameter에 <span style="color:red;">p</span> 추가 전달 </td>
+                            </tr>
+                            <tr>
+                                <td>cns</td>
+                                <td>CNS MPO calculation</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>elemental</td>
+                                <td>Elemental analysis calculation.</td>
+                                <td>
+                                    전송 parameter에 <span style="color:red;">o</span> 추가 전달(구분자 ,로 여러개 요청가능)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>tautomer-dominant</td>
+                                <td>Dominant-Tautomerization calculation.</td>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </li>
+                    <li style="padding-bottom: 10px;"><span style="color:red;">s</span> : smiles</li>
+                    <li style="padding-bottom: 10px;"><span style="color:red;">p</span> : ph (호출타입이 <span style="text-decoration: underline;">charge</span>, <span style="text-decoration: underline;">psa</span>, <span style="text-decoration: underline;">hbda</span>인 경우만 사용)</li>
+                    <li style="padding-bottom: 10px;"><span style="color:red;">u</span> : unit (호출타입이 <span style="text-decoration: underline;">solubility</span>인 경우만 사용)</li>
+                    <li style="padding-bottom: 10px;"><span style="color:red;">o</span> : operations (호출타입이 <span style="text-decoration: underline;">elemental</span>인 경우만 사용)
+                        <ul>
+                            <li>mass: average molecular mass calculated from the standard atomic weights,</li>
+                            <li>exactMass: monoisotopic mass calculated from the weights of the most abundant natural isotopes of the elements,</li>
+                            <li>formula: chemical formula of the molecule according to the Hill system,</li>
+                            <li>formalChargeFormula: chemical formula of the molecule including the formal charge according to the Hill system,</li>
+                            <li>isotopeFormula: chemical formula of the molecule listing isotopes separately according to the Hill system,</li>
+                            <li>isotopeFormalChargeFormula: chemical formula of the molecule listing isotopes separately and including the formal charge according to the Hill system,</li>
+                            <li>dotDisconnectedFormula: chemical formula of the molecule(s) separating fragment formulas by dots (e.g. salts, counterions, solvent molecules etc. are present),</li>
+                            <li>dotDisconnectedFormalChargeFormula: chemical formula of the molecule(s) separating fragment formulas by dots and including the formal charge (e.g. salts, counterions, solvent molecules etc. are present),</li>
+                            <li>dotDisconnectedIsotopeFormula: chemical formula of the molecule separating fragment formulas by dots and listing isotopes separately,</li>
+                            <li>dotDisconnectedIsotopeFormalChargeFormula: chemical formula of the molecule separating fragment formulas by dots, listing isotopes separately and including the formal charge,</li>
+                            <li>groupedDotDisconnectedFormula: the grouped dot-disconnected molecular formula of a multifragment molecule,</li>
+                            <li>composition: elemental composition given in weight percentage (w/w %) calculated from the atomic masses,</li>
+                            <li>isotopeComposition: elemental composition listing isotopes separately (w/w %),</li>
+                            <li>isotopeDistribution: the isotopic distributions for the molecule (the distribution of fragments are merged, it takes charge into account),</li>
+                            <li>allAtomCount: number of all atoms in the molecule,</li>
+                            <li>countAtoms: number of the specified atom in the molecule,</li>
+                            <li>countIsotopes: number of the specified isotope in the molecule.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>응답
+                <ul>
+                    <li style="padding-bottom: 10px;">result_code
+                        <table class="dataTpTable" style="width:25%;">
+                            <tr>
+                                <th>code</th>
+                                <th>설명</th>
+                            </tr>
+                            <tr>
+                                <td>0000</td>
+                                <td>성공</td>
+                            </tr>
+                            <tr>
+                                <td>1111</td>
+                                <td>토큰이 누락되었습니다.</td>
+                            </tr>
+                            <tr>
+                                <td>2222</td>
+                                <td>토큰이 유효하지 않습니다.</td>
+                            </tr>
+                            <tr>
+                                <td>3333</td>
+                                <td>호출 타입이 누락되었습니다.</td>
+                            </tr>
+                            <tr>
+                                <td>4444</td>
+                                <td>smiles값이 누락되었습니다.</td>
+                            </tr>
+                            <tr>
+                                <td>5555</td>
+                                <td>호출 횟수 제한에 걸려 더 이상 호출할 수 없습니다.</td>
+                            </tr>
+                            <tr>
+                                <td>6666</td>
+                                <td>아직 구현되지 않는 호출 타입입니다.</td>
+                            </tr>
+                            <tr>
+                                <td>7777</td>
+                                <td>ph값이 누락되었습니다.</td>
+                            </tr>
+                            <tr>
+                                <td>8888</td>
+                                <td>unit값이 누락되었습니다.</td>
+                            </tr>
+                            <tr>
+                                <td>9000</td>
+                                <td>operations값이 누락되었습니다.</td>
+                            </tr>
+                            <tr>
+                                <td>9999</td>
+                                <td>전달한 데이터 중에 올바르지 않는 값이 있는 것으로 보입니다.</td>
+                            </tr>
+                        </table>
+                    </li>
+                    <li style="padding-bottom: 10px;">result_msg : 결과 메시지</li>
+                    <li style="padding-bottom: 10px;">result : 응답 결과 (json format)</li>
+                        
+                </ul>
+            </li>
+            <li>Samples
+                <ul>
+                    <li>curl<br>
+                        <div style="border: 2px dashed #000;width: 50%;padding: 5px;margin-bottom: 10px;">curl --location --request POST '{{current_url}}/utilities/api' \<br>
+--header 'Voronoi-Token: 발급받은Token' \<br>
+--header 'accept: application/json' \<br>
+--header 'Content-Type: application/x-www-form-urlencoded' \<br>
+--data-urlencode 't=pka' \<br>
+--data-urlencode 's=CC(=O)OC1=CC=CC=C1C(O)=O'<br></div>
+                    </li>
+                    <li>Python - Requests<br>
+                        <div style="border: 2px dashed #000;width: 50%;padding: 5px;margin-bottom: 10px;">import requests<br>
+                        <br>
+url = "{{current_url}}/utilities/api"<br>
+payload='t=pka&s=CC(=O)OC1=CC=CC=C1C(O)=O'<br>
+headers = {<br>
+  'Voronoi-Token': '발급받은Token',<br>
+  'accept': 'application/json',<br>
+  'Content-Type': 'application/x-www-form-urlencoded'<br>
+}<br>
+response = requests.request("POST", url, headers=headers, data=payload)<br>
+print(response.text)<br></div>
+                    </li>
+                    <li>Python - http.client<br>
+                        <div style="border: 2px dashed #000;width: 50%;padding: 5px;margin-bottom: 10px;">import http.client<br><br>
+                            {%if http_host == 'voronoi.app'%}
+conn = http.client.HTTPSConnection("{{http_host}}")<br>
+                            {%else%}
+                            {% with http_host|split:':' as http_hosts %}
+conn = http.client.HTTPSConnection("{{http_hosts.0}}", "{{http_hosts.1}}")<br>
+                            {% endwith %}
+                            {%endif%}
+payload = 't=pka&s=CC(=O)OC1=CC=CC=C1C(O)=O'<br>
+headers = {<br>
+  'Voronoi-Token': '발급받은Token',<br>
+  'accept': 'application/json',<br>
+  'Content-Type': 'application/x-www-form-urlencoded'<br>
+}<br>
+conn.request("POST", "/utilities/api", payload, headers)<br>
+res = conn.getresponse()<br>
+data = res.read()<br>
+print(data.decode("utf-8"))<br></div>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="create_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width:900px;">
+        <div class="modal-content" style="max-width:500px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Calculator API Access Token 발행</h4>
+            </div>
+            <div class="modal-body">
+                <form name="formLayer" id="formLayer">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="receive_date" style="font-weight: bold;">이름</label>
+                            <input type="text" class="form-control" id="api_name" name="api_name">
+                        </div>
+                    </div>
+                </form>
+                <button type="button" class="btn btn-default btn-info" id="saveBtn" >발급</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{%if admin%}
+<div class="modal fade" id="modify_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width:900px;">
+        <div class="modal-content" style="max-width:500px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Calculator API Access Token 수정</h4>
+            </div>
+            <div class="modal-body">
+                <form name="formLayer" id="modifyFormLayer">
+                    <input type="hidden" id="update_api_id" name="update_api_id">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="receive_date" style="font-weight: bold;">이름</label>
+                            <input type="text" class="form-control" id="update_api_name" name="update_api_name">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="receive_date" style="font-weight: bold;">Token</label>
+                            <input type="text" class="form-control" id="update_api_token" name="update_api_token" disabled>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="receive_date" style="font-weight: bold;">상태</label>
+                            <select name="update_api_status" class="form-control" id="update_api_status">
+                                <option value="active">활성</option>
+                                <option value="inactive">비활성</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="receive_date" style="font-weight: bold;">횟수</label>
+                            <input type="number" class="form-control" id="update_api_limit_cnt" name="update_api_limit_cnt">
+                        </div>
+                    </div>
+                </form>
+                <button type="button" class="btn btn-default btn-info" id="updateBtn" >수정</button>
+            </div>
+        </div>
+    </div>
+</div> 
+{%endif%}
+
+{% comment %} <script src="https://chemdrawdirect.perkinelmer.cloud/js/chemdrawweb/chemdrawweb.js" async></script>
+<script src="https://code.highcharts.com/highcharts.js"></script> {% endcomment %}
+<script src="https://cdn.datatables.net/fixedheader/3.2.3/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+
+<script>
+    var dataTable;
+
+    $(function(){
+        
+        
+    });
+
+    $(document).ready(function() {
+
+        dataTable = $('#data_table').DataTable({
+            order: [ [0, 'asc'] ],
+            ordering: true,
+            fixedHeader:true,
+            scrollX: true,
+            iDisplayLength: 10,
+            bStateSave: true,
+            {% comment %} search: {
+                'regex': true,
+            }, {% endcomment %}
+        });
+
+
+        $("#createBtn").on('click', function(e){
+            $("#create_modal").modal({show:true, backdrop:false});
+        });
+        $("#create_modal").on('hidden.bs.modal', function(e){
+            console.log("close modal");
+        });
+
+
+        $("#saveBtn").on('click', (e)=>{
+            $(".loadingDiv").show();
+            $.ajax({
+                type:'post',
+                url:'/utilities/api/create',
+                data:'api_name='+$("#api_name").val(),
+                success:function(m){
+                    $(".loadingDiv").hide();
+                    alert("정상적으로 발급되었습니다.");
+                    document.location.reload();
+                    console.log(e);
+                },
+                error:function(e){
+                    $(".loadingDiv").hide();
+                    console.log(e);
+                }
+            });
+        });
+
+        $(".loadingDiv").hide();
+    });
+
+
+    {%if admin%}
+    /*
+        관리 함수들
+    */
+    $("#modify_modal").on('hidden.bs.modal', function(e){
+        console.log("close modify modal");
+        $("#update_api_id").val("");
+        $("#update_api_token").val("");
+        $("#update_api_name").val("");
+        $("#update_api_status").val("");
+        $("#update_api_limit_cnt").val("");
+    });
+    function modify(id){
+        $.ajax({
+            type:'post',
+            url:'/utilities/api/get',
+            data:'id='+id,
+            success:function(e){
+                console.log(e);
+                $("#update_api_id").val(id);
+                $("#update_api_token").val(e.token);
+                $("#update_api_name").val(e.name);
+                $("#update_api_status").val(e.status);
+                $("#update_api_limit_cnt").val(e.limit_count);
+                $("#modify_modal").modal({show:true, backdrop:false});
+            },
+            error:function(e){
+                console.log(e);
+            }
+        });
+        
+    }
+    $("#updateBtn").on('click', (e)=>{
+        $.ajax({
+            type:'post',
+            url:'/utilities/api/update',
+            data:'id='+$("#update_api_id").val()+'&st='+$("#update_api_status").val()+'&l_cnt='+$("#update_api_limit_cnt").val()+"&name="+$("#update_api_name").val(),
+            success:function(e){
+                console.log(e);
+                document.location.reload();
+            },
+            error:function(e){
+                console.log(e);
+            }
+        });
+    });
+
+    function del(id){
+        if(confirm("정말 삭제하시겠습니까?")){
+            $.ajax({
+                type:'post',
+                url:'/utilities/api/del',
+                data:'id='+id,
+                success:function(e){
+                    console.log(e);
+                    document.location.reload();
+                },
+                error:function(e){
+                    console.log(e);
+                }
+            });
+        }
+    }
+    {%endif%}
+
+    
+    
+</script>
+
+{% endblock content %}

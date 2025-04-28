@@ -1,0 +1,14 @@
+function callPopup(url, popNm) {
+    window.open(url, popNm, 'width=1680,height=900');
+}
+
+function leftPad(value) { 
+    if (value >= 10) { return value; } 
+    return `0${value}`; 
+} 
+function toStringByFormatting(source, delimiter = '-') {
+    const year = source.getFullYear(); 
+    const month = leftPad(source.getMonth() + 1); 
+    const day = leftPad(source.getDate()); 
+    return [year, month, day].join(delimiter); 
+}

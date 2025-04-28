@@ -1,0 +1,207 @@
+{% load static %}
+
+
+<div class="modal fade" id="cell_mutation_example-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document" style="min-width: 1120px;">
+      <div class="modal-content" style="min-width: 1120px;">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Cell Mutation 검색 예제</h4>
+        </div>
+        <div class="modal-body" style="overflow-y: auto; height: 650px; font-size:24px;">
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label for="receive_date" style="font-weight: bold;">예제 1) NUGC4 세포 중에  Likely oncogenic 이거나 Oncogenic 인 것들을 찾아주세요.</label>
+                    <br>
+                    <img src="/static/cell_mutation_search_examples/cell_mutation_search_0.png" style="width:1000px; height:auto; margin-left:50px;">
+                </div>
+            </div>
+            <hr>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label for="receive_date" style="font-weight: bold;">예제 2) KRAS, BRCA1, TP53, PIK3CA 에 변이가 없는 Cell line 을 찾아주세요.</label>
+                    <br>
+                    <img src="/static/cell_mutation_search_examples/cell_mutation_search_3.png" style="width:1000px; height:auto; margin-left:50px;">
+                </div>
+            </div>
+            <hr>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label for="receive_date" style="font-weight: bold;">예제 3) CCNE1 amplification 이면서, TP53 likely LoF 가 True 인 Cell Line을 찾아주세요.</label>
+                    <br>
+                    <img src="/static/cell_mutation_search_examples/cell_mutation_search_1.png" style="width:1000px; height:auto; margin-left:50px;">
+                </div>
+            </div>
+            <hr>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label for="receive_date" style="font-weight: bold;">예제 4) CCNE1 amplification 이면서 KRAS, BRCA1, EGFR 에 변이가 없는 Cell을 찾아주세요.</label>
+                    <br>
+                    <img src="/static/cell_mutation_search_examples/cell_mutation_search_2.png" style="width:1000px; height:auto; margin-left:50px;">
+                </div>
+            </div>
+            <hr>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label for="receive_date" style="font-weight: bold;">예제 5) HRD>42 이상, BRCA1 변이면서, Mutation effect 가 Loss of function 이거나(or) Likely loss of function인 Cell을 찾아주세요.</label>
+                    <br>
+                    <img src="/static/cell_mutation_search_examples/cell_mutation_search_4.png" style="width:1000px; height:auto; margin-left:50px;">
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cell_mutation-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document" style="max-width: 550px;">
+      <div class="modal-content" style="max-width: 520px;">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Cell Mutation 등록</h4>
+        </div>
+        <div class="modal-body" style="overflow-y: auto;height: 450px;">
+            <form name="formLayer" id="formLayer">
+                {% csrf_token %} 
+                <input type="hidden" name="actionType" class="actionType" value=""/>
+                <input type="hidden" name="req_id" class="req_id" value=""/>
+                
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">Cell Info</label>
+                        <input type="file" class="cell_info form-control" name="cell_info" enctype='multipart/form-data'>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">Mutation</label>
+                        <input type="file" class="mutation form-control" name="mutation" enctype='multipart/form-data'>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">CNV Depmap</label>
+                        <input type="file" class="cnv_depmap form-control" name="cnv_depmap" enctype='multipart/form-data'>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">CNV InHouse</label>
+                        <input type="file" class="cnv_inhouse form-control" name="cnv_inhouse" enctype='multipart/form-data'>
+                    </div>
+                </div>
+                <!-- <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">Cn Depmap</label>
+                        <input type="file" class="cn_depmap form-control" name="cn_depmap" enctype='multipart/form-data'>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">YCC Cell CNV</label>
+                        <input type="file" class="ycc_cell_cnv form-control" name="ycc_cell_cnv" enctype='multipart/form-data'>
+                    </div>
+                </div> -->
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">HRD</label>
+                        <input type="file" class="hrd form-control" name="hrd" enctype='multipart/form-data'>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label for="receive_date" style="font-weight: bold;">MSI</label>
+                        <input type="file" class="msi form-control" name="msi" enctype='multipart/form-data'>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="saveBtn btn btn-default btn-info">저장</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+    $(".saveBtn").on("click", function(e) {
+        e.preventDefault();
+
+        $(".loadingDiv").show();
+
+        var formData = new FormData($("#formLayer")[0]);
+        formData.append('cell_info', $('.cell_info')[0].files[0]);
+        formData.append('mutation', $('.mutation')[0].files[0]);
+        formData.append('cnv_depmap', $('.cnv_depmap')[0].files[0]);
+        formData.append('cnv_inhouse', $('.cnv_inhouse')[0].files[0]);
+        // formData.append('cn_depmap', $('.cn_depmap')[0].files[0]);
+        // formData.append('ycc_cell_cnv', $('.ycc_cell_cnv')[0].files[0]);
+        formData.append('hrd', $('.hrd')[0].files[0]);
+        formData.append('msi', $('.msi')[0].files[0]);
+
+        $.ajax({
+            url:"/utilities/cell-mutation",
+            type:"post",
+            data:formData,
+            contentType: false,
+            processData: false,
+            success:function(msg){
+                $(".loadingDiv").hide();
+                console.log(msg);
+                if( msg[0] ) {
+                    window.location.reload();
+                } else {
+                    $.notify("등록에 실패했습니다.\n"+msg[2], {
+                        className:"error", 
+                        position:"right bottom", 
+                        autoHideDelay:10000 }
+                    );
+                }
+            }
+        });
+    });
+
+    $(document).on('change', '.filter_key_column', e => {
+        e.preventDefault();
+        
+        var value = $(e.target).val();
+        console.log(value);
+        if (value != 'str#mut.cell_name' && $(e.target).siblings('.filter_value_column').attr('autocomplete') == 'off') $(e.target).siblings('.filter_value_column').autocomplete({ disabled: true });
+        else if (value == 'str#mut.cell_name') {
+            if ($(e.target).siblings('.filter_value_column').attr('autocomplete') == 'off') {
+                $(e.target).siblings('.filter_value_column').autocomplete({ disabled: false });
+            }
+            else $(e.target).siblings('.filter_value_column').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        type : 'POST',
+                        url: '/utilities/cell-mutation',
+                        dataType : 'json',
+                        data:{
+                            csrfmiddlewaretoken:'{{ csrf_token }}',
+                            actionType:'AUTOCOMPLETE',
+                            keyword: $(e.target).siblings('.filter_value_column').val()
+                        },
+                        success : function(data) {
+                            response(
+                                $.map(data[2].data, function(item) {
+                                    return {
+                                        label : item.cell_name,
+                                        value : item.cell_name,
+                                        keyId : item.cell_name
+                                    }
+                                })
+                            );
+                        }
+                    });
+                },
+                minLength: 0,
+                autoFocus : true,
+                select: function( event, ui ) {
+                    $(e.target).siblings('.filter_value_column').val(ui.item.value);
+                }
+            });
+        }
+        
+    });
+</script>

@@ -1,0 +1,171 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- google login -->
+    <meta name="google-site-verification" content="kAva3LDhpp4k8Zc9n7D2VfbjR7lU7s_B4XhjbD7DTqs" />
+    <meta name ="google-signin-client_id" content="652389828694-jk1sfnd4v09beo8atcc1rq89jbr438ga.apps.googleusercontent.com">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static '/css/main1.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'kpviewer/css/main-style.css' %}">
+    {% comment %} <link rel="stylesheet" href="{% static 'kpviewer/css/mapSection.css' %}"> {% endcomment %}
+    <link rel="stylesheet" href="{% static 'kpviewer/css/marvinSection.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/search-list.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/sliderbar.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/ruler.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/map.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/modal.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/cdd-modal.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/switch.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/search_base.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/target_base.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/dropdown.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/upload.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/uploader.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/combo-select.css' %}">
+    <link rel="stylesheet" href="{% static 'compoundpatentability/css/delete-warning.css' %}">
+    <link rel="stylesheet" href="{% static 'compoundpatentability/css/popup-image-modal.css' %}">
+    <link rel="stylesheet" href="{% static 'compoundpatentability/css/inquiry.css' %}">
+    <link rel="stylesheet" href="{% static 'inquiry/js/inquiry_howto.css' %}">
+    <link rel="stylesheet" href="//cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    {% comment %} <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> {% endcomment %}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css"/>
+    <link rel="stylesheet" href="{% static '/css/fSelect.css' %}"/>
+    <script src="{% static 'inquiry/js/inquiry_btn.js' %}"></script>
+    <script src="{% static 'inquiry/js/inquiry_howto_block.js' %}"></script>
+    <!-- <script src="https://marvinjs.chemicalize.com/v1/8391348af0654a1ca51ac2d40ba0b298/client-settings.js"></script>
+    <script src="https://marvinjs.chemicalize.com/v1/client.js"></script> -->
+    {% include 'django_quill/media.html' %}
+    
+    {% if title %}
+    <title>Voronoi Groupware - {{ title }}</title>
+    {% else %}
+    <title>Voronoi Groupware</title>
+    {% endif %}
+
+    {% block head_extra %}{% endblock head_extra %}
+    <script src="https://code.jquery.com/jquery-3.6.0.js" 
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" 
+        crossorigin="anonymous"></script>
+    <script src="{% static 'kpviewer/js/marvinInit.js' %}"></script>
+    <script src="//cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="//code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+    
+    <style type="text/css">
+        .graph-img {
+            display: block; 
+            /*margin-left: auto;*/
+            margin-right: auto;         
+        }
+        .dataframe {
+            border : 1px solid #000;
+            border-spacing: 0px;
+        }
+        .dataframe thead {
+            background: #ddd;
+        }
+        .dataframe thead th {
+            border : 1px solid #000;
+        }
+        .dataframe th, .dataframe td {
+            border : 1px solid #000;
+        }
+        i {
+            vertical-align:middle; 
+        }
+        .loadingDiv {         
+            z-index: 3000;
+            top: 50%;
+            position: fixed;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display:none;
+        }
+        .notifyjs-bootstrap-base {
+            /*
+            width:300px;
+            height:100px;
+            */
+        }
+        .cdd-logo {
+            display:none;
+        }
+        .footerDiv {
+            font-size:14px;
+            height: 80px;
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+            padding-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <!-- <p>Hello, this is message from blog-base default!</p> -->
+    <main role="main" class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags}}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% block content %}
+                {% endblock content %}
+            </div>
+        </div>
+        </hr>
+        
+    </main>
+    {% include 'home/footer.html' %}
+    
+    
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script> -->
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.js" 
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" 
+        crossorigin="anonymous"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+    <script src="{% static 'security/js/login.js' %}"></script>
+    <script src="{% static 'inquiry/js/inquiry_sort.js' %}"></script>
+    <script src="{% static 'inquiry/js/inquiry_howto.js' %}"></script>
+    <script src="{% static 'inquiry/js/inquiry.js' %}"></script>
+    <script src="{% static '/js/fSelect.js' %}"></script>
+    <script src="{% static '/js/notify.min.js' %}"></script>
+    <script src="{% static '/js/common.js' %}"></script>
+    <div class="loadingDiv">
+        <img src="{% static 'images/Spinner-1s-300px.svg' %}"/>
+    </div>
+    <!-- VGW Tracking Service S -->
+    <!-- <script src="{% static '/js/vgw_analysis.js' %}?ver=0.0.2"></script>
+    <script>
+        var _TRK_USERID = "{{request.user.username}}";
+        var _TRK_USERNM = "{{request.user.member.member_name}}";
+        _vgwCall('send');
+    </script> -->
+    <!-- VGW Tracking Service E -->
+</body>
+
+</html>

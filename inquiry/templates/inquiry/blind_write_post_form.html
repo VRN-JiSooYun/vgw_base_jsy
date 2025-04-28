@@ -1,0 +1,41 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+<div>
+    <form class="inquiry-write-question-form" method="POST" action="/inquiry/blind/write-question">
+        {% csrf_token%}
+        <label for="inquiry-category">공개 여부: </label>
+        <select class="inquiry-category" name="inquiry-category" id="inquiry-category">
+            <option value="open">공개</option>
+            <option value="close">비공개</option>
+        </select>
+        <input class="post-password" type="text" name="post-password" value="" placeholder="비밀번호 (최대 10자)" style="visibility:hidden;"/>
+        <hr>
+        <div class="form-group">
+            <label for="write-inquiry-post-title">Title</label>
+            <input type="text" class="form-control write-inquiry-post-title" id="write-inquiry-post-title" name="write-inquiry-post-title" aria-describedby="emailHelp" placeholder="" required>
+        </div>
+        <div class="form-group">
+            <label for="write-inquiry-post-content">Content</label>
+            <!-- <textarea class="form-control rounded-0 write-inquiry-post-content" id="write-inquiry-post-content" name="write-inquiry-post-content" rows="10" required></textarea> -->
+            <div class="inquiry-rich-text-form-to-post-form" style="background-color: white;">
+                <!-- {{ quill_form.content }} -->
+            </div>
+        </div>
+        <button class="inquiry-form-write-complete" type="submit" style="border: solid 1px;">완료 &#9989;</button>
+    </form>
+</div>
+
+<script>
+    {% if 'inquiry-post-form' in pagesToLoad %}
+    $(".inquiry-rich-text-form").detach().appendTo(".inquiry-rich-text-form-to-post-form");
+    // $('.ql-blank').css('height', '400px');
+    $('.ql-blank').css('min-height', '500px');
+    {% endif %}
+
+    // $(document).on('change', '.inquiry-category', e => {
+    //     if ($(e.target).val() == "open") $('.post-password').css('visibility', 'hidden');
+    //     else $('.post-password').css('visibility', 'visible');
+    // });
+</script>

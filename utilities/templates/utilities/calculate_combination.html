@@ -1,0 +1,1094 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load floatFormatter %}
+{% load getItem %}
+{% load isnan %}
+{% load split %}
+{% load filters %}
+{% block content %}
+{% include 'utilities/navbar.html' %}
+
+{% comment %} <link rel="stylesheet" href="https://cdn.datatables.net/1.12.0/css/jquery.dataTables.min.css"> {% endcomment %}
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.3/css/fixedHeader.dataTables.min.css">
+<style>
+    .cdd-logo {
+        display:none;
+    }
+    .both {
+        height:15px;
+    }
+    .date_search {
+        width:150px;
+        display:inline-block;
+    }
+
+    .font-12 {
+        font-size:12px;
+    }
+    .dataTables_wrapper .dataTables_scroll {
+        background: #fff;
+    }
+    table.dataTable thead th {
+        text-align:center;
+    }
+    th, td { white-space: nowrap; }
+    div.dataTables_wrapper {
+        width: 100%;
+        margin: 0 auto;
+    }
+    table.dataTable thead tr>.dtfc-fixed-left, table.dataTable thead tr>.dtfc-fixed-right {
+        background-color: black;
+    }
+    div.dtfc-left-top-blocker, div.dtfc-right-top-blocker {
+        background-color: initial;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        width: 300px;
+    }
+    table.fixedHeader-floating.no-footer {
+        table-layout:auto !important;
+    }
+    .numb{
+        text-align:right;
+    }
+    .center {
+        text-align:center;
+    }
+    .checkb {
+        width:20px;
+        height:20px;
+        outline:none;
+        float:left;
+    }
+    .checklabel {
+        padding-left:5px;
+    }
+
+    .chart_font_title {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        font-size:16px;
+        font-weight:700;
+    }
+    .chart_font_subtitle {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        font-size:13px;
+        font-weight:700;
+    }
+    .chart_font_content {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        font-size:14px;
+        font-weight:200;
+    }
+    .chart_font_content_num {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        font-size:30px;
+        font-weight:200;
+    }
+    #chartExt {
+        display:none;
+    }
+    #chartExt2 {
+        display:none;
+    }
+    .chartDescription {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        height: 100px;
+        background: #fff;
+        display: flex;
+    }
+    .chartDescription .play-highlight {
+        margin-right: 10px;
+        transition: background-color .3s;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .chartDescription .play-highlight {
+        min-width: 100px;
+    }
+    .chartDescription .play-highlight .highlighted-value {
+        font-size: 30px;
+        font-weight: 200;
+    }
+    .chartDescription .play-highlight .highlighted-label {
+        font-size: 14px;
+        color: #97a0b7;
+        font-weight: 200;
+    }
+    #downloadDiv{
+        display:none;
+    }
+    .downloadBtn {
+        width: 200px;
+        {% comment %} height: 200px; {% endcomment %}
+        vertical-align: middle;
+        {% comment %} font-size: 40px; {% endcomment %}
+        {% comment %} padding-top: 65px; {% endcomment %}
+        background-color: #6293e9;
+    }
+    .downloadBtn:hover {
+        background-color: #3b80f9;
+    }
+    .downloadBtn:active {
+        background-color: #3b80f9;
+    }
+    .downloadBtn:focus {
+        background-color: #3b80f9;
+    }
+    .property {
+        background-color: #fff;
+        margin-left: -15px;
+        display:none;
+    }
+    #chart_ext_div{
+        display:none;        
+    }
+    #chart_ext > svg {
+        width:200px;
+    }
+    #phDiv {
+        display:none;
+        background-color: #fff;
+        font-weight: bold;
+        padding: 10px;
+        float: left;
+    }
+    #phCusDiv{
+        display:none;
+        text-align: right;
+        background-color: #fff;
+        padding: 10px;
+    }
+    .strongest-pka .play-highlight {
+        padding: 10px;
+        border-radius: 5px;
+        transition: background-color .3s;
+    }
+    .play-highlight.acid .highlighted-value {
+        color: #c02727;
+    }
+    .play-highlight.basic .highlighted-value {
+        color: #3537c5;
+    }
+    .play-highlights .play-highlight .highlighted-value {
+        font-size: 30px;
+        font-weight: 200;
+    }
+    .play-highlights .play-highlight .highlighted-label {
+        font-size: 14px;
+        color: #97a0b7;
+        font-weight: 200;
+    }
+    .svg_imgs{
+        width:200px;
+        float:left;
+        padding-right:10px;
+    }
+    .title {
+        display:none;
+        background-color: #fff;
+        padding: 15px;
+        font-weight: bold;
+        font-size: 20px;
+        border-bottom: 1px solid #ccc;
+    }
+    .title_sub {
+        display:none;
+        height: 15px;
+        background-color: #fff;
+    }
+    #svgImg > svg {
+        cursor:pointer;
+    }
+    #chart_ext > div > svg {
+        cursor:pointer;
+    }
+    #modalText {
+        font-size: 14px;
+        font-weight: bold;
+    }
+    #ver {
+        float: right;
+        font-size: 14px;
+    }
+    .logp_property {
+        background-color: #fff;
+        disply:none;
+    }
+</style>
+
+<div style="padding-top:30px; ">
+    <legend class="border-bottom mb-4">
+        pKa / LogD&LogP <!--<span style="font-size: 12px;">(테스트는 <span style="font-weight: bold;">10월 19일</span>까지 가능합니다.)</span>-->
+    </legend>
+</div>
+<div class="both"></div>
+<div class="row">
+    <div class="col-md-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="chemdrawjs-container" style="left:0; top: 0; width: 100%; height: 830px;"></div>
+            </div>
+            <div class="col-md-10">
+                <input type="text" id="smile" style="width:100%;" placeholder="smiles">
+            </div>
+            <div class="col-md-2">
+                <a type="button" href="javascript:void(0);" class="btn btn-info btn-sm" id="applyBtn">Calculate</a>
+                {% comment %} <a type="button" href="javascript:calculate();" class="btn btn-info btn-sm" id="applyBtn">Calculate</a> {% endcomment %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="title">
+                    pKa / LogD&LogP <span id="ver"></span>
+                </div>
+                <div class="title_sub"></div>
+            </div>
+            <div class="col-md-4">
+                <div id="svgImg"></div>
+            </div>
+            <div class="col-md-2 property">
+                <div class="play-highlights" id="property">
+                    <div class="play-highlight acid"><div class="highlighted-value" id="acid"> - </div><div class="highlighted-label"> Strongest <strong>acidic</strong> pKa </div></div>
+                    <div class="play-highlight basic"><div class="highlighted-value" id="basic"> - </div><div class="highlighted-label"> Strongest <strong>basic</strong> pKa </div></div>
+                    <!--<div class="play-highlight basic"><div class="highlighted-value" id="temps"> - </div><div class="highlighted-label"> Temperature </div></div>-->
+                </div>
+            </div>
+            <div class="col-md-4" style="background-color: #fff;">
+                <div id="logPSvgDiv"></div>
+            </div>
+            <div class="col-md-2 logp_property" style="display:none;">
+                <div class="play-highlights">
+                    <div class="play-highlight acid">
+                        <div class="highlighted-value" id="logp">-</div>
+                        <div class="highlighted-label"> <strong>LogP</strong> </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="chart"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="phDiv">
+                    MICROSPECIES at pH <span id="phStr">-</span> / LogD : <span id="phVal">-</span>
+                </div>
+                <div id="phCusDiv">
+                    <input type='number' id='phCus' min='0' max='15' step='0.1' onChange="javascript:phCal();">
+                </div>
+            </div>
+            <div class="col-md-12" id='chart_ext_div'>
+                <div id="chart_ext" style="background-color: #fff;width:100%;display: inline-block;padding: 10px;"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        
+    </div>
+</div>
+
+<div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" data-dismiss="modal" style="max-width:800px;">
+      <div class="modal-content"  >              
+        <div class="modal-body" id="modalDiv">
+            <span style='font-size: 20px;font-weight: bold;' id='label'></span>
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        </div> 
+        <div class="modal-footer">
+            <div class="col-xs-12">
+                 <p class="text-left" id='modalText'></p>
+              </div>
+          </div>
+      </div>
+    </div>
+</div>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.2.3/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+
+<script>
+    function perkinelmerInit() {
+        /*
+         * ChemDrawJs 기동
+         */
+        perkinelmer.ChemdrawWebManager.attach({
+            id: 'chemdrawjs-container',
+            callback: chemdrawjsAttached,
+            errorCallback: chemdrawjsFailed,
+            config:{
+                "layout": {
+                "orientation": "Vertical",
+                "tools": [
+                    {
+                    "order": [
+                        "LassoSelection",
+                        "MarqueeSelection",
+                        "Undo",
+                        "Redo",
+                        "ZoomIn",
+                        "ZoomOut",
+                        "Copy",
+                        "Paste",
+                        "Eraser",
+                        {
+                        "group": "Single Bonds",
+                        "columns": "4",
+                        "collapse": "never",
+                        "order": [
+                            "SolidBond",
+                            "DashedBond",
+                            "BoldBond",
+                            "HashedBond",
+                            "WedgedBond",
+                            "HashedWedgedBond",
+                            "HollowWedgedBond",
+                            "WavyBond"
+                        ]
+                        },
+                        {
+                        "group": "Multiple Bonds",
+                        "columns": "4",
+                        "collapse": "always",
+                        "order": [
+                            "DoubleBond",
+                            "DashedDoubleBond",
+                            "DoubleEitherBond",
+                            "TripleBond",
+                            "BoldDoubleBond",
+                            "DoubleDashedDoubleBond",
+                            "DativeBond",
+                            "QuadrupleBond",
+                            "AnyBond",
+                            "SingleOrDoubleBond",
+                            "SingleOrAromaticBond",
+                            "DoubleOrAromaticBond"
+                        ]
+                        },
+                        {
+                        "group": "Chain Tools",
+                        "collapse": "always",
+                        "order": [
+                            "AcyclicChain",
+                            "SnakingChain"
+                        ]
+                        },
+                        {
+                        "group": "Arrows",
+                        "columns": "7",
+                        "collapse": "always",
+                        "order": [
+                            "ArrowSolidLarge",
+                            "ArrowSolidMedium",
+                            "ArrowSolidSmall",
+                            "ArrowHollowLarge",
+                            "ArrowHollowMedium",
+                            "ArrowRetrosyntheticLarge",
+                            "ArrowRetrosyntheticSmall",
+                            "ArrowBoldLarge",
+                            "ArrowBoldMedium",
+                            "ArrowBoldSmall",
+                            "Arrow270CW",
+                            "Arrow180CW",
+                            "Arrow120CW",
+                            "Arrow90CW",
+                            "ArrowDashedLarge",
+                            "ArrowDashedMedium",
+                            "ArrowDashedSmall",
+                            "Arrow270CCW",
+                            "Arrow180CCW",
+                            "Arrow120CCW",
+                            "Arrow90CCW",
+                            "ArrowOneSidedLeftLarge",
+                            "ArrowOneSidedLeftMedium",
+                            "ArrowOneSidedLeftSmall",
+                            "Arrow270SingleCW",
+                            "Arrow180SingleCW",
+                            "Arrow120SingleCW",
+                            "Arrow90SingleCW",
+                            "ArrowOneSidedRightLarge",
+                            "ArrowOneSidedRightMedium",
+                            "ArrowOneSidedRightSmall",
+                            "Arrow270SingleCCW",
+                            "Arrow180SingleCCW",
+                            "Arrow120SingleCCW",
+                            "Arrow90SingleCCW",
+                            "ArrowResonanceLarge",
+                            "ArrowResonanceMedium",
+                            "ArrowResonanceSmall",
+                            "Arrow270Double",
+                            "Arrow180Double",
+                            "Arrow120Double",
+                            "Arrow90Double",
+                            "ArrowNoGoCrossLarge",
+                            "ArrowNoGoCrossMedium",
+                            "ArrowNoGoCrossSmall",
+                            "ArrowEquilibriumLarge",
+                            "ArrowEquilibriumMedium",
+                            "ArrowEquilibriumSmall",
+                            "Arrow270ElipticalCW",
+                            "ArrowNoGoHashLarge",
+                            "ArrowNoGoHashMedium",
+                            "ArrowNoGoHashSmall",
+                            "ArrowUnbalancedELarge",
+                            "ArrowUnbalancedEMedium",
+                            "ArrowUnbalancedESmall",
+                            "Arrow270ElipticalCCW"
+                        ]
+                        },
+                        {
+                        "group": "Rings",
+                        "columns": "2",
+                        "collapse": "never",
+                        "writing-mode": "vertical",
+                        "order": [
+                            "Benzene",
+                            "Pentadiene",
+                            "Hexane",
+                            "Pentane",
+                            "Propane",
+                            "Butane",
+                            "Octane",
+                            "Heptane",
+                            "CyclohexaneChairRight",
+                            "CyclohexaneChairLeft"
+                        ]
+                        },
+                        "Text",
+                        "Formula",
+                        "Superscript",
+                        "Subscript",
+                        "Group",
+                        "Ungroup",
+                        "Integral",
+                        {
+                        "group": "Brackets",
+                        "collapse": "always",
+                        "columns": "4",
+                        "order": [
+                            "SquareBrackets",
+                            "RoundBrackets",
+                            "CurlyBrackets",
+                            "DoubleDaggerBrackets",
+                            "LeftSquareBracket",
+                            "LeftRoundBracket",
+                            "LeftCurlyBracket",
+                            "SingleDaggerBracket"
+                        ]
+                        },
+                        "StructureCleanup",
+                        "ReactionCleanup",
+                        "NameToStructure",
+                        "StructureToName",
+                        "ExpandLabel",
+                        "ContractLabel",
+                        "Templates",
+                        {
+                        "group": "Chemical Symbols",
+                        "columns": "2",
+                        "writingMode": "vertical",
+                        "collapse": "always",
+                        "order": [
+                            "CirclePlus",
+                            "CircleMinus",
+                            "Plus",
+                            "Minus",
+                            "RadicalCation",
+                            "RadicalAnion",
+                            "LonePair",
+                            "Radical",
+                            "ElectronPushing",
+                            "RadicalPushing",
+                            "HDot",
+                            "HDash",
+                            "AttachmentDiamond",
+                            "AttachmentStar",
+                            "AttachmentPolymerBead",
+                            "AttachmentWavy"
+                        ]
+                        },
+                        {
+                        "group": "Query Tools",
+                        "collapse": "always",
+                        "columns": "2",
+                        "order": [
+                            "AlternativeGroup",
+                            "ReactionAtomMap",
+                            "AddMultiCenterAttachment",
+                            "AddVariableAttachment"
+                        ]
+                        },
+                        "StructureProperties"
+                    ]
+                    }
+                ]
+                },
+                "features": {
+                "enabled": [
+                    "ShowWarnValence",
+                    "ShowWarnParens",
+                    "ShowWarnIsotopes",
+                    "ShowWarnStrayBonds",
+                    "ShowWarnStrayAtoms",
+                    "ShowWarnUndefinedStereo",
+                    "ShowWarnAmbigStereo",
+                    "ShowWarnStereoBtw",
+                    "ShowWarnLinearAtoms",
+                    "ShowWarnMisc",
+                    "AlwaysShowReactionMapping",
+                    "AutomaticReactionMapping",
+                    "ApplicationLogo",
+                    "WebService",
+                    "ExtendedCopyPaste"
+                ],
+                "disabled": [
+                    "AtomPropertiesDialog.ShowGenericLabels"
+                ]
+                },
+                "properties": {
+                "StyleSheet": "ACS Document 1996",
+                "chemservice": "https://chemdrawdirect.perkinelmer.cloud/rest/"
+                }
+            },
+            //configUrl:'{% static '/js/chemdraw_config.json' %}',
+            license:'<?xml version="1.0" encoding="UTF-8" standalone="no"?><License Version="1.0">  <!--PLEASE DO NOT MODIFY THIS FILE AND BE AWARE THAT THIS FILE CONTAINS CONFIDENTIAL INFORMATION.-->  <Field Name="ID" Value="fe147dc4-172a-4b45-8eb6-dd01855e3bf6"/>  <Field Name="Software" Value="ChemDraw JS"/>  <Field Name="Comment" Value="Generated by PerkinElmer Informatics, Inc."/>  <Signature Value="IGKpv95c5NsjhKb1nJzPEM97UiY="/></License>'
+        });
+    }
+</script>
+{% comment %} <script src="https://chemdrawdirect.perkinelmer.cloud/js/chemdrawweb/chemdrawweb.js" async onLoad="javascript:perkinelmerInit();"></script> {% endcomment %}
+<script src="{% static '/chemdrawweb/chemdrawweb.js' %}" async onLoad="javascript:perkinelmerInit()"></script>
+<script>
+    var dataTable;
+
+    $(function(){
+
+        dataTable = $('#data_table').DataTable({
+            order: [ [0, 'asc'] ],
+            ordering: true,
+            fixedHeader:true,
+            scrollX: true,
+            iDisplayLength: 25,
+            bStateSave: true,
+            search: {
+                'regex': true,
+            },
+        });
+
+
+        $("#imagemodal").on('hidden.bs.modal', function(e){
+            $("#modalDiv > svg").remove();
+            $("#modalText").text("");
+            $("#label").text("");
+        });
+
+
+        $("#smile").on('blur', (e)=>{
+            if( $("#smile").val() == "" ){
+                chemdrawjs.getSMILES(function(e){
+                    $("#smile").val(e);
+                });
+            } else {
+                chemdrawjs.loadSMILES($("#smile").val(),function(e){
+                });
+            }
+        });
+        $("#smile").on('change', (e)=>{
+            if( $("#smile").val() == "" ){
+                chemdrawjs.getSMILES(function(e){
+                    $("#smile").val(e);
+                });
+            } else {
+                chemdrawjs.loadSMILES($("#smile").val(),function(e){
+                });
+            }
+        });
+
+        $("#applyBtn").on('click', (e)=>{
+            if( $("#smile").val() == "" ){
+                chemdrawjs.getSMILES(function(e){
+                    if( e != "" ) {
+                        callApi(e);
+                    }
+                    $("#smile").val(e);
+                });
+            } else {
+                try{
+                    chemdrawjs.loadSMILES($("#smile").val(),function(e){
+                        if ( $("#smile").val() != "" ) {
+                            callApi($("#smile").val());
+                        }
+                    });
+                }catch(error){
+                    console.log(error);
+                    if ( $("#smile").val() != "" ) {
+                        callApi($("#smile").val());
+                    }
+                }
+                
+            }
+        });
+
+        $(".loadingDiv").hide();
+    });
+
+    
+
+    function s2ab(s) { 
+        var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+        var view = new Uint8Array(buf);  //create uint8array as viewer
+        for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+        return buf;    
+    }
+    function exportExcel(){ 
+        if((solubility == undefined || mm == undefined) || (solubility.length == 0 || mm.length == 0) ){
+            $.notify("다운로드할 데이터가 없습니다.", {
+                className:"error", 
+                position:"right bottom", 
+                autoHideDelay:10000 }
+            );
+            return;
+        }
+
+        var wb = XLSX.utils.book_new();
+    
+        wb.SheetNames.push("LogS");
+        wb.SheetNames.push("uM");
+
+        var logsSheet = [['pH','value']];
+        var umSheet = [['pH','value']];
+
+        for(i=0;i<solubility.length;i++){
+            var d = [];
+            d.push(solubility[i].pH);
+            d.push(solubility[i].value);
+            logsSheet.push(d);
+        }
+        for(i=0;i<mm.length;i++){
+            var d = [];
+            d.push(mm[i].pH);
+            d.push(mm[i].value);
+            umSheet.push(d);
+        }
+
+        var ws1 = XLSX.utils.aoa_to_sheet(logsSheet);
+        var ws2 = XLSX.utils.aoa_to_sheet(umSheet);
+
+        wb.Sheets["LogS"] = ws1;
+        wb.Sheets["uM"] = ws2;
+    
+        var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+    
+        saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'solubility_data.xlsx');
+    }
+
+    var chemdrawjsAttached = function (chemdraw) {
+        chemdrawjs = chemdraw;
+        // do something
+        chemdrawjs.setContentChangedHandler((e) => {
+            $("#smile").effect("highlight", {}, 1000);
+            chemdrawjs.getSMILES((e) => {
+                $("#smile").val(e);
+            });
+        });
+    };
+
+    var chemdrawjsFailed = function (error) {
+        alert(error);
+    };
+
+    function clear(){
+        chemdrawjs.clear();
+        // $("#imageDiv svg").remove();
+        // $("#display_smiles").text("");
+    }
+
+    function getSmiles(){
+        var returnVal;
+        chemdrawjs.getSMILES(function(e){
+            {% comment %} $("#display_smiles").text(e); {% endcomment %}
+            returnVal = e;
+        });
+        return returnVal;
+    }
+
+    function loadSmiles(){
+        chemdrawjs.loadSMILES($("#smile").val(),function(e){
+            if ( $("#smile").val() != "" ) {
+                callApi($("#smile").val());
+            }
+        });
+    }
+
+    var pka, pkaDistribution, svg_img, dist_svg_imgs, dist_smiles, version, logp_svg_img;
+    var dist_data_check = [];
+    var dist_data_empty = true;
+    var logd, logp;
+    function callApi(s){
+        $(".loadingDiv").show();
+        $.ajax({
+            type:"post",
+            url:"pka/api",
+            data:"s="+encodeURIComponent(s),
+            success:function(msg){
+                // console.log(msg);
+                data = [];
+                $("#intrinsicSolubility").text("-");
+                $("#phStr").text("-");
+                //$("#temps").text("-");
+                $(".svg_desc").text("-");
+                $("#acid").text("-");
+                $("#basic").text("-");
+                $("#phCus").val('');
+
+                $("#svgImg > svg").remove();
+                $(".svg_imgs").remove();
+                // $("#chart_ext > svg").remove();
+                pka = msg.info;
+                version = pka.version;
+                temps = msg.temps;
+                pkaDistribution = msg.distribution;
+                svg_img = msg.svg_img;
+                dist_svg_imgs = msg.distribution_svg_imgs;
+                dist_smiles = msg.distribution_smiles;
+
+                $("#ver").text("ver. "+version);
+                
+                $("#temps").text("298");
+                $("#acid").text(pka.minAcidicValue);
+                $("#basic").text(pka.maxBasicValue);
+
+                $("#svgImg").append(svg_img);
+                $(".title").show();
+                $(".title_sub").show();
+                $(".property").show();
+
+                var dist = pkaDistribution.structureDistributionsByPh;
+                var struct = pkaDistribution.structures;
+                dist_data_check = [];
+                dist_data_empty = true;
+                
+                for(st=0; st<struct.length; st++){
+                    for(k=0; k<dist.length; k++){
+                        var percent = dist[k].percentages;
+                        if( percent[st] > 0 ) {
+                            dist_data_empty = false;
+                            break;
+                        }
+                    }
+                    dist_data_check.push(dist_data_empty);
+                    dist_data_empty = true;
+                }
+                // console.log(dist_data_check);
+                var ji = 0;
+                for(j=0; j<struct.length; j++){
+                    if( !dist_data_check[j]) {
+                        data[ji] = {'structure':struct[j]};
+                        data[ji].data = [];
+                        data[ji].name = '#'+(j);
+                        data[ji].color = colors[(ji%10)];
+                        data[ji].yAxis = 0;
+                        ji++;
+                    }
+                }
+                
+                for(i=0; i<dist.length; i++){
+                    category.push(dist[i].pH);
+                    var percent = dist[i].percentages;
+                    ji = 0;
+                    for(j=0; j<struct.length; j++){
+                        if( !dist_data_check[j]) {
+                            data[ji].data.push(Math.round(percent[j]*10000)/100);
+                            ji++;
+                        }
+                    }
+                }
+                //console.log(category);
+                //drawChart();
+                var ki = 0;
+                for(k=0; k<dist_svg_imgs.length; k++){
+                    if( !dist_data_check[k]) {
+                        var svgDivs = "<div class='svg_imgs' id='svgs_"+(k)+"'>" +
+                                    "<div style='padding-top: 10px;font-weight: bold;'>#"+(k)+"</div>" +
+                                        dist_svg_imgs[k] +
+                                    "<div style='padding-left:2px; border-bottom: 4px solid "+colors[(ki%10)]+";'><span class='svg_desc'> - </span></div>" +
+                                    "</div>";
+                        $("#chart_ext").append(svgDivs);
+                        ki++;
+                    }
+                }
+                //console.log(data);
+                $(".loadingDiv").hide();
+                $("#svgImg>svg").on('click',(e)=>{
+                    var clone = e.currentTarget.cloneNode(true);
+                    $("#imagemodal > div > div > div.modal-body").append(clone);
+                    $("#imagemodal").modal({show:true, backdrop:false});
+                });
+                
+                $("#chart_ext > div").on('click',(e)=>{
+                    var clone = e.currentTarget.children[1].cloneNode(true);
+                    var id = e.currentTarget.id.split("_")[1];
+                    $("#imagemodal > div > div > div.modal-body").append(clone);
+                    $("#label").text("#"+id);
+                    $("#modalText").text(dist_smiles[id]);
+                    $("#imagemodal").modal({show:true, backdrop:false});
+                });
+                console.log(s);
+                callApi2(s);
+            },
+            error:function(e){
+                $(".loadingDiv").hide();
+                $.notify("장애가 발생했습니다.\n("+e+")\n관리자에게 문의하시기 바랍니다.", {
+                    className:"error", 
+                    position:"right bottom", 
+                    autoHideDelay:10000 }
+                );
+            }
+        });
+        
+    }
+    function callApi2(s){
+        $.ajax({
+            type:"post",
+            url:"logd/api",
+            data:"s="+encodeURIComponent(s),
+            success:function(msg){
+                console.log(msg);
+                data2 = [];
+                //category = [];
+                $("#logp").text("-");
+                $("#intrinsicSolubility").text("-");
+                $("#phVal").text("-");
+                $("#phStr").text("-");
+                $("#phVal2").text("-");
+                $("#phStr2").text("-");
+                logd = msg.logd;
+                logp = msg.logp;
+                logp_svg_img = msg.svg_img;
+                intrinsicSolubility = logp.logP;
+                //solubility = logs.phDependentSolubilities;
+                //mm = mm.phDependentSolubilities;
+                for(i=0;i<logd.logDByPh.length;i++){
+                    data2.push(logd.logDByPh[i].value);
+                    //category.push(logd.logDByPh[i].pH);
+                    //data_mm.push(mm[i].value);
+                }
+                var di = data.length;
+                data[di] = {'name':'LogD'};
+                data[di].data = data2;
+                data[di].color = "#000000";
+                data[di].yAxis = 1;
+                console.log(data);
+                $("#intrinsicSolubility").text(intrinsicSolubility);
+                $("#logp").text(intrinsicSolubility);
+                $(".loadingDiv").hide();
+                version = logd.version;
+                $("#ver").text("ver. "+version);
+                
+                if( $("#logPSvgDiv>svg").length > 0 ){
+                    $("#logPSvgDiv>svg").remove();
+                }
+                $("#logPSvgDiv").append(msg.svg_img);
+                $("#logPSvgDiv>svg").on('click',(e)=>{
+                    var clone = e.currentTarget.cloneNode(true);
+                    $("#imagemodal > div > div > div.modal-body").append(clone);
+                    $("#imagemodal").modal({show:true, backdrop:false});
+                });
+
+                drawChart();
+            },
+            error:function(e){
+                $(".loadingDiv").hide();
+                $.notify("장애가 발생했습니다.\n("+e+")\n관리자에게 문의하시기 바랍니다.", {
+                    className:"error", 
+                    position:"right bottom", 
+                    autoHideDelay:10000 }
+                );
+            }
+        });
+    }
+
+    var data = [];
+    var data2 = [];
+    var data_mm = [];
+    var category = [];
+    var colors = ['#f15c80', '#7cb5ec', '#90ed7d', '#434348', '#f7a35c', '#8085e9', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
+    function drawChart(){
+        $("#phDiv").show();
+        $("#phCusDiv").show();
+        $("#chart_ext_div").show();
+        $(".logp_property").show();
+        
+        Highcharts.addEvent(Highcharts.Series, 'afterInit', function () {
+            this.symbolUnicode = {
+                circle: '●',
+                diamond: '♦',
+                square: '■',
+                triangle: '▲',
+                'triangle-down': '▼'
+            }[this.symbol] || '●';
+        });
+        var char1 = Highcharts.chart('chart', {
+            chart: {
+                zoomType: 'xy'
+
+            },
+            title: {
+                text: '',
+                className: 'chart_font_title',
+            },
+            subtitle: {
+                text: 'MICROSPECIES DISTRIBUTION',
+                className: 'chart_font_subtitle',
+            },
+            xAxis: {
+                title: {
+                    text:'pH'
+                },
+                categories: category,
+            },
+            yAxis: [{
+                reversed: false,
+                title: {
+                    enabled: true,
+                    text: ''
+                },
+                labels: {
+                    format: '{value} %'
+                },
+                accessibility: {
+                    rangeDescription: 'Range: 0 to 100 %'
+                },
+                maxPadding: 0.05,
+                showLastLabel: true
+            },
+            {
+                title: {
+                    text: 'LogD'
+                },
+                labels: {
+                    format: '{value}'
+                },
+                opposite: true
+            }],
+            legend: {
+                align: 'left',
+                verticalAlign: 'top',
+                borderWidth: 0
+            },
+            tooltip: {
+                shared: true,
+                crosshairs: true,
+                formatter:function(){
+                    //console.log(this.points);
+                    var top=0, topV=0;
+                    for(i=0;i<this.points.length; i++){
+                        if( this.points[i].y > 0 ) y = 1;
+                        else y = 0.2;
+                        if( this.points[i].y > topV) {
+                            top = i;
+                            topV = this.points[i].y;
+                        }
+                        $(".svg_imgs").eq(i).css('opacity', y);
+                        $(".svg_desc").eq(i).text(this.points[i].y + "%");
+                        $(".svg_imgs > svg").eq(i).css('border', '0px solid red');
+                    }
+                    $(".svg_imgs > svg").eq(top).css('border', '2px solid red');
+
+                    $("#phStr").text(this.points[0].x);
+                    $("#phCus").val(this.points[0].x);
+                    $("#phVal").text(this.points[this.points.length-1].y);
+                    return this.points.reduce(function (s, point) {
+                        if( point.series.name == "LogD") {
+                            return s + '<br/>' + '<span style="color:' + point.series.color + '"> '+point.series.symbolUnicode+' '+point.series.name+'</span>' + ': ' +
+                            point.y;
+                        } else {
+                            return s + '<br/>' + '<span style="color:' + point.series.color + '"> '+point.series.symbolUnicode+' '+point.series.name+'</span>' + ': ' +
+                            point.y + '%';
+                        }
+                        
+                    }, '<b>pH: ' + this.x + '</b>');
+                }
+            },
+            plotOptions: {
+                series: {
+                    cursor: 'pointer',
+                    className: 'popup-on-click',
+                    marker: {
+                        lineWidth: 1
+                    },
+                }
+            },
+            series: data
+        });
+        //chartOutside();
+        // $("#downloadDiv").show();
+    }
+
+    var idxTemp;
+    function structureStat(idx){
+        len = pkaDistribution.structures.length - 1;
+        if (idxTemp != idx ) {
+            $("#chart_ext > svg").eq(idx).animate({opacity:1},200);
+            for(i=0; i<len; i++){
+                if( i != idx ) $("#chart_ext > svg").eq(i).animate({opacity:.3},200);
+            }
+        }
+        idxTemp = idx;
+        
+    }
+    
+    function chartOutside(){
+        $("#chart > div > svg").on('mouseout', (e)=>{
+            console.log(e);
+            len = pkaDistribution.structures.length - 1;
+            for(i=0; i<len; i++){
+                $("#chart_ext > svg").eq(i).animate({opacity:1},200);
+            }
+        });
+    }
+    
+    function phCal(){
+        var ph = $("#phCus").val();
+        var pkaDist = pkaDistribution.structureDistributionsByPh;
+        for(var i=0;i<pkaDist.length;i++){
+            if(pkaDist[i].pH == parseFloat(ph)){
+                var pkaDistPerct = pkaDist[i].percentages;
+                var ji = 0;
+                var top = 0, topV = 0;
+                for(var j=0;j<pkaDistPerct.length;j++){
+                    if( !dist_data_check[j]) {
+                        if( pkaDistPerct[j] > 0 ) y = 1;
+                        else y = 0.2;
+                        if( pkaDistPerct[j] > topV) {
+                            top = ji;
+                            topV = pkaDistPerct[j];
+                        }
+                        $(".svg_imgs").eq(ji).css('opacity', y);
+                        $(".svg_desc").eq(ji).text(Math.round(pkaDistPerct[j]*100) + "%");
+                        $("#phStr").text(pkaDist[i].pH);
+                        $(".svg_imgs > svg").eq(ji).css('border', '0px solid red');
+                        ji++;
+                    }
+                }
+                $(".svg_imgs > svg").eq(top).css('border', '2px solid red');
+                $("#phVal").text(logd.logDByPh[i].value);
+            }
+        }
+    }
+    
+</script>
+
+{% endblock content %}

@@ -1,0 +1,92 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+<div class="post-div">
+    {% csrf_token %}
+</div>
+
+<!-- 이미 django용 quill이 등록되어 있어서 아래 cdn은 포함시키지 않는다 -->
+<!-- <script src="//cdn.quilljs.com/0.17.2/quill.js"></script> -->
+<script src="/static/django_quill/image-resize.min.js"></script>
+
+<script>    
+    function createQuillEditor(inputClass) {
+        let editor = new Quill("." + inputClass, {
+            modules: {
+                toolbar: [
+                    [{ "font": [] }, { 'size': Size.whitelist }],
+                    ["bold", "italic", "underline", "strike"],
+                    [{ "color": [] }, { "background": [] }],
+                    [{ "script": "sub" }, { "script": "super" }],
+                    // [{ "header": 1 }, { "header": 2 }, "blockquote", "code-block"],
+                    [{ "list": "ordered" }, { "list": "bullet" }, { "indent": "-1" }, { "indent": "+1" }],
+                    [{ "direction": "rtl" }, { "align": [] }],
+                    ["link", "image", "video", "formula"],
+                    ["clean"]
+                ],
+                imageResize: {
+                    displaySize: true // default false
+                },
+            },
+            theme: "snow"
+        });
+    }
+    
+    let user_id = {{ user_id }};
+
+    {% if 'inquiry-post' in pagesToLoad %}
+    let post = {{ inquiry_post| safe }};
+    {% else %}
+    let post = {};
+    {% endif %}
+
+    // let richText = $('.inquiry-rich-text-form');
+    // console.log("richText:", richText);
+
+    $('.ql-blank').css('min-height', '500px');
+
+    let categories = [
+        {% for elem in inquiry_category_list %}
+            {
+                "id": {{ elem.id }},
+                "category": "{{ elem.category }}"
+            },
+        {% endfor %}
+    ];
+    
+    let comments = [
+        {% for elem in inquiry_post_comment %}
+            {
+                "id": {{ elem.id }},
+                "post_id": {{ elem.post_id }},
+                "parent_comment_id": {% if elem.parent_comment_id == None %} null {% else %} {{ elem.parent_comment_id }} {% endif %},
+                "parent_reply_id": {% if elem.parent_reply_id == None %} null {% else %} {{ elem.parent_reply_id }} {% endif %},
+                "member_id": {{ elem.member_id }},
+                "member_name": "{{ elem.member__member_name }}",
+                "content": `{{ elem.content|safe }}`,
+                "create_date": "{{ elem.create_date|safe }}",
+                "modify_date": "{{ elem.modify_date|safe }}",
+                "is_reply": {% if elem.is_reply == False %} false {% else %} true {% endif %},
+                "check_best_comment": {% if elem.check_best_comment == False %} false {% else %} true {% endif %},
+            },
+        {% endfor %}
+    ];
+
+
+    $('.inquiry-post-panel').html(displayPostPanel(user_id, post, categories, comments, {{is_p}}, {{is_r}}, {{is_v}}, {{is_d}}));
+
+    {% if 'inquiry-post' in pagesToLoad %}
+    let richText = $(".inquiry-rich-text-form").detach().appendTo(".inquiry-rich-text-form-to-post");
+    $('.ql-editor').html(post['content']);
+    {% endif %}
+
+    createQuillEditor('write-inquiry-post-comment');
+
+    for (var i = 0; i < comments.length; i++) {
+        createQuillEditor('inquiry-comment-editor' + comments[i]['id']);
+        createQuillEditor('inquiry-comment-modify-editor' + comments[i]['id']);
+        $('.inquiry-comment-modify-editor' + comments[i]['id'] + ' .ql-editor').html(comments[i]['content']);
+    }
+
+</script>

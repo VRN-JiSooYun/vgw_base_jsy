@@ -1,0 +1,57 @@
+<template id="member-private-info">
+    <div class="info-box">
+        <form class="row g-3">
+            <div class="col-4">
+                <label for="member_name" class="form-label">성명(한글)</label>
+                <input type="text" class="form-control" v-model="item.member_name" disabled>
+            </div>
+            <div class="col-4">
+                <label for="member_eng_name" class="form-label">성명(영문)</label>
+                <input type="text" class="form-control" v-model="item.member_eng_name" required autofocus="false">
+            </div>
+            <div class="col-4">
+                <label for="member_chinese_name" class="form-label">성명(한자)</label>
+                <input type="text" class="form-control" v-model="item.member_chinese_name">
+            </div>
+            <div class="col-4">
+                <label for="member_social_id" class="form-label">주민번호</label>
+                <div class="row">
+                    <input type="text" class="form-control" style="width:200px" v-model="item.member_social_id_first" maxlength="6" required>
+                    &nbsp;&nbsp; - &nbsp;&nbsp;
+                    <input type="text" class="form-control" style="width:200px" v-model="item.member_social_id_second" maxlength="7" required>
+                </div>
+            </div>
+            <div class="col-8">
+                <label for="member_addr" class="form-label">현주소</label>
+                <input type="text" class="form-control" v-model="item.member_addr" required>
+            </div>
+            <div class="col-2">
+                <label for="member_bank_num" class="form-label">은행명</label>
+                <input type="text" class="form-control" v-model="item.member_bank" required>
+            </div>
+            <div class="col-4">
+                <label for="member_bank_num" class="form-label">계좌번호</label>
+                <input type="text" class="form-control" v-model="item.member_bank_num" required>
+            </div>
+            <div class="col-3">
+                <label for="member_name" class="form-label">비상연락처(본인 외)</label>
+                <input type="text" class="form-control" v-model="item.member_hp_er" placeholder="'-' 없이 숫자만 입력해 주세요">
+            </div>
+            <div class="col-3">
+                <label for="member_name" class="form-label">비상연락처명</label>
+                <input type="text" class="form-control" v-model="item.member_hp_er_name">
+            </div>
+        </form>
+    </div>
+</template>
+
+<script>
+    const memberPrivateInfoComponent = {
+        props: {
+            item: {
+                type: Object,
+            },
+        },
+        template:'#member-private-info',
+    }
+</script>

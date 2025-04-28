@@ -1,0 +1,68 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+
+<td></td>
+<td colspan="5">
+	<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+		<table class="table">
+			<tr>
+				{% if q_vacation_issued_mine.vacation_type == LIST_VACATION_TYPES.0.0 %}
+				<th>
+					옮길 근무년차
+				</th>
+
+					<th>
+						<select class="form-control" name="select-hr-vacation-control-working-year-for-revive-unused-vc">
+							<option selected
+							value ="{{ q_mysettings_hr.vacation_control.status_working_year }}"
+							>
+								{{ q_mysettings_hr.vacation_control.status_working_year }}
+							</option>
+							{% for num_working_year in  list_member_history_working_year %}
+								{% if num_working_year != q_mysettings_hr.vacation_control.status_working_year %}
+									<option value="{{ num_working_year }}">{{ num_working_year }}</option>
+								{% endif %}
+							{% endfor %}
+						</select>
+					</th>
+				{% endif %}
+				<th>
+					마감일 연장 선택
+					<br>
+					(오늘날짜 +)
+				</th>
+				<th>
+					<select class="form-control" name="select_hr_vacation_control_issued_vacation_revive_extension_days">
+						<option selected value={{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.0.0 }}>
+							{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.0.1 }}
+						</option>
+						<option value="{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.1.0 }}">{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.1.1 }}</option>
+						<option value="{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.2.0 }}">{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.2.1 }}</option>
+						<option value="{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.3.0 }}">{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.3.1 }}</option>
+						<option value="{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.4.0 }}">{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.4.1 }}</option>
+					</select>
+				</th>
+				<th>
+					마감날짜 지정
+					<br>
+					(날짜지정 선택시)
+				</th>
+				<td>
+					{{ form_hr_vacation_member_date_expired|bootstrap }}
+				</td>
+				<td>
+					<button type="submit" name="button-hr-vacation-control-vacation-issued-revive-update" value="{{ q_vacation_issued_mine.id }}" class="btn btn-link btn-sm" >
+						Revive
+					</button>
+					<button type="submit" name="button-hr-vacation-control-vacation-issued-revive-cancel" value="{{ q_vacation_issued_mine.id }}" class="btn btn-link btn-sm" >
+						Cancel
+					</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+</td>

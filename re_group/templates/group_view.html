@@ -1,0 +1,822 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'home/navbar/re_navbar.html' %}
+
+{% load getCode %}
+{% load getCodeDtls %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" rel="stylesheet" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+<style>
+    .add-btn {
+        position: absolute;
+        top: 99%;
+        left: 100px;
+        width: 30px;
+        height: 30px;
+        float: right;
+        text-align: center;
+        margin: -35px 60px 0px 0px;
+        padding: 2px;
+        border: 1px solid red;
+        border-radius: 10px;
+        background-color: #ffffff;
+        cursor: pointer;
+    }
+</style>
+
+<div id="group_view" class="row" style="background-color: #f9f9f9;">
+    <div class="col-2">
+
+        <div class="form-group form-row" style="padding-left:10px; padding-right: 10px;position: relative;">
+            <div class="form-group col-md-12 treeDiv" style="height:76.6vh; overflow-y: scroll; border: lightgray 1px solid; border-radius: 4px; margin-top:30px; margin-left:10px; margin-right:10px; background-color: #ffffff; "></div>
+            <div style="width: 20px; height: 76.3vh; background-color: #ffffff; position: absolute; bottom: 18px; right: 2px"></div>
+        </div>
+    </div>
+    <div class="col">
+        <div id="container_canvas" style="text-align:center" width="500" height="500" >
+            <canvas id="group_canvas"  width="500" height="500"></canvas>
+        </div>
+        <div>
+            <div class="row">
+                <div class="col-2">
+                    <div class="add-btn" data-bs-toggle="modal" data-bs-target="#add_group_modal" onclick="showGroupLayer()"> + </div>
+                </div>
+                <div class="col-4">
+                    <button id="groupActive" class="btn btn-outline-info" onclick="useActive()">활성화</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="btn btn-outline-primary" onclick="updateGroupDepth()">그룹 변경 저장</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="btn btn-outline-secondary" onclick="rollbackGroup()">그룹 변경 취소</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="add_group_modal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="group_title">그룹 생성</h5>
+            </div>
+            <div class="modal-body">
+                <form class="needs-validation" novalidate>
+                    <input type="hidden" id="group_key" value="" >
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">그룹명</div>
+                        <div class="col-10" style="padding: 15px;">
+                            <input type="text" class="form-control" id="group_name" value="" autocomplete="off" autofocus  required>
+                        </div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">그룹타입</div>
+                        <div class="col-10" style="padding: 15px;">
+                            <select class="form-select" width="200px" id="group_type">
+                                {% with codes|getCdNo:"GROUP_TYPE" as cdNo %}
+                                {% for codeDtl in codeDtls|getCodeDtls:cdNo %}
+                                <option value="{{ codeDtl.cd_dtl_no }}">{{ codeDtl.cd_dtl_desc }}</option>
+                                {% endfor %}
+                                {% endwith %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">그룹코드</div>
+                        <div class="col-10" style="padding: 15px;" id="group_code"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="layerClose()">취소</button>
+                <button type="button" class="btn btn-primary" onclick="addGroup()">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="disconnect_group_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="disconnect_group_title"></h5>
+                <input type="hidden" id="disconnect_group_name" value=""/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="layerClose()">취소</button>
+                <button type="button" class="btn btn-primary" onclick="disconnectGroup()">해제</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="{% static '/js/tree.min.js' %}"></script>
+<script src="{% static '/js/fabric.min.js' %}"></script>
+<script>
+    var canvas
+    var boxWidth = 300
+    var boxHeight = 60
+    var boxRound = 20
+    var start_X = window.innerWidth * 0.2
+    var start_y = window.innerHeight * 0.2
+    const group_map = new Map()
+    const node_map = new Map()
+    const node_name_map = new Map()
+
+    const textColor = [
+        "#eeeeee",
+        "#eeeeee",
+        "#eeeeee",
+        "#eeeeee",
+        "#eeeeee",
+        "#eeeeee",
+        "#eeeeee",
+    ]
+    const color = [
+        "#B22222",
+        "#FF4500",
+        "#DAA520",
+        "#32CD32",
+        "#5F9EA0",
+        "#6A5ACD",
+        "#800080",
+    ]
+
+    var groups = []
+    var disconnect_groups = []
+    var childrenGroups = []
+    var isActive = false
+    var drawGroupKeys = []
+    var tree
+
+    $(document).keypress(function(e) {
+        if ($("#group_name").val() == '') {
+            if (e.keycode == 61 || e.which == 61) {
+                e.preventDefault()
+                showGroupLayer()
+            }
+        } else {
+            if (e.keycode == 13 || e.which == 13) {
+                e.preventDefault()
+                addGroup()
+            }
+        }
+    });
+
+    // disable right click menu
+    window.addEventListener("contextmenu", e => e.preventDefault());
+    $(document).ready(function() {
+        // start canvas
+        canvas = new fabric.Canvas('group_canvas')
+
+        // 전체화면
+        canvas.setDimensions({width:window.innerWidth * 0.8, height: window.innerHeight * 0.8})
+        canvas.selection = false
+        canvas.hoverCursor = 'pointer'
+        canvas.targetFindTolerance = 2
+        canvas.stopContextMenu = true
+        canvas.fireRightClick = true
+
+        // event
+        var panning = false
+        canvas.on({
+            'mouse:dblclick': function(e) {
+                if (e.target == null) return
+                var node = node_name_map.get(e.target.getObjects()[1].text)
+
+                if (node.key > 0) {
+                    $("#group_title").html("그룹 수정")
+                    $("#group_type").val(node.type).prop("selected", true)
+                    $("#group_code").html(node.code)
+                } else {
+                    $("#group_title").html("그룹 생성")
+                }
+                showGroupLayer()
+
+                $("#group_key").val(node.key)
+                $("#group_name").val(node.name)
+
+            },
+            'mouse:up': function(e) {
+                if (e.target == null ) {
+                    panning = false
+                } else {
+                    if (e.button == 3) {
+                        showDisconnectGroupLayer()
+                        var node = node_name_map.get(e.target.getObjects()[1].text)
+                        $("#disconnect_group_title").html("그룹에서 " + node.name + " 연결을 해제 하시겠습니까?")
+                        $("#disconnect_group_name").val(node.name)
+                    } else if (e.button == 1) {
+                        // mouse left click
+                        var isIntersects = false
+                        if (e.target != null) {
+                            canvas.forEachObject(function(obj) {
+                                obj.set('opacity', 1)
+
+                                // 동일 대상 제외
+                                if (obj === e.target) return
+                                // 동일 그룹명 제외
+                                if (e.target.getObjects()[1].text == obj.getObjects()[1].text) return
+
+                                // 교차 상태중 인지 확인
+                                if (e.target.intersectsWithObject(obj)) {
+                                    var node = node_name_map.get(e.target.getObjects()[1].text)
+
+                                    var group = group_map.get(node.key)
+                                    if (obj.getObjects()[1].text == "삭제") {
+                                        // 그룹 연결 해제 또는 삭제
+                                        if (group.parent_group_key == -1) {
+                                            // 그룹 삭제
+                                            var disconnect_remove_index = disconnect_groups.findIndex(disconnect_group => disconnect_group.group_key == group.group_key)
+                                            disconnect_groups.splice(disconnect_remove_index, 1)
+                                            deleteGroup(group)
+                                        } else {
+                                            alert("그룹을 먼저 해제해 주세요")
+                                        }
+                                    } else {
+                                        // 그룹 이동 및 추가
+                                        var parent_node = node_name_map.get(obj.getObjects()[1].text)
+
+                                        // disconnects에서 삭제
+                                        if (group.parent_group_key == -1) {
+                                            var disconnect_remove_index = disconnect_groups.findIndex(disconnect_group => disconnect_group.group_name === e.target.getObjects()[1].text)
+                                            disconnect_groups.splice(disconnect_remove_index, 1)
+                                        }
+
+                                        // 위치 때문에 삭제 후 추가
+                                        groups.splice(groups.findIndex(group => group.group_key == node.key), 1)
+                                        group.parent_group_key = parent_node.key
+                                        group.group_depth = parent_node.depth
+                                        groups.push(group)
+
+                                        // depth 변경
+                                        changeDepth(group, group.group_depth)
+                                    }
+
+                                    reDrawGroup(isReDrawTree = false)
+                                }
+                            })
+
+                            canvas.remove(e.target)
+                        }
+
+                    }
+                }
+            },
+            'mouse:down': function(e) {
+                if(e.button === 1) {
+                    if (e.target == null ) {
+                        panning = true
+                    } else {
+                        makeClone()
+                        e.target.opacity = 0.5
+                    }
+                }
+            },
+            'mouse:move': function(e) {
+                if (panning && e && e.e) {
+                    var units = 10
+                    var delta = new fabric.Point(e.e.movementX, e.e.movementY)
+                    canvas.relativePan(delta)
+                }
+            },
+            'mouse:wheel': function(opt) {
+                var delta = opt.e.deltaY
+                var zoom = canvas.getZoom()
+                zoom *= 0.999 ** delta
+                if (zoom > 20) zoom = 20
+                if (zoom < 0.01) zoom = 0.01
+                canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom)
+                opt.e.preventDefault()
+                opt.e.stopPropagation()
+            },
+            'object:moved': function(e) {
+                if (e.target != null) {
+                    e.target.opacity = 0.5
+                }
+            },
+            'object:modified': function(e) {
+                if (e.target != null) {
+                    e.target.opacity = 1
+                }
+            },
+            'object:moving': function(e) {
+                e.target.setCoords()
+                canvas.forEachObject(function(obj) {
+                    if (obj === e.target) return
+                    if (e.target.intersectsWithObject(obj)) {
+                        obj.set('opacity', 0.5)
+                    } else {
+                        obj.set('opacity', 1)
+                    }
+                })
+            },
+            'object:scaling': function(e) {
+                e.target.setCoords()
+                canvas.forEachObject(function(obj) {
+                    if (obj === e.target) return
+                    if (e.target.intersectsWithObject(obj)) {
+                        obj.set('opacity', 0.5)
+                    } else {
+                        obj.set('opacity', 1)
+                    }
+                })
+            },
+        })
+
+        getGroups()
+    })
+
+
+    // Tree Node
+    function TreeNode(key, name, parent_key, depth, type, code, x, y, color) {
+        this.key = key
+        this.name = name
+        this.parent_key = parent_key
+        this.depth = depth
+        this.type = type
+        this.code = code
+        this.x = x
+        this.y = y
+        this.color = color
+
+        this.children = []
+    }
+
+    TreeNode.prototype.addChild = function (childNode) {
+        this.children.push(childNode)
+    }
+
+    // 화면 새로 그리기
+    function reDrawGroup(isReDrawTree = true) {
+        canvas.clear()
+        node_map.clear()
+        node_name_map.clear()
+
+        for (var inx = 0; inx < groups.length; inx++) {
+            var group = groups[inx]
+
+            var node = new TreeNode(group.group_key, group.group_name, group.parent_group_key, group.group_depth, group.group_type, group.group_code, start_X, start_y, group.color)
+            group_map.set(group.group_key, group)
+            node_map.set(group.group_key, node)
+            node_name_map.set(group.group_name, node)
+        }
+
+        // ndoe 자식 연결
+        for (var inx = 0; inx < groups.length; inx++) {
+            var group = groups[inx]
+
+            if (group.parent_group_key != 0) {
+                node = node_map.get(group.group_key)
+                if (typeof node != 'undefined') {
+                    parent_node = node_map.get(group.parent_group_key)
+                    if (typeof parent_node != 'undefined') {
+                        parent_node.addChild(node)
+                    }
+                }
+            }
+        }
+
+        var firstKey = 1
+        if (drawGroupKeys.length > 0) {
+            for (var inx = 0; inx < drawGroupKeys.length; inx++) {
+
+                var group = group_map.get(drawGroupKeys[inx])
+                if (!drawGroupKeys.includes(group.parent_group_key)) {
+                    firstKey = group.group_key
+                }
+            }
+        }
+
+        console.log(firstKey)
+        var node = node_map.get(firstKey)
+        drawGroup(node, node.depth)
+        reDrawDisconnectGroup()
+        if (isReDrawTree) {
+            vue.getMemberTree()
+        }
+    }
+
+    function reDrawDisconnectGroup() {
+        for (var inx = 0; inx < disconnect_groups.length; inx++) {
+            var disconnect_group = disconnect_groups[inx]
+
+            var y = window.innerHeight * 0.5 - (boxHeight + 30) * inx
+            var node = new TreeNode(disconnect_group.group_key, disconnect_group.group_name, disconnect_group.parent_group_key, disconnect_group.group_type, disconnect_group,group_code, disconnect_group.group_depth, 20, y)
+            canvas.add(makeDisconnectGroup(node))
+        }
+    }
+
+    function changeDepth(group, depth) {
+        var node = node_map.get(group.group_key)
+        group.group_depth = depth + 1
+        node.depth = depth + 1
+
+        for (let i = 0; i < node.children.length; i++) {
+            changeDepth(group_map.get(node.children[i].key), group.group_depth)
+        }
+    }
+
+    function drawGroup(node, inx) {
+        if (typeof node != 'undefined') {
+            canvas.add(btnDisconnectGroup())
+            if (node.depth == 0) {
+                canvas.remove.apply(canvas, canvas.getObjects())
+                canvas.add(makeGroup(node))
+            } else {
+                node.x = node.x + (boxWidth + 50) * node.depth
+                if (inx != 0) {
+                    node.y = node.y + boxHeight + 30
+                }
+
+                canvas.add(makeGroup(node))
+            }
+
+            for (let i = 0; i < node.children.length; i++) {
+                node.children[i].y = canvas.getObjects()[canvas.getObjects().length - 1].top
+                node.children[i].color = color[inx]
+                drawGroup(node.children[i], i)
+            }
+        }
+    }
+
+    function makeGroup(node) {
+        var label = new fabric.Text(node.name, {
+            fontFamily: 'Comic Sans',
+            fontSize: 17,
+            fontWeight: 'bold',
+            textAlign: 'center',
+            originX: 'center',
+            originY: 'center',
+            fill: "#1f1f1f",
+        })
+
+        var circle = new fabric.Circle({
+            radius: 15,
+            left: -130,
+            top: -15,
+            fill: "#eeeeee",
+        })
+
+        var rect = new fabric.Rect({
+            width: boxWidth,
+            height: boxHeight,
+            originX: 'center',
+            originY: 'center',
+            fill: node.depth == -1 ? "#70345c" : color[node.depth],
+            strokeWidth: 10,
+            stroke: "white"
+        })
+
+
+        if (node.depth == 0) {
+            // root
+            var group = new fabric.Group([rect, label], {
+                left: node.x,
+                top: node.y,
+                hasControls: false,
+                hasBorders: false,
+                selectable: false,
+                evented: false,
+            })
+        } else {
+            var group = new fabric.Group([rect, label, circle], {
+                left: node.x,
+                top: node.y,
+                hasControls: false,
+                hasBorders: false,
+                evented: isActive,
+            })
+        }
+
+        return group
+    }
+
+    function makeDisconnectGroup(node) {
+        var label = new fabric.Text(node.name, {
+            fontSize: 15,
+            fontWeight: 'bold',
+            textAlign: 'center',
+            originX: 'center',
+            originY: 'center',
+            fill: "#eeeeee",
+        })
+
+        var group_children_length = groups.filter(group => group.parent_group_key == node.key).length
+        var label_count = new fabric.Text(group_children_length + "", {
+            fontSize: 20,
+            left: -115,
+            fontWeight: 'bold',
+            textAlign: 'center',
+            originX: 'center',
+            originY: 'center',
+            fill: "#eeeeee",
+        })
+
+        var circle = new fabric.Circle({
+            radius: 15,
+            left: -130,
+            top: -15,
+            fill: "#a94c2b",
+        })
+
+        var rect = new fabric.Rect({
+            width: boxWidth,
+            height: boxHeight,
+            originX: 'center',
+            originY: 'center',
+            rx: boxRound,
+            ry: boxRound,
+            fill: "#70345c",
+        })
+
+        var group = new fabric.Group([rect, label, circle, label_count], {
+            left: node.x,
+            top: node.y,
+            hasControls: false,
+            hasBorders: false,
+        })
+
+        return group
+    }
+
+
+    function btnDisconnectGroup(left = 40, top = window.innerHeight * 0.6) {
+        var label = new fabric.Text("삭제", {
+            fontSize: 15,
+            fontWeight: 'bold',
+            textAlign: 'center',
+            fill: '#70345c',
+            originX: 'center',
+            originY: 'center',
+        })
+
+        var rect = new fabric.Rect({
+            fill: 'white',
+            width: 100,
+            height: 100,
+            originX: 'center',
+            originY: 'center',
+            strokeWidth: 2,
+            stroke: "#880E4F",
+            rx: boxRound,
+            ry: boxRound,
+        })
+
+        var group = new fabric.Group([rect, label], {
+            left: left,
+            top: top,
+            hasControls: false,
+            hasBorders: false,
+        })
+        return group
+    }
+
+    function addGroup() {
+        var group_key = $("#group_key").val()
+        var group_name = $("#group_name").val()
+        var group_type = $("#group_type option:selected").val()
+        $("#group_key").val("")
+        $("#group_name").val("")
+        $("#group_type option:eq(0)").prop("selected", true);
+
+        if (typeof node_name_map.get(group_name) != "undefined" && node_name_map.get(group_name).key != group_key) {
+            alert("동일한 그룹명이 있습니다.")
+            return
+        }
+
+        $("#add_group_modal").modal("hide")
+
+        if (group_key != "") {
+            updateGroup(group_key, group_name, group_type)
+        } else {
+            createGroup(group_name, group_type)
+        }
+    }
+
+    function makeClone() {
+        canvas.getActiveObject().clone(function(clonedObj) {
+            canvas.discardActiveObject()
+            clonedObj.set({
+                hasControls: false,
+                hasBorders: false,
+                opacity: 1,
+            })
+            canvas.add(clonedObj)
+            canvas.setActiveObject(clonedObj)
+            canvas.requestRenderAll()
+        })
+    }
+
+    function showGroupLayer() {
+        $("#group_name").val("")
+        $('#add_group_modal').on('shown.bs.modal', function() {
+            $("#group_name").focus()
+        });
+        $("#add_group_modal").modal("show")
+    }
+
+    function showDisconnectGroupLayer() {
+        $("#disconnect_group_modal").modal("show")
+    }
+
+    function getGroups() {
+        $.ajax({
+            type: "GET",
+            url: "/re-group/getGroups",
+            success: function (res) {
+                groups = res
+                disconnect_groups = groups.filter(group => group.parent_group_key == -1)
+                reDrawGroup();
+            }
+        });
+    }
+
+    function createGroup(group_name, group_type) {
+        $.ajax({
+            type: "POST",
+            url: "/re-group/createGroup",
+            data: {"group_name" : group_name, "group_type": group_type},
+            success: function (group) {
+                groups.push(group)
+                disconnect_groups.push(group)
+                reDrawGroup(isReDrawTree = false)
+            }
+        });
+    }
+
+    function updateGroup(group_key, group_name, group_type) {
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            url: "/re-group/updateGroup/" + group_key,
+            data: JSON.stringify({"group_name": group_name, "group_type": group_type}),
+            success: function () {
+                getGroups()
+            }
+        });
+    }
+
+    function updateGroupDepth() {
+        var node = node_map.get(1)
+
+        childrenGroups = []
+        getChildrenGroupMap(node)
+
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            url: "/re-group/updateGroupDepth",
+            data: JSON.stringify({"groups": Array.from(childrenGroups)}),
+            success: function (res) {
+                document.location.reload()
+            }
+        })
+    }
+
+    function rollbackGroup() {
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            url: "/re-group/rollbackGroup",
+            success: function (res) {
+                document.location.reload()
+            }
+        })
+    }
+
+    function disconnectGroup() {
+        var node = node_name_map.get($("#disconnect_group_name").val())
+        var group = group_map.get(node.key)
+        group.parent_group_key = -1
+        group.group_depth = -1
+        disconnect_groups.push(group)
+
+        var data = {
+            "parent_group_key": group.parent_group_key,
+            "group_depth": group.group_depth,
+        }
+
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            url: "/re-group/updateDisconnectGroup/" + group.group_key,
+            data: JSON.stringify({"data": data}),
+            success: function (res) {
+                $("#disconnect_group_modal").modal("hide")
+                reDrawGroup()
+            }
+        });
+    }
+
+    function deleteGroup(group) {
+        var node = node_map.get(group.group_key)
+
+        var group_keys = []
+        for (let i = 0; i < node.children.length; i++) {
+            group_keys.push(node.children[i].key)
+        }
+
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            url: "/re-group/deleteGroup/" + group.group_key,
+            data: JSON.stringify({"group_keys": group_keys}),
+            success: function (res) {
+                getGroups()
+            }
+        });
+    }
+
+    function getChildrenGroupMap(node) {
+        var group = group_map.get(node.key)
+        childrenGroups.push(group)
+
+        for (let i = 0; i < node.children.length; i++) {
+            getChildrenGroupMap(node.children[i])
+        }
+    }
+
+    function layerClose() {
+        $("#disconnect_group_modal").modal("hide")
+        $("#add_group_modal").modal("hide")
+    }
+
+    function useActive() {
+        if (isActive) {
+            isActive = false
+            $("#groupActive").html("활성화")
+        } else {
+            isActive = true
+            $("#groupActive").html("비활성화")
+        }
+
+        reDrawGroup(isReDrawTree = false)
+    }
+
+</script>
+
+
+<script>
+    const vue = createApp({
+        data () {
+            return {}
+        },
+        methods: {
+            getMemberTree() {
+                $('.treeDiv').html('');
+                axios.get("/re-group/getGroupTree")
+                .then((response) => {
+                    let data = response.data
+                    if (data != "") {
+                        tree = new Tree('.treeDiv', {
+                            data: [ data ],
+                            closeDepth: 10,
+                            loaded: function () {
+                                console.log(data)
+                            },
+                            onChange: function () {
+                                if (this.values.length == 0) {
+                                    drawGroupKeys = []
+                                }
+
+                                for (value of this.values) {
+                                    console.log(value)
+                                    var groupKey = parseInt(value.split("_")[0])
+                                    if (groupKey == 1) {
+                                        continue
+                                    }
+
+                                    if (!drawGroupKeys.includes(groupKey)) {
+                                        drawGroupKeys.push(groupKey)
+                                    }
+                                }
+
+                                console.log(drawGroupKeys)
+                                if (drawGroupKeys.length == groups.length - 1) {
+                                    drawGroupKeys = []
+                                }
+
+                                reDrawGroup(isReDrawTree = false)
+                            }
+                        })
+                    }
+                })
+            }
+        },
+        mounted: function() {
+            this.getMemberTree()
+        }
+    }).mount('#group_view')
+</script>
+
+{% endblock content %}

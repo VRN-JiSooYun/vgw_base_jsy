@@ -1,0 +1,147 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+<!--
+	Workingtime 선택된 경우 출퇴근 시간 수정하기 창 활성화
+-->
+
+<tr
+{% if q_workingtime_issued.check_hr_wkt_issued_request_to_hr_activated == True %}
+	{% if q_workingtime_issued.status_workingtime_issued_requested_to_hr != STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.3.0 %}
+		style="background-color:rgba(255, 0, 255, 0.15)"
+	{% else %}
+		style="background-color:rgba(0, 255, 255, 0.15)"
+	{% endif %}
+{% else %}
+	{% if q_workingtime_issued == q_mysettings_hr.workingtime_issued %}
+		style="background-color:rgb(255,255,0,0.15)"
+	{% else %}
+		style="background-color:rgb(255,255,255,0.75)"
+	{% endif %}
+{% endif %}
+>
+	<td></td>
+	<td colspan="13">
+
+		<div class="card card-body" style="background-color:rgb(250,250,250,0.75)">
+			<div>
+				<h6>
+					<strong>
+						출퇴근 내용 수정하기
+					</strong>
+				</h6>
+			</div>
+
+			<table class="table">
+				<tr>
+					<th>
+						근무일
+					</th>
+					<th>
+						출근 시간
+					</th>
+					<th>
+						출근 상태
+					</th>
+					<th>
+						퇴근 시간
+					</th>
+					<th>
+						퇴근 상태
+					</th>
+					<th>
+						근무 형태
+					</th>
+					<th>
+						비고
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<input type="date" class="form-control" name="input-date-hr-workingtime-control-modification-date-of-work" value="{{ q_workingtime_issued.date_of_work|date:"Y-m-d" }}">
+					</td>
+					<td>
+						<input type="time" class="form-control" name="input-time-hr-workingtime-control-modification-start" value="{{ q_workingtime_issued.datetime_start|time:"H:i" }}">
+					</td>
+					<td>
+						<select class="form-control" name="select-hr-workingday-control-form-workingtime-start">
+
+							{% for ITEM in STATUS_WORKING_TIME_START %}
+								{% if q_workingtime_issued.status_wkt_start == ITEM.0 %}
+									<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+							{% if q_workingtime_issued.status_wkt_start == Null %}
+								<option value="None">--------------------</option>
+							{% else %}
+								<option value="None">--------------------</option>
+							{% endif %}
+							{% for ITEM in STATUS_WORKING_TIME_START %}
+								{% if q_workingtime_issued.status_wkt_start != ITEM.0 %}
+									<option value="{{ ITEM.0 }}">{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+
+						</select>
+					</td>
+					<td>
+						<input type="time" class="form-control" name="input-time-hr-workingtime-control-modification-end" value="{{ q_workingtime_issued.datetime_end|time:"H:i" }}">
+					</td>
+					<td>
+						<select class="form-control" name="select-hr-workingday-control-form-workingtime-end">
+							{% for ITEM in STATUS_WORKING_TIME_END %}
+								{% if q_workingtime_issued.status_wkt_end == ITEM.0 %}
+									<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+							{% if q_workingtime_issued.status_wkt_end == Null %}
+								<option value="None">--------------------</option>
+							{% else %}
+								<option value="None">--------------------</option>
+							{% endif %}
+							{% for ITEM in STATUS_WORKING_TIME_END %}
+								{% if q_workingtime_issued.status_wkt_end != ITEM.0 %}
+									<option value="{{ ITEM.0 }}">{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+						</select>
+					</td>
+					<td>
+						<select class="form-control" name="select-hr-workingday-control-form-workingtime-location">
+
+							{% for ITEM in STATUS_WORKING_TYPE_LOCATION %}
+								{% if q_workingtime_issued.status_working_type_location == ITEM.0 %}
+									<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+
+							{% for ITEM in STATUS_WORKING_TYPE_LOCATION %}
+								{% if q_workingtime_issued.status_working_type_location != ITEM.0 %}
+									<option value="{{ ITEM.0 }}">{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+						</select>
+					</td>
+
+					<td>
+						<button type="submit" name="button-hr-workingtime-control-workingtime-issued-modify-update" value="{{ q_workingtime_issued.id }}" class="btn btn-link btn-sm"
+						{% if q_workingtime_issued.status_workingtime_issued_requested_to_hr == STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.3.0  %}
+						disabled
+						{% endif %}
+						>수정내용 임시저장하기</button>
+
+						{% if q_workingtime_issued.dict_modified_draft_for_workingtime_issued_by_me != Null %}
+							<button type="submit" name="button-hr-workingtime-control-workingtime-issued-modify-autoupdate" value="{{ q_workingtime_issued.id }}" class="btn btn-link btn-sm"
+							{% if q_workingtime_issued.status_workingtime_issued_requested_to_hr == STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.3.0  %}
+							disabled
+							{% endif %}
+							>제공된 시간으로 바로저장</button>
+						{% endif %}
+					</td>
+				</tr>
+			</table>
+		</div>
+	</td>
+</tr>

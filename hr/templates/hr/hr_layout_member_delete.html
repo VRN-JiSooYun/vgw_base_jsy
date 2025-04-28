@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% block content %}
+{% include 'hr/hr_navbar_layout.html' %}
+{% include 'hr/hr_navbar_layout_register_member.html' %}
+
+
+
+<div class="row">
+
+    <div class="col-md-12">
+        <legend class="border-bottom mb-4">
+            <strong>
+                {{ q_profile.name_korean }} 인사정보 - 퇴사처리
+            </strong>
+            <br>
+            <small>
+                <a href="{% url 'hr-layout-update-member' q_profile.id %} ">
+                    <<< {{ q_profile.name_korean }} 멤버 업데이트 페이지로 돌아가기
+                </a>
+            </small>
+        </legend>
+
+    </div>
+
+
+    <!--
+        퇴사처리 해야 하는 포지션
+    -->
+    <div class="col-md-3">
+
+        {% include 'hr/hr_layout_member_delete_position_remained.html' %}
+
+    </div>
+
+
+
+    <!--
+        퇴사 처리 전 정보 입력
+    -->
+    <div class="col-md-6">
+        <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+            <legend>
+                <strong>
+                    {% if qs_hrlayout|length > 0 %}
+                        퇴사 처리 전 정보 입력
+                    {% else %}
+                        해당 멤버가 소유한 포지션 / 권한이 없습니다.
+                    {% endif %}
+                </strong>
+            </legend>
+
+
+
+            {% if qs_hrlayout|length > 0 %}
+            <!--
+                퇴사지 보직 후임자 처리 필요
+            -->
+
+                <!--
+                    Step 1 //////////////////////////////////////////////////////////////////////////////////////////
+                -->
+                <form method="POST" action="{% url 'hr-layout-delete-member' q_profile.id %}">
+                    {% csrf_token %}
+
+                    {% include 'hr/hr_layout_member_delete_form_step1.html' %}
+
+                </form>
+
+
+                {% if q_mysettings_hr.hrlayout != Null %}
+
+                    <!--
+                        Step 2 //////////////////////////////////////////////////////////////////////////////////////////
+                    -->
+                    <form method="POST" action="{% url 'hr-layout-delete-member' q_profile.id %}">
+                        {% csrf_token %}
+
+                        {% include 'hr/hr_layout_member_delete_form_step2.html' %}
+
+                    </form>
+
+
+                    <!--
+                        Step 3 //////////////////////////////////////////////////////////////////////////////////////////
+                    -->
+                    <form method="POST" action="{% url 'hr-layout-delete-member' q_profile.id %}">
+                        {% csrf_token %}
+
+                        {% include 'hr/hr_layout_member_delete_form_step3.html' %}
+
+                    </form>
+                {% endif %}
+
+            {% else %}
+            <!--
+                퇴사지 보직 후임자 처리 완료
+            -->
+                    {% if q_mysettings_hr.hrlayout_management.step == 5 %}
+                        {% include 'hr/hr_layout_member_delete_form_resign_inform_collection.html' %}
+                        <hr>
+                    {% endif %}
+
+
+            {% endif %}
+
+        </div>
+    </div>
+
+
+
+    <!--
+        퇴사 처리된 포지션
+    -->
+    <div class="col-md-3">
+
+        {% include 'hr/hr_layout_member_delete_position_processed.html' %}
+
+    </div>
+</div>
+
+{% endblock content %}

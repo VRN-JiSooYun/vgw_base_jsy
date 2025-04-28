@@ -1,0 +1,119 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<tr
+{% if q_vacation_control.check_hr_vc_issued_request_to_hr_activated == True %}
+	style="background-color:rgba(255, 0, 255, 0.15)"
+{% elif q_vacation_control.check_hr_vc_issued_request_to_hr_responsed == True %}
+	style="background-color:rgba(0, 255, 255, 0.15)"
+{% else %}
+	{% if q_vacation_control == q_mysettings_hr.vacation_control or q_vacation_control.id in q_mysettings_hr.list_vacation_control_id_selected %}
+		style="background-color:rgba(255, 255, 0, 0.15);"
+	{% else %}
+		{% if q_vacation_control.id in q_mysettings_hr.list_vacation_control_id_searched  %}
+			style="background-color:rgba(0, 255, 255, 0.15);"
+		{% else %}
+		{% endif %}
+	{% endif %}
+{% endif %}
+>
+	{% include 'hr/hr_vacation_control_register_member_vacation_table_row_control.html' %}
+
+</tr>
+
+
+
+
+
+
+
+
+
+{% if q_mysettings_hr.check_activate_detail_vacation_control_view == True %}
+	{% if q_mysettings_hr.vacation_control == q_vacation_control %}
+		<tr>
+			<td>
+				<strong>
+					근무년차 변경
+				</strong>
+				<select class="form-control" name="select-hr-vacation-control-working-year">
+                    <option selected
+					value ="{{ q_mysettings_hr.vacation_control.status_working_year }}"
+                    >
+                        {{ q_mysettings_hr.vacation_control.status_working_year }}
+                    </option>
+					{% for num_working_year in  list_member_history_working_year %}
+						{% if num_working_year != q_mysettings_hr.vacation_control.status_working_year %}
+							<option value="{{ num_working_year }}">{{ num_working_year }}</option>
+						{% endif %}
+					{% endfor %}
+	            </select>
+				<button type="submit" name="button-hr-vacation-control-working-year" value="true" class="btn btn-link btn-sm" >
+					Select
+				</button>
+			</td>
+
+			<td colspan="10">
+				<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+					<table class="table">
+						<tr>
+							<th>
+								휴가종류
+							</th>
+							<th>
+								남은 Credit
+							</th>
+							<th>
+								발행방식
+							</th>
+							<th>
+								사용가능여부
+							</th>
+							<th>
+								발급일/만료일
+							</th>
+							<th>
+								연결된 휴가계획서
+							</th>
+							<th>
+								비고
+							</th>
+						</tr>
+
+
+
+						<!--
+							선택된 발행휴가
+						-->
+						{% for q_vacation_issued_mine in qs_vacation_issued_mine %}
+							{% if q_mysettings_xxx.vacation_issued == q_vacation_issued_mine %}
+								{% include 'hr/hr_vacation_control_register_member_vacation_table_row_filter.html' %}
+							{% endif %}
+						{% endfor %}
+
+						<!--
+							인사팀 커뮤니케이션 발행휴가
+						-->
+						{% for q_vacation_issued_mine in qs_vacation_issued_mine %}
+							{% if q_mysettings_xxx.vacation_issued != q_vacation_issued_mine and q_vacation_issued_mine.check_hr_vc_issued_request_to_hr_activated == True %}
+								{% include 'hr/hr_vacation_control_register_member_vacation_table_row_filter.html' %}
+							{% endif %}
+						{% endfor %}
+
+						<!--
+							선택안되고 커뮤니케이션 아닌 나머지 발행휴가
+						-->
+						{% for q_vacation_issued_mine in qs_vacation_issued_mine %}
+							{% if q_mysettings_xxx.vacation_issued != q_vacation_issued_mine and q_vacation_issued_mine.check_hr_vc_issued_request_to_hr_activated == False %}
+								{% include 'hr/hr_vacation_control_register_member_vacation_table_row_filter.html' %}
+							{% endif %}
+						{% endfor %}
+					</table>
+				</div>
+			</td>
+		</tr>
+	{% endif %}
+{% endif %}

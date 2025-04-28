@@ -1,0 +1,183 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load mathfilters %}
+
+
+
+<tr
+class="table-hover"
+{% if q_task_plan.check_hr_confirmed == True %}
+	style="background-color:rgba(0, 255, 255, 0.15)"
+{% else %}
+	{% if q_task_plan.list_dict_project_id_project_percent != Null %}
+		{% if q_task_plan == q_mysettings_hr.task_plan  %}
+			style="background-color:rgba(255, 255, 0, 0.15)"
+		{% else %}
+			style="background-color:rgb(255,255,255,0.85)"
+		{% endif %}
+	{% else %}
+		{% if q_task_plan.date_deadline_task_submission < ls_today %}
+			{% if q_task_plan == q_mysettings_hr.task_plan  %}
+				style="background-color:rgba(255, 255, 0, 0.15)"
+			{% else %}
+				style="background-color:rgb(255,0,255,0.15)"
+			{% endif %}
+		{% else %}
+			{% if q_task_plan == q_mysettings_hr.task_plan  %}
+				style="background-color:rgba(255, 255, 0, 0.15)"
+			{% else %}
+				style="background-color:rgb(255,255,255,0.85)"
+			{% endif %}
+		{% endif %}
+	{% endif %}
+{% endif %}
+>
+	<td>
+		<!--
+			멤버
+		-->
+		<input type="checkbox" name="checkbox-hr-task-plan-owner-select" value="{{ q_task_plan.id }}"
+		{% if q_task_plan.id in q_mysettings_hr.list_selected_task_plan_id %}
+			checked
+		{% endif %}
+		>
+		<button type="submit" name="button-hr-task-paln-owner-name-select" class="btn btn-link btn-sm" value="{{q_task_plan.id }}">
+			{{ q_task_plan.owner.profile.name_korean }}
+		</button>
+	<td>
+		<!--
+			소속 부서 / 팀
+		-->
+		{{ q_task_plan.hrlayout.division.division_name }}
+		<br>
+		<button type="submit" name="button-hr-task-control-select-team-analysis" class="btn btn-link btn-sm" value="{{ q_task_plan.hrlayout.team.id }}">
+			{{ q_task_plan.hrlayout.team.team_name }}
+		</button>
+	</td>
+
+	<!--
+		기간
+	-->
+	{% if q_mysettings_hr.check_display_size_task_table_fullwidth == True %}
+	<td>
+		{% if q_mysettings_hr.check_display_size_task_table_fullwidth == True %}
+			{{ q_task_plan.date_deadline_task_submission|date:"Y-m" }}-01 ~ {{ q_task_plan.date_deadline_task_submission|date:"Y-m-d" }}
+		{% else %}
+			{{ q_task_plan.date_deadline_task_submission.year }}년 {{ q_task_plan.date_deadline_task_submission.month }}월
+		{% endif %}
+	</td>
+	{% endif %}
+
+	<!--
+		프로젝트 참여율
+	-->
+	{% if q_task_plan.list_dict_project_id_project_percent != Null %}
+		{% if q_task_plan.check_activate_submission_form == True %}
+			{% for q_project_simple_onprogress in qs_project_simple_onprogress %}
+				<td width="{{percent_table_width_project_participants}}%">
+				{% for item_dict in q_task_plan.list_dict_project_id_project_percent %}
+					{% if item_dict.project_name == q_project_simple_onprogress.project_name %}
+						<button type="button" class="btn btn-outline-info btn-sm">
+							{{ item_dict.project_name }} :
+							<span
+							{% if item_dict.participant_percent == 0 %}
+								class="badge badge-danger text-white"
+							{% else %}
+								class="badge badge-primary text-white"
+							{% endif %}
+							>
+								{{ item_dict.participant_percent }}
+							</span>
+						</button>
+					{% endif %}
+				{% endfor %}
+				</td>
+			{% endfor %}
+		{% else %}
+			<td colspan="{{ qs_project_simple_onprogress|length }}">
+				{% if q_task_plan.date_deadline_task_submission < ls_today %}
+					<button type="button" class="btn btn-danger btn-sm"	>
+						미작성(기한만료)
+					</button>
+				{% else %}
+					{% if q_task_plan.date_start_task_submission < ls_today %}
+						<button type="button" class="btn btn-warning btn-sm">
+							미작성(작성기간 중)
+						</button>
+					{% else %}
+						<button type="button" class="btn btn-secondary btn-sm">
+							작성기간 미도래
+						</button>
+					{% endif %}
+				{% endif %}
+			</td>
+		{% endif %}
+
+	{% else %}
+		<td colspan="{{ qs_project_simple_onprogress|length }}">
+			{% if q_task_plan.date_deadline_task_submission < ls_today %}
+				<button type="button" class="btn btn-danger btn-sm"	>
+					미작성(기한만료)
+				</button>
+			{% else %}
+				{% if q_task_plan.date_start_task_submission < ls_today %}
+					<button type="button" class="btn btn-warning btn-sm">
+						미작성(작성기간 중)
+					</button>
+				{% else %}
+					<button type="button" class="btn btn-secondary btn-sm">
+						작성기간 미도래
+					</button>
+				{% endif %}
+			{% endif %}
+		</td>
+	{% endif %}
+
+
+	<!--
+		옵션
+	-->
+	<td class="text-right">
+		{% if q_task_plan.check_hr_confirmed == False %}
+			<button type="submit" name="button-hr-task-plan-hr-confirm-register" class="btn btn-link btn-sm" value="{{ q_task_plan.id }}">
+				Confirm
+			</button>
+		{% endif %}
+		{% if q_task_plan.check_activate_submission_form == False %}
+			<button type="submit" class="btn btn-link btn-sm" name="button-hr-task-plan-control-activate-modal" value="{{ q_task_plan.id }}">
+				Activate
+			</button>
+		{% else %}
+			<button type="submit" class="btn btn-link btn-sm" name="button-hr-task-plan-control-deactivate-modal" value="{{ q_task_plan.id }}">
+				Deactivate
+			</button>
+		{% endif %}
+		<button type="submit" name="button-hr-task-plan-hr-activate-modify-view" class="btn btn-link btn-sm" value="{{ q_task_plan.id }}"
+		{% if q_mysettings_hr.task_plan == q_task_plan and q_mysettings_hr.check_activate_task_plan_modify_view == True %}
+			disabled
+		{% endif %}
+		>
+			Modify
+		</button>
+	</td>
+</tr>
+
+
+
+
+<!--
+	//////////////////////////////////////////////////////////////////////
+	선택한 멤버 1년치 참여율 보여주기
+-->
+{% if q_task_plan == q_mysettings_hr.task_plan and q_mysettings_hr.check_activate_task_plan_analytics_view == True %}
+
+	{% include 'hr/hr_task_control_task_main_table_row_member_tasks_for_year.html' %}
+
+{% endif %}
+
+{% if q_task_plan == q_mysettings_hr.task_plan and q_mysettings_hr.check_activate_task_plan_modify_view == True %}
+
+	{% include 'hr/hr_task_control_task_main_table_row_member_tasks_modify.html' %}
+
+{% endif %}

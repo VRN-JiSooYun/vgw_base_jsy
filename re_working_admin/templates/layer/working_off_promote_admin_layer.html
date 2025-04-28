@@ -1,0 +1,95 @@
+<div id="working_off_promote_admin_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">연차 촉진 상세</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">이름</div>
+                    <div class="col" style="padding: 15px;">[[ workingOffPromote.member_name ]]</div>
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">부서</div>
+                    <div class="col" style="padding: 15px;">[[ workingOffPromote.group_name ]]</div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 20px; background: #f7f6f9;">1차촉진일</div>
+                    <div class="col" style="padding: 15px;">
+                        <input type="date" class="form-control" style="width: 150px" v-model="workingOffPromote.first_promote_date">
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">1차촉진상태</div>
+                    <div class="col" style="padding: 15px;">
+                        <select class="form-control" aria-label=".form-select-sm" style="width: 200px" v-model="workingOffPromote.first_promote_status">
+                            <option value="">--선택하세요--</option>
+                            <option v-for="codeDtl in codeDtls" :value="codeDtl.cd_dtl_no" v-html="codeDtl.cd_dtl_nm"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">2차촉진일</div>
+                    <div class="col" style="padding: 15px;">
+                        <input type="date" class="form-control" style="width: 150px" v-model="workingOffPromote.second_promote_date">
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">2차촉진상태</div>
+                    <div class="col" style="padding: 15px;">
+                        <select class="form-control" aria-label=".form-select-sm" style="width: 200px" v-model="workingOffPromote.second_promote_status">
+                            <option value="">--선택하세요--</option>
+                            <option v-for="codeDtl in codeDtls" :value="codeDtl.cd_dtl_no" v-html="codeDtl.cd_dtl_nm"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="close">취소</button>
+                <button type="button" class="btn btn-primary" @click="save">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const working_off_promote_admin_vue = createApp({
+        delimiters: ['[[', ']]'],
+        data () {
+            return {
+                workingOffPromote: {},
+            }
+        },
+        computed: {
+            codeDtls() {
+                return code_vue.getCdDtlsByCdAlias("WORKING_OFF_PROMOTE_STATUS")
+            }
+        },
+        methods: {
+            getWorkingOffPromote(workingOffPromote) {
+                this.workingOffPromote = Object.assign({}, workingOffPromote)
+            },
+            save() {
+                var data = {
+                    first_promote_date: this.workingOffPromote.first_promote_date,
+                    first_promote_status: this.workingOffPromote.first_promote_status,
+                    second_promote_date: this.workingOffPromote.second_promote_date,
+                    second_promote_status: this.workingOffPromote.second_promote_status,
+                }
+                axios.post("/re-working-admin/updateWorkingOffPromote/" + this.workingOffPromote.working_off_promote_id, {data: data})
+                .then((response) => {
+                    vue.getWorkingOffPromotes()
+                    $("#working_off_promote_admin_modal").modal('hide')
+                })
+            },
+            close() {
+                $("#working_off_promote_admin_modal").modal('hide')
+            },
+        },
+        mounted: function() {
+            var self = this
+            $('#working_off_promote_admin_modal').on('hidden.bs.modal', function (e) {
+                self.close()
+            })
+        },
+    }).mount('#working_off_promote_admin_modal')
+</script>

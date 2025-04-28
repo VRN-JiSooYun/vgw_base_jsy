@@ -1,0 +1,427 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load mathfilters %}
+
+
+
+
+
+<table class="table">
+	<tr>
+		<th width="10%">
+			대화내용
+		</th>
+		<td width="40%"  style="background-color:rgb(255,255,255,0.85)">
+			{% for k_member_name, v_comment in q_vacation_plan.dict_communication_with_hr_for_my_xxx_document_plan.items %}
+				<ul>
+					<li>
+						{{ k_member_name }} : {{ v_comment }}
+						{% if q_vacation_plan.owner.profile.name_korean == k_member_name %}
+							{% if forloop.counter == q_vacation_plan.dict_communication_with_hr_for_my_xxx_document_plan|length %}
+								<span class="badge badge-danger">New</span>
+							{% endif %}
+						{% endif %}
+						{% if forloop.counter == q_vacation_plan.dict_communication_with_hr_for_my_xxx_document_plan|length %}
+							{% if request.user.profile.name_korean in k_member_name %}
+								<button type="submit" name="button-hr-vacation-control-vacation-plan-cancel-response-delete-last-comment" value="{{ q_vacation_plan.id }}" class="btn btn-link btn-sm">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+										<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+										<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+									</svg>
+								</button>
+							{% endif %}
+						{% endif %}
+					</li>
+				</ul>
+			{% endfor %}
+			{% if q_vacation_plan.reference_file_cancel != Null and q_vacation_plan.reference_file_cancel != '' %}
+				<a href="{{ q_vacation_plan.reference_file_cancel.url }}" download>
+					첨부 파일 다운로드
+				</a>
+			{% else %}
+				<strong>첨부 파일이 없습니다.</strong>
+			{% endif %}
+		</td>
+		<th width="10%">
+			내용 입력
+		</th>
+		<td>
+			<input type="text" name="text-hr-vacation-control-vacation-plan-cancel-response-contents" class="form-control">
+		</td>
+		<td class="text-right">
+			<button type="submit" name="button-hr-vacation-control-vacation-plan-cancel-response-confirm" value="{{ q_vacation_plan.id }}" class="btn btn-info btn-sm"
+			{% if where_am_i == 'hr' and q_vacation_plan.check_hr_xxx_document_plan_request_to_hr_activated == False %}
+				disabled
+			{% endif %}
+			>
+				Talk
+			</button>
+		</td>
+	</tr>
+</table>
+
+
+{% if where_am_i == 'my' and request.user == q_vacation_plan.owner %}
+	<table>
+		<tr>
+			<th width="10%">첨부파일 등록<br><small>파일명은 영어/숫자만 인식</small></th>
+			<td colspan="2"  style="background-color:rgb(255,255,255,0.85)">
+				{{ form_my_vacation_cancel_reference|bootstrap }}
+			</td>
+			<td class="text-right">
+				<button type="submit" name="button-my-vacation-control-vacation-plan-cancel-request-file-upload" value="{{ q_vacation_plan.id }}" class="btn btn-info btn-sm" >
+					Upload
+				</button>
+			</td>
+		</tr>
+	</table>
+{% endif %}
+
+{% if where_am_i == 'hr' %}
+<!-- 인사팀 화면 -->
+	<hr>
+	<legend>
+		<strong>
+			휴가계획서 수정 패널
+		</strong>
+	</legend>
+	{% if q_vacation_plan.check_hr_xxx_document_plan_request_to_hr_activated == True %}
+	<!-- 요청 활성화 상태 -->
+		{% if q_vacation_plan.status_xxx_document_plan_requested_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.1.0  %}
+		<!-- 사용자 정정/삭제 요청한 상태 -->
+		<!-- 변경할 내용 입력 -->
+			<table class="table">
+				<tr>
+					<th width="15%">수정/삭제 선택</th>
+					<td width="35%" style="background-color:rgb(255,255,255,0.85)">
+						<input type="radio" name="radio-my-vacation-control-vacation-plan-cancel-mode-select" value="modify" checked>
+						계획서 일부 수정
+					</td>
+					<td width="35%" style="background-color:rgb(255,255,255,0.85)">
+						<input type="radio" name="radio-my-vacation-control-vacation-plan-cancel-mode-select" value="cancel">
+						계획서 취소 및 사용된 연차 원상복귀
+					</td>
+					<td class="text-right">
+						<button type="submit" name="button-my-vacation-control-vacation-plan-cancel-request-file-modify" value="{{ q_vacation_plan.id }}" class="btn btn-info btn-sm" >
+							Modify
+						</button>
+					</td>
+				</tr>
+
+				<tr>
+					<th width="15%">사용된 휴가 종류 변경</th>
+					<td colspan="2"  style="background-color:rgb(255,255,255,0.85)">
+						<select class="form-control" name="select-my-vacation-control-vacation-plan-used-vctype-modify">
+							{% if q_vacation_plan.vacation_type == Null %}
+								<option value="none" selected>휴가 종류 선택</option>
+							{% else %}
+								{% for ITEM in LIST_VACATION_TYPES %}
+									{% if q_vacation_plan.vacation_type == ITEM.0 %}
+										<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+									{% endif %}
+								{% endfor %}
+							{% endif %}
+
+							{% if q_vacation_plan.vacation_type != Null %}
+								<option value="none" >휴가 종류 선택</option>
+							{% endif %}
+							{% for ITEM in LIST_VACATION_TYPES %}
+								{% if q_vacation_plan.vacation_type != ITEM.0 %}
+									<option value="{{ ITEM.0 }}">{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th width="15%">연차 사용 타입 변경</th>
+					<td colspan="2"  style="background-color:rgb(255,255,255,0.85)">
+						<select class="form-control" name="select-my-vacation-control-vacation-plan-used-vcregulartype-modify">
+							{% if q_vacation_plan.vacation_regular_type_start == Null %}
+								<option value="none" selected>연차 사용타입 선택</option>
+							{% else %}
+								{% for ITEM in LIST_VACATION_REGULAR_TYPES %}
+									{% if q_vacation_plan.vacation_regular_type_start == ITEM.0 %}
+										<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+									{% endif %}
+								{% endfor %}
+							{% endif %}
+
+							{% if q_vacation_plan.vacation_regular_type_start != Null %}
+								<option value="none" >연차 사용타입 선택</option>
+							{% endif %}
+							{% for ITEM in LIST_VACATION_REGULAR_TYPES %}
+								{% if q_vacation_plan.vacation_regular_type_start != ITEM.0 %}
+									<option value="{{ ITEM.0 }}">{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+
+						</select>
+					</td>
+				</tr>
+
+				<tr>
+					<th width="15%">사용된 휴가 일수(Credit) 변경</th>
+					<td colspan="2"  style="background-color:rgb(255,255,255,0.85)">
+						<input type="float" name="float-my-vacation-control-vacation-plan-used-credit-modify" class="form-control" value="{{ q_vacation_plan.credit_used_total }}">
+					</td>
+				</tr>
+				<tr>
+					<th width="15%">휴가개시일/종료일</th>
+					<td style="background-color:rgb(255,255,255,0.85)">
+						<input type="date" name="date-my-vacation-control-vacation-plan-used-date-start-modify" class="form-control" value="{{ q_vacation_plan.datetime_start|date:"Y-m-d" }}">
+					</td>
+					<td style="background-color:rgb(255,255,255,0.85)">
+						<input type="date" name="date-my-vacation-control-vacation-plan-used-date-end-modify" class="form-control" value="{{ q_vacation_plan.datetime_end|date:"Y-m-d" }}">
+					</td>
+				</tr>
+				<tr>
+					<th width="15%">휴가개시시간</th>
+					<td style="background-color:rgb(255,255,255,0.85)">
+						<input type="time" name="date-my-vacation-control-vacation-plan-used-time-start-modify" class="form-control" value="{{ q_vacation_plan.datetime_start|time:"H:i" }}">
+					</td>
+					<td style="background-color:rgb(255,255,255,0.85)">
+						<input type="time" name="date-my-vacation-control-vacation-plan-used-time-end-modify" class="form-control" value="{{ q_vacation_plan.datetime_end|time:"H:i" }}">
+					</td>
+				</tr>
+			</table>
+		{% elif q_vacation_plan.status_xxx_document_plan_requested_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.2.0  %}
+		<!-- 변경한 내용 확인 -->
+			<table class="table">
+				<tr>
+					<th width="15%">수정/삭제 선택</th>
+					<td width="35%" style="background-color:rgb(255,255,255,0.85)">
+						<input type="radio" name="radio-my-vacation-control-vacation-plan-cancel-mode-select" value="modify"
+						{% if q_vacation_plan.check_vacation_plan_edit_mode == False %}
+						checked
+						{% endif %}
+						disabled
+						>
+						{% if q_vacation_plan.check_vacation_plan_edit_mode == False %}
+						<span class="font-weight-bold">계획서 일부 수정</span>
+						{% else %}
+						<span class="font-weight-light">계획서 일부 수정</span>
+						{% endif %}
+					</td width="15%">
+					<td width="35%" style="background-color:rgb(255,255,255,0.85)">
+						<input type="radio" name="radio-my-vacation-control-vacation-plan-cancel-mode-select" value="cancel"
+						{% if q_vacation_plan.check_vacation_plan_edit_mode == True %}
+						checked
+						{% endif %}
+						disabled
+						>
+						{% if q_vacation_plan.check_vacation_plan_edit_mode == True %}
+						<span class="font-weight-bold">계획서 취소 및 사용된 연차 원상복귀</span>
+						{% else %}
+						<span class="font-weight-light">계획서 취소 및 사용된 연차 원상복귀</span>
+						{% endif %}
+					</td>
+					<td class="text-right">
+						<button type="submit" name="button-my-vacation-control-vacation-plan-cancel-request-file-modify-cancel" value="{{ q_vacation_plan.id }}" class="btn btn-dark btn-sm"
+						{% if q_vacation_plan.check_hr_vc_plan_request_to_hr_response_from_hr_activated == True %}
+							disabled
+						{% endif %}
+						>
+							Cancel
+						</button>
+					</td>
+				</tr>
+			</table>
+			{% if q_vacation_plan.check_vacation_plan_edit_mode == True %}
+			<!-- 삭제하는 경우 -->
+				<table class="table">
+					<tr>
+						<th width="15%">
+							복구되는 발행휴가 Credit
+						</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.credit_planned_to_restore }}
+						</td>
+					</tr>
+				</table>
+			{% else %}
+			<!-- 수정하는 경우 -->
+				<table class="table">
+					<tr>
+						<th width="15%">휴가 종류</th>
+						<td width="35%"style="background-color:rgb(255,255,255,0.85)">
+							{% for ITEM in LIST_VACATION_TYPES %}
+								{% if q_vacation_plan.edit_vacation_type == ITEM.0 %}
+									<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+						</td>
+						<th width="15%">연차 사용타입</th>
+						<td width="35%"style="background-color:rgb(255,255,255,0.85)">
+							{% for ITEM in LIST_VACATION_REGULAR_TYPES %}
+								{% if q_vacation_plan.edit_vacation_regular_type == ITEM.0 %}
+									<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+						</td>
+					</tr>
+					<tr>
+						<th>사용되는 휴가 일수(Credit)</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.credit_planned_to_use }}
+							<span class="text-secondary">
+								(수정한 휴가기간동안 사용될 총 휴가일수)
+							</span>
+						</td>
+						<th>복구될 휴가 일수(Credit)</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.credit_planned_to_restore }}
+							{% if q_vacation_plan.credit_planned_to_restore < 0 %}
+								<span class="text-secondary">
+									(-값은 기존의 계획서상 휴가일수 보다 더 사용한다는 의미)
+								</span>
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<th>휴가 개시일</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.edit_datetime_vacation_start|date:"Y-m-d" }}
+						</td>
+						<th width="15%">휴가 종료일</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.edit_datetime_vacation_end|date:"Y-m-d" }}
+						</td>
+					</tr>
+					<tr>
+						<th>휴가 개시시간</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.edit_datetime_vacation_start|time:"H:i" }}
+						</td>
+						<th>휴가 종료시간</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.edit_datetime_vacation_end|time:"H:i" }}
+						</td>
+					</tr>
+				</table>
+			{% endif %}
+		{% endif %}
+	{% endif %}
+{% elif where_am_i == 'my' %}
+<!-- 사용자 화면 -->
+	{% if q_vacation_plan.check_hr_xxx_document_plan_request_to_hr_activated == True %}
+	<!-- 요청 활성화 상태 -->
+		{% if q_vacation_plan.status_xxx_document_plan_requested_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.3.0  %}
+		<!-- 인사팀 수정내용 송달한 상태 -->
+			<hr>
+			<legend>
+				<strong>
+					휴가계획서 응답 결과
+				</strong>
+			</legend>
+
+			<table>
+				<tr>
+					<th width="15%">수정/삭제 선택</th>
+					<td width="42.5%" style="background-color:rgb(255,255,255,0.85)">
+						<input type="radio" name="radio-my-vacation-control-vacation-plan-cancel-mode-select" value="modify"
+						{% if q_vacation_plan.check_vacation_plan_edit_mode == False %}
+						checked
+						{% endif %}
+						disabled
+						>
+						{% if q_vacation_plan.check_vacation_plan_edit_mode == False %}
+						<span class="font-weight-bold">계획서 일부 수정</span>
+						{% else %}
+						<span class="font-weight-light">계획서 일부 수정</span>
+						{% endif %}
+					</td>
+					<td width="42.5%" style="background-color:rgb(255,255,255,0.85)">
+						<input type="radio" name="radio-my-vacation-control-vacation-plan-cancel-mode-select" value="cancel"
+						{% if q_vacation_plan.check_vacation_plan_edit_mode == True %}
+						checked
+						{% endif %}
+						disabled
+						>
+						{% if q_vacation_plan.check_vacation_plan_edit_mode == True %}
+						<span class="font-weight-bold">계획서 취소 및 사용된 연차 원상복귀</span>
+						{% else %}
+						<span class="font-weight-light">계획서 취소 및 사용된 연차 원상복귀</span>
+						{% endif %}
+
+					</td>
+				</tr>
+			</table>
+			{% if q_vacation_plan.check_vacation_plan_edit_mode == True %}
+			<!-- 삭제하는 경우 -->
+				<table class="table">
+					<tr>
+						<th width="15%">
+							복구되는 발행휴가 Credit
+						</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.credit_planned_to_restore }}
+						</td>
+					</tr>
+				</table>
+			{% else %}
+			<!-- 수정하는 경우 -->
+				<table class="table">
+					<tr>
+						<th width="15%">휴가 종류</th>
+						<td width="35%"style="background-color:rgb(255,255,255,0.85)">
+							{% for ITEM in LIST_VACATION_TYPES %}
+								{% if q_vacation_plan.edit_vacation_type == ITEM.0 %}
+									<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+						</td>
+						<th width="15%">연차 사용타입</th>
+						<td width="35%"style="background-color:rgb(255,255,255,0.85)">
+							{% for ITEM in LIST_VACATION_REGULAR_TYPES %}
+								{% if q_vacation_plan.edit_vacation_regular_type == ITEM.0 %}
+									<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+						</td>
+					</tr>
+					<tr>
+						<th>사용되는 휴가 일수(Credit)</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.credit_planned_to_use }}
+							<span class="text-secondary">
+								(수정한 휴가기간동안 사용될 총 휴가일수)
+							</span>
+						</td>
+						<th>복구될 휴가 일수(Credit)</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.credit_planned_to_restore }}
+							{% if q_vacation_plan.credit_planned_to_restore < 0 %}
+								<span class="text-secondary">
+									(-값은 기존의 계획서상 휴가일수 보다 더 사용한다는 의미)
+								</span>
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<th>휴가 개시일</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.edit_datetime_vacation_start|date:"Y-m-d" }}
+						</td>
+						<th width="15%">휴가 종료일</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.edit_datetime_vacation_end|date:"Y-m-d" }}
+						</td>
+					</tr>
+					<tr>
+						<th>휴가 개시시간</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.edit_datetime_vacation_start|time:"H:i" }}
+						</td>
+						<th>휴가 종료시간</th>
+						<td style="background-color:rgb(255,255,255,0.85)">
+							{{ q_vacation_plan.edit_datetime_vacation_end|time:"H:i" }}
+						</td>
+					</tr>
+				</table>
+			{% endif %}
+		{% endif %}
+	{% endif %}
+{% else %}
+{% endif %}

@@ -1,0 +1,281 @@
+{% load static %}
+<style>
+    .table thead th {
+        text-align:center;
+        position: sticky;
+        top: -200px;
+        background-color: gray !important;
+        color: #f9f9f9;
+        border-left: 0.1rem solid;
+    }
+</style>
+<div id="working_off_promote_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="row" style="width:100%;">
+                        <div class="col-auto mr-auto"><h5 class="modal-title">미사용 연차유급휴가 [[ workingOffPromoteNum ]]차 사용촉진 통지서 및 사용계획서</h5></div>
+                        <div class="col-auto"><span style="font-size: 14px; display:flex; align-self: flex-end;">[[ getYear() ]]</span></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="border-top: 0.5px solid #e2e4e7;">
+                        <div class="col-3" style="padding: 15px;margin-top: 20px; padding-left: 30px">
+                            <div class="row">
+                                <span style="font-size: 18px; font-weight: bold">[[ member.member_name ]]</span>
+                            </div>
+                            <div class="row" style="padding-top: 20px">
+                                <span style="font-size: 14px;">[[ member.group_name ]]</span>
+                            </div>
+                        </div>
+                        <div class="col" style="padding-left: 30px; border-left: 0.5px solid #e2e4e7; ">
+                            <div class="row" style="padding: 8px"><span>연차휴가 사용대상기간</span></div>
+                            <div class="row" style="padding: 8px"><span>[[ working_off_date(member.working_off_start_date) ]]</span></div>
+                            <div class="row" style="padding: 5px">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">전체일수</th>
+                                            <th scope="col">사용일수</th>
+                                            <th scope="col">미사용</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>[[ member.working_off_days + member.working_off_etc_days ]]</td>
+                                            <td><span style="font-weight: bold;">[[ member.working_off_use_days ]]</span></td>
+                                            <td><span style="font-weight: bold; color: red">[[ member.working_off_remain_days ]]</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="display: flex; justify-content:center;font-size: 13px; line-height: 30px; text-align:center; padding: 30px; border-top: 0.5px solid #e2e4e7;">
+                        [근로기준법] 제 61조 연차 유급휴가의 사용 촉진 조항에 근거하여&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>[[ workingOffPromotetLimitDate(this.workingOffPromoteDate) ]]</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;까지<br>
+                        <b>'미사용 연차유급휴가 사용계획서'</b>를 작성하여 통보 바랍니다.
+                    </div>
+                    <div class="row" style="display: flex; justify-content:center; font-size: 13px; line-height: 30px; text-align:center;">
+                        회사의 사용촉구에도 불구하고
+                    </div>
+                    <div class="row" style="display: flex; justify-content:center; font-size: 13px; line-height: 30px; text-align:center">
+                        <B>미사용 연차에 대해서는 다음 시기로 이월되거나 수당으로 지급되지 않고 자동 소멸됩니다.</B>
+                    </div>
+                    <div class="row" style="display: flex; justify-content:center; font-size: 13px; line-height: 30px; text-align:center; margin-bottom: 20px">
+                        연차유급휴가를 적극적으로 사용해 주시기 바랍니다.
+                    </div>
+                    <div class="row" style="display: flex; justify-content:left;font-size: 13px; padding: 30px 30px 20px 20px; border-top: 0.5px solid #e2e4e7;">
+                        <b>미사용 연차유급휴가 사용계획서</b>
+                    </div>
+                    <!-- 사용 계획서 -->
+                    <workingoffpromoteplan v-for="(workingOffPromotePlan, index) in workingOffPromotePlans" :item="workingOffPromotePlan" :index="index" ></workingoffpromoteplan>
+
+                    <div class="row" style="display: flex; justify-content:left; padding: 5px 40px;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">총합</div>
+                        <div class="col-8" style="font-size:14px;font-weight: bold; padding: 15px; text-align: end">[[ total() ]]</div>
+                    </div>
+
+                    <div class="row" style="font-size: 11px; line-height: 30px; text-align:center; margin-top: 50px; padding:10px 50px; border-top: 0.5px solid #e2e4e7;">
+                        <B>※ 연차 사용 계획 안내</B>
+                    </div>
+                    <div class="row" style="font-size: 11px; line-height: 30px; padding:0px 50px;">
+                        - 본인이 사용하고자 하는 지정 일자 및 일수를 계획서 칸에 기입해 주시기 바랍니다.
+                    </div>
+                    <div class="row" style="font-size: 11px; line-height: 30px; padding:0px 50px;">
+                        - 본 계획은 예정사항으로, 실제 휴가 사용 시에는 전자결재를 통해 신청하셔야 합니다.
+                    </div>
+                    <div class="row" style="font-size: 11px; line-height: 30px; padding:0px 50px;">
+                        - 또한, 사용하지 않은 연차 유급 휴가의 사용 시기를 별도로 지정하지 않는 경우,<br>
+                        &nbsp;&nbsp;회사 측에서 사용 시기를 결정할 수 있습니다.
+                    </div>
+                    <div class="row" style="font-size: 11px; line-height: 30px; padding:0px 50px;">
+                        - 연차 잔여일이 0개 이하일 경우에는 통지서 내용을 확인하신 후 제출하시기 바랍니다.
+                    </div>
+                    <div class="row" style="display: flex; justify-content:center; font-size: 13px; line-height: 30px; text-align:center; margin-top: 50px">
+                        [[ getToday() ]]
+                    </div>
+                    <!--
+                    <div class="row" style="display: flex; justify-content:center; font-size: 13px; line-height: 30px; text-align:center; margin-top: 20px; margin-bottom: 20px">
+                        <div class="col-2">작성자 :</div>
+                        <div>[[ member.member_name ]]</div>
+                        <div style="padding-left: 10px">(서명)</div>
+                    </div>
+                    -->
+                    <div class="row" style="display: flex; justify-content:center; font-size: 18px; line-height: 30px; text-align:center; margin-top: 50px">
+                        <b>보로노이 주식회사</b>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div id="working_off_promote_layer_alert" class="toast toast-danger" role="working_off_promote_layer_alert" aria-live="assertive" data-delay="1500" aria-atomic="true" style="position:absolute; left:25%; background-color:#f8d7da; z-index:999">
+                        <div class="toast-body" v-html="alertText"></div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" @click="close">취소</button>
+                    <button type="button" class="btn btn-primary" @click="save">제출</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% include "../components/working_off_promote_plan.html" %}
+
+<script>
+    const working_off_promote_vue = createApp({
+        delimiters: ['[[', ']]'],
+        components: {
+            "workingoffpromoteplan": workingOffPromotePlanComponent,
+        },
+        data () {
+            return {
+                member: {},
+                workingOffPromote: {},
+                workingOffPromoteDate: "",
+                workingOffPromotePlans: [],
+                workingOffPromoteNum: "",
+                workingOffEndDate: "",
+                alertText: "",
+            }
+        },
+        methods: {
+            getWorkingOffPromote(member, workingOffPromoteNum) {
+                this.member = member
+                this.workingOffPromoteNum = workingOffPromoteNum
+                axios.get("/re-working/getWorkingOffPromote?workingOffStartDate=" + this.member.working_off_start_date)
+                .then((response) => {
+                    this.workingOffPromote = response.data
+
+                    if (this.workingOffPromoteNum == 1)  {
+                        this.workingOffPromoteDate = this.workingOffPromote.first_promote_date
+                    } else if (this.workingOffPromoteNum == 2)  {
+                        this.workingOffPromoteDate = this.workingOffPromote.second_promote_date
+                    }
+
+                    if (this.member.working_off_remain_days > 0) {
+                        axios.get("/re-working/getWorkingOffPromotePlans/" + this.workingOffPromote.working_off_promote_id  + "?workingOffPromoteNum=" + this.workingOffPromoteNum)
+                        .then((response) => {
+                            this.workingOffPromotePlans = response.data
+                            if (this.workingOffPromotePlans.length == 0) {
+                                this.workingOffPromotePlans.push({
+                                    working_off_start_date: "",
+                                    working_off_end_date: "",
+                                    working_off_use_num: "",
+                                })
+                            }
+                        })
+                    }
+                })
+
+            },
+            getYear() {
+                return moment().year() + "년"
+            },
+            getToday() {
+                return moment().format("YYYY년 MM월 DD일")
+            },
+            working_off_date(workingOffStartDate) {
+                if (workingOffStartDate != undefined && workingOffStartDate != "") {
+                    this.workingOffEndDate = moment(workingOffStartDate).add(1, 'years').add(-1, 'days').format("YYYY-MM-DD")
+                    return workingOffStartDate + " ~ " + this.workingOffEndDate
+                }
+
+                return ""
+            },
+            workingOffPromotetLimitDate(workingOffPromoteDate) {
+                return moment(workingOffPromoteDate).add(10, 'days').format("YYYY년 MM월 DD일")
+            },
+            removeWokringOffPlan(index) {
+                if (this.workingOffPromotePlans.length > 1) {
+                    this.workingOffPromotePlans.splice(index, 1)
+                }
+            },
+            addWokringOffPlan(index) {
+                this.workingOffPromotePlans.splice(index + 1, 0,{
+                    working_off_start_date: "",
+                    working_off_end_date: "",
+                    working_off_use_num: "",
+                })
+            },
+            total() {
+                var totalWorkingOffUseNum = 0.0
+                for (var workingOffPromotePlan of this.workingOffPromotePlans) {
+                    if (workingOffPromotePlan.working_off_use_num == "") {
+                        totalWorkingOffUseNum += 0
+                    } else {
+                        totalWorkingOffUseNum += parseFloat(workingOffPromotePlan.working_off_use_num)
+                    }
+                }
+                return totalWorkingOffUseNum
+            },
+            save() {
+                var totalWorkingOffUseNum = 0
+                var isExistWorkingOffDate = true
+                var isExistWorkingOffUseNum = true
+                if (this.member.working_off_remain_days > 0) {
+                    for (var workingOffPromotePlan of this.workingOffPromotePlans) {
+                        if (workingOffPromotePlan.working_off_start_date == "") {
+                            isExistWorkingOffDate = false
+                            break;
+                        }
+
+                        if (workingOffPromotePlan.working_off_end_date == "") {
+                            isExistWorkingOffDate = false
+                            break;
+                        }
+
+                        if (workingOffPromotePlan.working_off_use_num == "" || workingOffPromotePlan.working_off_use_num == 0) {
+                            isExistWorkingOffUseNum = false
+                            break;
+                        }
+
+                        if (workingOffPromotePlan.working_off_use_num == "") {
+                            totalWorkingOffUseNum += 0
+                        } else {
+                            totalWorkingOffUseNum += parseFloat(workingOffPromotePlan.working_off_use_num)
+                        }
+                    }
+
+                    if (!isExistWorkingOffDate) {
+                        this.alert("연차일이 입력되지 않았습니다.<br>사용 계획서를 확인해 주세요.")
+                        return
+                    }
+
+                    if (!isExistWorkingOffUseNum) {
+                        this.alert("연차사용일이 입력되지 않았습니다.<br>사용 계획서를 확인해 주세요.")
+                        return
+                    }
+
+                    if (totalWorkingOffUseNum != this.member.working_off_remain_days) {
+                        this.alert("계획된 연차일은 " + totalWorkingOffUseNum + "일 입니다.<br>사용 계획서를 확인해 주세요.")
+                        return
+                    }
+                }
+
+                var data = {
+                    "workingOffPromoteNum": this.workingOffPromoteNum,
+                    "workingOffPromotePlans": this.workingOffPromotePlans
+                }
+
+                axios.post("/re-working/updateWorkingOffPromoteDone/" + this.workingOffPromote.working_off_promote_id, {data: data})
+                .then((response) => {
+                    vue.checkWorkingOffPromote()
+                    this.close()
+                })
+            },
+            close() {
+                this.workingOffPromotePlans = []
+                $("#working_off_promote_modal").modal('hide')
+            },
+            alert(text) {
+                this.alertText = text
+                $('#working_off_promote_layer_alert').toast('show')
+            }
+        },
+        mounted: function() {
+            var self = this
+            $('#working_off_promote_modal').on('hidden.bs.modal', function (e) {
+                self.close()
+            })
+        },
+    }).mount('#working_off_promote_modal')
+</script>

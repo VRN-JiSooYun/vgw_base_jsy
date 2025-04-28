@@ -1,0 +1,234 @@
+{% load static %}
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" rel="stylesheet" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+    #ui-datepicker-div {
+        z-index: 9999 !important
+    }
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
+    }
+</style>
+
+<div class="modal fade" id="todo_view_modal" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>TODO</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="margin: 5px;">
+                    <input id="todo-name" type="text" class="form-control" style="border: 0px" v-model="todoName" placeholder="TO-DO 명">
+                </div>
+                <div class="row" style="margin: 5px">
+                    <textarea id="todo-desc" type="text-area" class="form-control" style="border: 0px; resize: none" v-model="todoDesc" rows="2" placeholder="설명"></textarea>
+                </div>
+
+                <div class="row" style="margin-top: 50px; margin-left: 5px;">
+                    <div class="col-sm-2">
+                        <button v-if="todoDate == date0" id="btn_todo_view_date" class="btn btn-outline-success btn-sm" style="width: 6vw" @click="toggleTodoViewDate" aria-expanded="false" aria-controls="todo_view_date"><span class="material-symbols-outlined">today</span>오늘</button>
+                        <button v-else-if="todoDate == date1" id="btn_todo_view_date" class="btn btn-outline-danger btn-sm" style="width: 6vw"  @click="toggleTodoViewDate" aria-expanded="false" aria-controls="todo_view_date"><span class="material-symbols-outlined">today</span>내일</button>
+                        <button v-else-if="todoDate == date2" id="btn_todo_view_date" class="btn btn-outline-secondary btn-sm" style="width: 6vw"  @click="toggleTodoViewDate" aria-expanded="false" aria-controls="todo_view_date"><span class="material-symbols-outlined">today</span>모레</button>
+                        <button v-else id="btn_todo_view_date" class="btn btn-outline-primary btn-sm" style="width: 6vw"  @click="toggleTodoViewDate" aria-expanded="false" aria-controls="todo_view_date" v-html="dateTag"></button>
+                        <div style="min-height: 120px; margin-top:10px;">
+                            <div class="collapse collapse-horizontal" id="todo_view_date">
+                                <div class="card card-body" style="width: 15vw; z-index: 10">
+                                    <div class="row" style="margin-top: 5px;">
+                                        <div class="col-md-4"><button type="button" style="width: 3vw" class="btn btn-outline-success btn-sm" @click="checkDate(1)">오늘</button></div>
+                                        <div class="col-md-4"><button type="button" style="width: 3vw" class="btn btn-outline-danger btn-sm" @click="checkDate(2)">내일</button></div>
+                                        <div class="col-md-4"><button type="button" style="width: 3vw" class="btn btn-outline-secondary btn-sm" @click="checkDate(3)">모레</button></div>
+                                    </div>
+                                    <div class="row" style="margin-top: 10px; padding-left: 10px ;padding-right: 10px;">
+                                        <input style="width: 13vw;" class="form-control" id="todo_view_datePicker" size="100" v-model="todoDate">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2" style="margin-left:10vh">
+                        <button type="button" id="btn_todo_view_priority" v-if="todoPriority == 1" class="btn btn-outline-danger btn-sm" style="width: 6vw" @click="toggleTodoViewPriority" aria-expanded="false" aria-controls="todo_view_priority"><span class="material-symbols-outlined">sports_score</span>우선순위1</button>
+                        <button type="button" id="btn_todo_view_priority" v-else-if="todoPriority == 2" class="btn btn-outline-success btn-sm" style="width: 6vw" @click="toggleTodoViewPriority" aria-expanded="false" aria-controls="todo_view_priority"><span class="material-symbols-outlined">sports_score</span>우선순위2</button>
+                        <button type="button" id="btn_todo_view_priority" v-else-if="todoPriority == 3" class="btn btn-outline-primary btn-sm" style="width: 6vw" @click="toggleTodoViewPriority" aria-expanded="false" aria-controls="todo_view_priority"><span class="material-symbols-outlined">sports_score</span>우선순위3</button>
+                        <button type="button" id="btn_todo_view_priority" v-else-if="todoPriority == 4" class="btn btn-outline-secondary btn-sm" style="width: 6vw" @click="toggleTodoViewPriority" aria-expanded="false" aria-controls="todo_view_priority"><span class="material-symbols-outlined">sports_score</span>우선순위4</button>
+                        <div style="min-height: 120px; margin-top:10px;">
+                            <div class="collapse collapse-horizontal" id="todo_view_priority">
+                                <div class="card card-body" style="width: 30vw;">
+                                    <div class="row" style="margin-top: 5px;">
+                                        <div class="col-md-3"><button type="button" style="width: 6vw" class="btn btn-outline-danger btn-sm" @click="checkPriority(1)"><span class="material-symbols-outlined">sports_score</span>우선순위1</button></div>
+                                        <div class="col-md-3"><button type="button" style="width: 6vw" class="btn btn-outline-success btn-sm" @click="checkPriority(2)"><span class="material-symbols-outlined">sports_score</span>우선순위2</button></div>
+                                        <div class="col-md-3"><button type="button" style="width: 6vw" class="btn btn-outline-primary btn-sm" @click="checkPriority(3)"><span class="material-symbols-outlined">sports_score</span>우선순위3</button></div>
+                                        <div class="col-md-3"><button type="button" style="width: 6vw" class="btn btn-outline-secondary btn-sm" @click="checkPriority(4)"><span class="material-symbols-outlined">sports_score</span>우선순위4</button></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" v-if="userId == memberId">
+                <button type="button" class="btn btn-secondary" @click="close">닫기</button>
+                <button type="button" class="btn btn-danger" @click="remove">삭제</button>
+                <button type="button" class="btn btn-primary" @click="save">수정</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const vue_layer = createApp({
+        data () {
+            return {
+                userId: {{ request.user.id }},
+                memberId: "",
+                todoKey: "",
+                todoName: "",
+                todoDesc: "",
+                todoDate: "",
+                todoPriority: 0,
+                date0: "",
+                date1: "",
+                date2: "",
+                dateTag: ""
+            }
+        },
+        methods: {
+            toggleTodoViewDate() {
+                $("#todo_view_date").collapse('toggle')
+            },
+            toggleTodoViewPriority() {
+                $("#todo_view_priority").collapse('toggle')
+            },
+            checkDate(dateType) {
+                $("#todo_view_date").collapse('hide')
+
+                if (dateType == 1) {
+                    this.todoDate = moment().format("YYYY-MM-DD")
+                    $("#btn_todo_view_date").attr('class','btn btn-outline-success btn-sm')
+                    $("#btn_todo_view_date").html('<span class="material-symbols-outlined">today</span>오늘')
+                } else if (dateType == 2) {
+                    this.todoDate = moment().add(1, 'days').format("YYYY-MM-DD")
+                    $("#btn_todo_view_date").attr('class','btn btn-outline-danger btn-sm')
+                    $("#btn_todo_view_date").html('<span class="material-symbols-outlined">today</span>내일')
+                } else if (dateType == 3) {
+                    this.todoDate = moment().add(2, 'days').format("YYYY-MM-DD")
+                    $("#btn_todo_view_date").attr('class','btn btn-outline-secondary btn-sm')
+                    $("#btn_todo_view_date").html('<span class="material-symbols-outlined">today</span>모레')
+                } else if (dateType == 4) {
+                    $("#btn_todo_view_date").attr('style','width: 6vw')
+                    $("#btn_todo_view_date").attr('class','btn btn-outline-primary btn-sm')
+                    this.dateTag = "<span class=\"material-symbols-outlined\">today</span>" + moment(this.todoDate).format('MM-DD');
+                }
+            },
+            checkPriority(priority) {
+                $("#todo_view_priority").collapse('hide')
+
+                this.todoPriority = priority
+                if (this.todoPriority == 1) {
+                    $("#btn_todo_view_priority").attr('class', 'btn btn-outline-danger btn-sm')
+                } else if (this.todoPriority == 2) {
+                    $("#btn_todo_view_priority").attr('class', 'btn btn-outline-success btn-sm')
+                } else if (this.todoPriority == 3) {
+                    $("#btn_todo_view_priority").attr('class', 'btn btn-outline-primary btn-sm')
+                } else if (this.todoPriority == 4) {
+                    $("#btn_todo_view_priority").attr('class', 'btn btn-outline-secondary btn-sm')
+                }
+
+            },
+            getTodo() {
+                axios.get("/re-todo/getTodo/" + vue.showTodoKey)
+                .then((res) => {
+                    let todo = res.data
+                    this.memberId = todo.member_id
+                    this.todoKey = todo.todo_key
+                    this.todoName = todo.todo_name
+                    this.todoDesc = todo.todo_desc
+                    this.todoDate = todo.todo_date
+                    this.todoPriority = todo.todo_priority
+
+                    this.dateTag = "<span class=\"material-symbols-outlined\">today</span>" + moment(this.todoDate).format('MM-DD');
+                })
+            },
+            save() {
+                if (this.todoName == '') {
+                    alert("TODO명을 입력해 주세요")
+                }
+                let todo = {
+                    "todo_name": this.todoName,
+                    "todo_desc": this.todoDesc,
+                    "todo_date": this.todoDate,
+                    "todo_priority":this.todoPriority
+                }
+
+                axios.post("/re-todo/updateTodo/" + this.todoKey, {"data": todo})
+                .then((response) => {
+                    this.close()
+                })
+				.catch((e) => {
+                    console.log('Error! : ' + e)
+				})
+            },
+            remove() {
+                axios.post("/re-todo/deleteTodo/" + this.todoKey)
+                .then((response) => {
+                    this.close()
+                })
+				.catch((e) => {
+                    console.log('Error! : ' + e)
+				})
+            },
+            close() {
+                vue.getTodos()
+                $("#todo_view_modal").modal('hide')
+            }
+        },
+        mounted: function() {
+            var self = this
+            $('#todo_view_modal').on('hidden.bs.modal', function (e) {
+                self.close()
+            })
+
+            this.todoDate = moment().format("YYYY-MM-DD")
+            this.todoPriority = 4
+            this.date0 = moment().format('YYYY-MM-DD');
+            this.date1 = moment().add(1, 'days').format("YYYY-MM-DD")
+            this.date2 = moment().add(2, 'days').format("YYYY-MM-DD")
+            this.dateTag = "<span class=\"material-symbols-outlined\">today</span>" + moment(this.todoDate).format('MM-DD');
+
+            var self = this;
+            $('#todo_view_datePicker').datepicker({
+                dateFormat: 'yy-mm-dd',
+                closeText: "닫기",
+                currentText: "오늘",
+                prevText: '이전 달',
+                nextText: '다음 달',
+                monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+                weekHeader: "주",
+                yearSuffix: '년',
+                minDate: "0D",
+                showOtherMonths: true,
+                showMonthAfterYear:true,
+                selectOtherMonths: true,
+                changeYear: true,
+                changeMonth: true,
+                onSelect:function(selectedDate, datePicker) {
+                    self.todoDate = selectedDate;
+                    self.checkDate(4)
+                }
+            });
+
+            $("#todo_view_date").on("show.bs.collapse", function () {
+                $("#todo_view_priority").collapse('hide')
+            })
+
+            $("#todo_view_priority").on("show.bs.collapse", function () {
+                $("#todo_view_date").collapse('hide')
+            })
+        },
+    }).mount('#todo_view_modal')
+</script>

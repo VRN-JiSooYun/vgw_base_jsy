@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% block content %}
+{% include 'hr/hr_navbar_layout.html' %}
+{% include 'hr/hr_navbar_layout_register_company.html' %}
+
+
+
+<div class="row">
+
+    <div class="col-md-12">
+    <legend class="border-bottom mb-4">
+        <strong>
+            회사 관리
+        </strong>
+    </legend>
+    </div>
+
+    <div class="col-md-9">
+        <div class="card card-body" style="background-color:rgb(255,255,255,0.5)">
+            <table class="table table-hover table-striped">
+                <tr>
+                    <th>
+                        등록된 회사명
+                    </th>
+                    <th>
+                        회사에 등록된 부서명
+                    </th>
+                    <th>
+                        코멘트
+                    </th>
+
+                    <th>
+                        수정
+                    </th>
+
+                </tr>
+
+                {% for q_company in qs_company %}
+                    <tr>
+                        <td>
+                            {{ q_company.company_name }}
+                        </td>
+                        <td>
+                            {% for k_q_company, v_qs_d2c in dict_c2d.items %}
+                                {% if q_company == k_q_company %}
+                                    <ul>
+                                        {% for v_q_d2c in v_qs_d2c %}
+                                            <li>
+                                                {{ v_q_d2c.team2division.division.division_name }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {{ q_company.comment }}
+                        </td>
+                        <td>
+                            <a href="{% url 'hr-layout-update-company' q_company.id %}" type="button" class="btn btn-info btn-sm" >Update</a>
+                        </td>
+                </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+            <form method = "POST" action = "{% url 'hr-layout-register-company' %}">
+                {% csrf_token %}
+                {{ form|bootstrap}}
+                <button name="button-register-company-individual" value="true"  type="submit" class="btn btn-info btn-lg" >Save</button>
+            </form>
+        </div>
+
+
+    </div>
+</div>
+
+{% endblock content %}
+
+
+
+<hr>
+
+<legend class="border-bottom mb-4">
+    Company 파일로 등록하기
+</legend>
+<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+    <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Excel파일 업로드하기</legend>
+        <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+            <form method="POST" action="{% url 'hr-layout-register-company' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <h6>파일 업로드를 통해 VGW DB에 Company 등록하기</h6>
+                <input class="btn btn-sm btn-success" type="file" name="company-upload"><br>
+
+                <small class="text-muted">
+                    <ul>
+                        <li>
+                            Upload Member Profile CSV Format File
+                        </li>
+                        <li>
+                            Check The Layout Before Submitting The File
+                        </li>
+                        <li>
+                            파일명은 영어/숫자만 인식
+                        </li>
+                    </ul>
+                </small>
+
+                <button class="btn btn-primary btn-lg" name="button-register-company-file" value="true" type="submit">Upload Company File</button>
+            </form>
+        </div>
+        <br>
+    </fieldset>
+</div>

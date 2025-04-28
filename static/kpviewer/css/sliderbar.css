@@ -1,0 +1,119 @@
+.sliderbar {
+    /* position: absolute;
+    left: 50px; */
+    width: 700px;
+    height: 5px;
+    background-color: gainsboro;
+
+    margin-top: 5%;
+    margin-left: 3%;
+    margin-bottom: 5%;
+
+    opacity: 0.4;
+    pointer-events:none;
+}
+
+.sliderbar.similarity {
+    width: 570px;
+    height: 5px;
+    background-color:gainsboro;
+    margin-bottom: 18px;
+}
+
+.mercury {
+    position: relative;
+
+    left: 0px;
+
+    /* width: 150px; */
+    width: 100%;
+    height: 5px;
+    background-color: darkseagreen;
+}
+
+.sliderbar.similarity .mercury {
+    height: 5px;
+    background-color:cornflowerblue;
+}
+
+.min-tick {
+    /* margin-left: -10px;
+    margin-top: -10px; */
+    left: -7px;
+    top: -4px;
+    position: absolute;
+    float: left;
+}
+
+.max-tick {
+    left: 7px;
+    top: -4px;
+    float: right;
+    position: relative;
+}
+
+.dot {
+    height: 18px;
+    width: 18px;
+    background-color: #bbb;
+    border-radius: 50%;
+    border: dodgerblue solid 3px;
+    display: inline-block;
+    /* opacity: 0.7; */
+}
+
+.sliderbar.similarity .dot {
+    height: 13px;
+    width: 13px;
+    border: none;
+}
+
+.dot:hover {
+    cursor: pointer;
+}
+
+img { 
+    -webkit-user-drag: none; 
+    -khtml-user-drag: none; 
+    -moz-user-drag: none; 
+    -o-user-drag: none;
+    user-drag: none;
+}
+
+/*====================================================================================*/
+/* Tool Tip */
+/*====================================================================================*/
+/* .tooltip {
+    display: inline-block;
+    border-bottom: 1px solid black;
+    background-color: black;
+    color: #fff;
+} */
+/*   
+.tooltip .tooltiptext {
+    font-size: 5px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    white-space: nowrap;
+  
+    
+    position: absolute;
+    z-index: 1;
+} */
+
+.min-tick .tooltip {
+    left: -35px;
+    top: -26px;
+    position: absolute;
+    opacity: 1.0;
+}
+
+.max-tick .tooltip {
+    left: 8px;
+    top: -26px;
+    position: absolute;
+    opacity: 1.0;
+}

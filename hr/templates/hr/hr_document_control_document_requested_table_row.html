@@ -1,0 +1,174 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+
+
+<tr style="background-color:rgb(255,255,255,0.85);">
+	<td>
+		{{ forloop.counter }}
+	</td>
+	<td>
+		{{ q_hr_document_issued.document_format.title }} ({{ q_hr_document_issued.id }})
+	</td>
+	<td>
+		<button type="submit" class="btn btn-link btn-sm" name="button-my-document-history-document-info-modal-view-open" value="{{ q_hr_document_issued.id }}">
+			{{ q_hr_document_issued.code }}
+		</button>
+	</td>
+	<td>
+		{{ q_hr_document_issued.title }}
+	</td>
+	<td>
+		{{ q_hr_document_issued.date_created|date:"Y-m-d" }}
+	</td>
+	<td>
+		{% if q_hr_document_issued.hrapproval != Null %}
+			{% if q_hr_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.0.0 and q_workingtime_plan.hrapproval.check_process_activated == False %}
+				<button type="submit" name="button-my-xxx-document-plan-register-hrapproval-modal-view-open" value="{{ q_workingtime_plan.id }}" class="btn btn-link btn-sm">
+					승인과정 등록하기
+				</button>
+			{% else %}
+				{% for ITEM in STATUS_HR_DOCUMENT_APPROVAL_PROCESS %}
+					{% if q_hr_document_issued.hrapproval.status_document_approval_process == ITEM.0 %}
+						<button type="submit" name="button-my-workingtime-plan-activate-approval-progress-modal-view-open" value="{{ q_workingtime_plan.id }}"
+						{% if q_hr_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.0.0 %}
+							class="btn btn-light btn-sm"
+						{% elif q_hr_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.1.0 %}
+							class="btn btn-info btn-sm"
+						{% elif q_hr_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.2.0 %}
+							class="btn btn-warning btn-sm"
+						{% elif q_hr_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.3.0 %}
+							class="btn btn-primary btn-sm"
+						{% elif q_hr_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.4.0 %}
+							class="btn btn-success btn-sm"
+						{% elif q_hr_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.5.0 %}
+							class="btn btn-danger btn-sm"
+						{% elif q_hr_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.6.0 %}
+							class="btn btn-secondary btn-sm"
+						{% else %}
+							class="btn btn-secondary btn-sm"
+						{% endif %}
+						>
+							{{ ITEM.1 }} {{ q_hr_document_issued.hrapproval.id }}
+						</button>
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+		{% else %}
+			Draft 작성중
+		{% endif %}
+	</td>
+
+	<td>
+		{% if q_hr_document_issued.hrrequest != Null %}
+			{% if q_hr_document_issued.hrrequest.status_document_request_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.0.0 and q_workingtime_plan.hrrequest.check_hr_document_request_to_xxx_activated == False %}
+				<button type="submit" name="button-my-xxx-document-plan-register-hrapproval-modal-view-open" value="{{ q_workingtime_plan.id }}" class="btn btn-link btn-sm">
+					등록완료문서 수정요청 등록하기
+				</button>
+			{% else %}
+				{% for ITEM in STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO %}
+					{% if q_hr_document_issued.hrrequest.status_document_request_to == ITEM.0 %}
+						<button type="submit" name="button-my-workingtime-plan-activate-approval-progress-modal-view-open" value="{{ q_workingtime_plan.id }}"
+						{% if q_hr_document_issued.hrrequest.status_document_request_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.0.0 %}
+							class="btn btn-light btn-sm"
+						{% elif q_hr_document_issued.hrrequest.status_document_request_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.1.0 %}
+							class="btn btn-info btn-sm"
+						{% elif q_hr_document_issued.hrrequest.status_document_request_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.2.0 %}
+							class="btn btn-warning btn-sm"
+						{% elif q_hr_document_issued.hrrequest.status_document_request_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.3.0 %}
+							class="btn btn-primary btn-sm"
+						{% elif q_hr_document_issued.hrrequest.status_document_request_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.4.0 %}
+							class="btn btn-success btn-sm"
+						{% elif q_hr_document_issued.hrrequest.status_document_request_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.5.0 %}
+							class="btn btn-danger btn-sm"
+						{% elif q_hr_document_issued.hrrequest.status_document_request_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.6.0 %}
+							class="btn btn-secondary btn-sm"
+						{% elif q_hr_document_issued.hrrequest.status_document_request_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.7.0 %}
+							class="btn btn-secondary btn-sm"
+						{% elif q_hr_document_issued.hrrequest.status_document_request_to == STATUS_MY_XXX_DOCUMENT_PLAN_REQUEST_TO.8.0 %}
+							class="btn btn-secondary btn-sm"
+						{% else %}
+							class="btn btn-secondary btn-sm"
+						{% endif %}
+						>
+							{{ ITEM.1 }} {{ q_hr_document_issued.hrrequest.id }}
+						</button>
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+		{% else %}
+		{% endif %}
+	</td>
+
+	<td>
+		{% comment %}
+			# 승인 진행단계
+			STATUS_HR_DOCUMENT_APPROVAL_PROCESS = (
+				('WRITING', '작성중'), # 0 light
+				('UNDER_APPROVAL', '승인요청중'), # 1 info
+				('REQ_MODIFICATION', '수정요청'),  # 2 warning
+				('DONE_MODIFICATION', '수정완료'),  # 3 primary
+				('APPROVED', '승인완료'),  # 4 success
+				('REJECTED', '승인거절'),  # 5 danger
+				('CANCEL', '등록취소'),  # 6 secondary
+			)
+		{% endcomment %}
+
+		{{ q_hr_document_issued.hrrequest.status_document_request_to }}
+		<!-- 승인과정 종료 후-->
+
+		{% if q_hr_document_issued.hrapproval.status_document_approval_process == 'APPROVED' %}
+			<!-- 승인 후-->
+			{% if q_hr_document_issued.hrrequest == Null %}
+
+			{% else %}
+			<!-- 승인후수정요청내용 있음 -->
+				{% if q_hr_document_issued.hrrequest.status_document_request_to == 'NORMAL' %}
+					<button type="submit" class="btn btn-link btn-sm" name="button-hr-document-history-document-modification-communication-with-hr-modal-view-open" value="{{ q_hr_document_issued.id }}">
+						수정요청하기
+					</button>
+				{% elif q_hr_document_issued.hrrequest.status_document_request_to == 'REQUESTED_TO_HR' %}
+					<!-- 담당자 응답대기 -->
+					<button type="submit" class="btn btn-link btn-sm" name="button-hr-document-history-document-modification-communication-with-hr-modal-view-open" value="{{ q_hr_document_issued.id }}">
+						수정요청 응답하기
+					</button>
+				{% elif q_hr_document_issued.hrrequest.status_document_request_to == 'REQUESTED_TO_ME' %}
+					<button type="submit" class="btn btn-link btn-sm" name="button-hr-document-history-document-modification-communication-with-hr-modal-view-open" value="{{ q_hr_document_issued.id }}">
+						수정요청 응답하기
+					</button>
+				{% elif q_hr_document_issued.hrrequest.status_document_request_to == 'MODIFIED_BY_HR' %}
+					<!-- 담당자가 수정함 -->
+				{% elif q_hr_document_issued.hrrequest.status_document_request_to == 'MODIFIED_BY_ME' %}
+					<!-- 작성자가 수정함 -->
+				{% elif q_hr_document_issued.hrrequest.status_document_request_to == 'RESPONSED_TO_ME' %}
+					<button type="submit" class="btn btn-link btn-sm" name="button-hr-document-history-document-modification-communication-with-hr-modal-view-open" value="{{ q_hr_document_issued.id }}">
+						담당자 수정내용 확인
+					</button>
+				{% elif q_hr_document_issued.hrrequest.status_document_request_to == 'RESPONSED_TO_HR' %}
+					<button type="submit" class="btn btn-link btn-sm" name="button-hr-document-history-document-modification-communication-with-hr-modal-view-open" value="{{ q_hr_document_issued.id }}">
+						작성자 수정내용 확인
+					</button>
+				{% elif q_hr_document_issued.hrrequest.status_document_request_to == 'ACCEPTED_BY_ME' %}
+					<!-- 작성자 수정확인 및 종료 -->
+				{% elif q_hr_document_issued.hrrequest.status_document_request_to == 'ACCEPTED_BY_HR' %}
+					<!-- 담당자 수정확인 및 종료 -->
+				{% endif %}
+			{% endif %}
+
+
+		{% elif q_hr_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.5.0 %}
+			<button type="submit" class="btn btn-link btn-sm" name="button-my-document-register-document-handling-reject-detail" value="{{ q_hr_document_issued.id }}">
+				승인거절 내용확인
+			</button>
+		{% elif q_hr_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.6.0 %}
+			<button type="submit" class="btn btn-link btn-sm" name="button-my-document-register-document-handling-drop-detail" value="{{ q_hr_document_issued.id }}">
+				등록철회 내용확인
+			</button>
+		{% endif %}
+
+
+	</td>
+</tr>

@@ -1,0 +1,660 @@
+{% load static %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+<div id="working_off_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">휴가 신청</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="close" ><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="border-top: 0.5px solid #e2e4e7; border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">제목</div>
+                    <div class="col" style="padding: 15px;">
+                        <input type="text" class="form-control" v-model="workingOffFormTitle">
+                    </div>
+                </div>
+                <div class="row" style="border-top: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">전체일수</div>
+                    <div class="col" style="padding: 15px;" v-html="member.working_off_days + member.working_off_etc_days"></div>
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">사용일수</div>
+                    <div class="col" style="padding: 15px;" v-html="member.working_off_use_days"></div>
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">잔여일수</div>
+                    <div class="col" style="padding: 15px;" v-html="member.working_off_remain_days"></div>
+                </div>
+                <div v-if="member.working_off_add_days > 0" class="row" style="border-top: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">대체전체일수</div>
+                    <div class="col" style="padding: 15px;" v-html="member.working_off_add_days"></div>
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">대체사용일수</div>
+                    <div class="col" style="padding: 15px;" v-html="member.working_off_add_use_days"></div>
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">대체잔여일수</div>
+                    <div class="col" style="padding: 15px;" v-html="member.working_off_add_remain_days"></div>
+                </div>                
+                <div class="row" style="border-top: 0.5px solid #e2e4e7; border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴가 유형</div>
+                    <div class="col" style="padding: 15px;">
+                        <select class="form-control" style="width: 7vw" v-model="workingOffFormType" @change="checkWorkingOffFormType">
+                            <option v-for="codeDtl in codeDtls" :value="codeDtl.cd_dtl_no" v-html="codeDtl.cd_dtl_nm"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴가 기간</div>
+                    <div class="col-3" style="padding: 15px;">
+                        <input class="form-control" id="working_off_form_start_date_datePicker" v-model="workingOffFormStartDate" autocomplete="off" readonly style="background: #ffffff">
+                    </div>
+                    <div style="display:flex; margin-top:25px;">
+                        <span class="material-symbols-outlined">more_vert</span>
+                    </div>
+                    <div class="col-3" style="padding: 15px;">
+                        <input class="form-control" id="working_off_form_end_date_datePicker" v-model="workingOffFormEndDate" autocomplete="off" readonly style="background: #ffffff">
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴가일 별 시간</div>
+                    <div class="col" style="padding: 15px;">
+                        <workingofftime v-for="(item, index) in workingOffs" :item="item" :index="index" :isDisabled="isDisabled(index)"></workingofftime>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴가 사용 일수</div>
+                    <div class="col-2" style="padding: 15px;">
+                        <input type="text" class="form-control" v-model="workingOffFormUseNum" disabled>
+                    </div>
+                    <div class="col" style="padding: 15px;">
+                        <div style="color:red" v-html="useNumAlertText"></div>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">사유</div>
+                    <div class="col" style="padding: 15px;">
+                        <textarea class="form-control" rows="4" cols="70" placeholder="사유를 입력해주세요." v-model="reason"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">첨부파일</div>
+                    <div class="col" style="padding: 15px;">
+                        <div v-for="(item, index) in uploadfiles">
+                            <div class="row" style="padding: 5px;" >
+                                <div class="col">
+                                    <input type="file" class="form-control-file" ref="uploadFile">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding: 15px;">
+                        <button type="button" class="btn btn-outline-primary btn-sm" @click="plusFile">파일 추가</button>
+                    </div>
+                    <div style="padding: 15px;">
+                        <button type="button" class="btn btn-outline-danger btn-sm" @click="minusFile()">파일 삭제</button>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col" style="padding: 15px;">
+                        <workingapproval :type="type" :title="title1" :index="0" :members="approvalMembers"></workingapproval>
+                        <workingapproval :type="type" :title="title2" :index="1" :members="approvalRefMembers"></workingapproval>
+                        <workingapproval :type="type" :title="title3" :index="2" :members="approvalRecvMembers"></workingapproval>
+                    </div>
+                </div>
+                <div id="working_off_layer_alert" class="toast toast-danger" role="working_off_layer_alert" aria-live="assertive" data-delay="3000" aria-atomic="true" style="position:absolute; left:25%; background-color:#f8d7da; z-index:999">
+                    <div class="toast-body" v-html="alertText"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="close">취소</button>
+                <button type="button" class="btn btn-primary" @click="save">상신</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "../components/working_off_time.html" %}
+{% include "../components/working_approval.html" %}
+
+<script>
+    const working_off_vue = createApp({
+        components: {
+            "workingofftime": workingOffTimeComponent,
+            "workingapproval": workingApprovalComponent,
+        },
+        data () {
+            return {
+                workingOffFormId: 0,
+                workingOffFormTitle: "휴가신청서",
+                workingOffFormType: "",
+                workingOffFormStartDate: "",
+                workingOffFormEndDate: "",
+                workingOffFormUseNum: "0.0",
+                reason: "",
+                workingOffs: [],
+                workingOffFormUseNumArr: [],
+                member: {},
+                type: "off",
+                uploadfiles: [],
+                title1: "결재",
+                title2: "참조",
+                title3: "수신",
+                approvalMembers: [],
+                approvalRefMembers: [],
+                approvalRecvMembers: [{
+                    "member_id": 225,
+                    "display":  "이기백 (gblee@voronoi.io)"
+                },{
+                    "member_id": 19,
+                    "display": "강보람 (boram@voronoi.io)"
+                },{
+                    "member_id": 130,
+                    "display": "마정현 (mjh@voronoi.io)"
+                }],
+                alertText: "",
+                count: 0,
+                isLoading: false,
+                holidayMap: {},
+                useNumAlertText: "",
+            }
+        },
+        computed: {
+            codeDtls() {
+                this.workingOffFormType = code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_PRIVATE")
+                return code_vue.getCdDtlsByCdAlias("WORKING_OFF_TYPE")
+            }
+        },
+        methods: {
+            cdDtlNo(alias) {
+                return code_vue.getCdDtlNoByAlias(alias)
+            },     
+            getWorkingOffForm() {
+                this.getMe()
+                this.getPrevApprovalMembers()
+            },
+            checkWorkingOffFormType() {
+                this.workingOffFormStartDate = ""
+                this.workingOffFormEndDate = ""
+                this.workingOffs = []
+                this.workingOffFormUseNum = 0
+                this.useNumAlertText = ""
+            },
+            workingOffUseNum(index, workingOffTime) {
+                this.useNumAlertText = ""
+                if (this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_PREGNANCY")
+                    || this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_BABY")
+                    || this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_SICK")
+                    || this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_LONG_SICK")) {
+
+                    this.workingOffFormUseNum = 0
+                } else {
+                    if (workingOffTime == code_vue.getCdDtlNoByAlias("WORKING_OFF_TIME_DAY")) {
+                        this.workingOffFormUseNumArr[index] = parseFloat(code_vue.getCdDtlByAlias("WORKING_OFF_TIME_DAY").cd_dtl_desc)
+                        this.workingOffs[index].workingOffStartDatetime = moment(this.workingOffs[index].workingOffDate + " 09:00")
+                        this.workingOffs[index].workingOffEndDatetime = moment(this.workingOffs[index].workingOffDate + " 18:00")
+                    } else if (workingOffTime == code_vue.getCdDtlNoByAlias("WORKING_OFF_TIME_AM")) {
+                        this.workingOffFormUseNumArr[index] = parseFloat(code_vue.getCdDtlByAlias("WORKING_OFF_TIME_AM").cd_dtl_desc)
+                        this.workingOffs[index].workingOffStartDatetime = moment(this.workingOffs[index].workingOffDate + " 09:00")
+                        this.workingOffs[index].workingOffEndDatetime = moment(this.workingOffs[index].workingOffDate + " 14:00")
+                    } else if (workingOffTime == code_vue.getCdDtlNoByAlias("WORKING_OFF_TIME_PM")) {
+                        this.workingOffFormUseNumArr[index] = parseFloat(code_vue.getCdDtlByAlias("WORKING_OFF_TIME_PM").cd_dtl_desc)
+                        this.workingOffs[index].workingOffStartDatetime = moment(this.workingOffs[index].workingOffDate + " 14:00")
+                        this.workingOffs[index].workingOffEndDatetime = moment(this.workingOffs[index].workingOffDate + " 18:00")
+                    } else if (workingOffTime == code_vue.getCdDtlNoByAlias("WORKING_OFF_TIME_TIME")) {
+                        this.workingOffFormUseNumArr[index] = parseFloat(code_vue.getCdDtlByAlias("WORKING_OFF_TIME_TIME").cd_dtl_desc)
+                        this.workingOffs[index].workingOffStartDatetime = moment(this.workingOffs[index].workingOffDate + " 09:00")
+                        this.workingOffs[index].workingOffEndDatetime = moment(this.workingOffs[index].workingOffDate + " 11:00")
+                    }
+                    this.workingOffFormUseNum = this.workingOffFormUseNumArr.reduce((a, b) => a + b, 0.0).toFixed(2) + ""
+
+                    if (this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_PRIVATE")) {
+                        if (this.member.working_off_remain_days < this.workingOffFormUseNum) {
+                            this.useNumAlertText = "휴가일수가 초과 되었습니다."
+                        }
+                    } else if (this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_ADD")) {
+                        if (this.member.working_off_add_remain_days < this.workingOffFormUseNum) {
+                            this.useNumAlertText = "대체일수가 초과 되었습니다."
+                        }
+                    } else {
+                        this.workingOffFormUseNum = 0
+                    }
+                }
+            },
+            changeTime(index, startTime, endTime) {
+                this.workingOffs[index].workingOffStartDatetime = moment(this.workingOffs[index].workingOffDate + " " + startTime)
+                this.workingOffs[index].workingOffEndDatetime = moment(this.workingOffs[index].workingOffDate + " " + endTime)
+
+                this.useNumAlertText = ""
+            },
+            isDisabled(index) {
+                if (index == 0 || this.workingOffs.length - 1 == index) {
+                    return false
+                }
+                return true
+            },
+            async save() {
+                var workingOffs = []
+                if (this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_PREGNANCY")
+                    || this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_BABY")
+                    || this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_SICK")
+                    || this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_LONG_SICK")) {
+
+                        if (this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_SICK")) {
+                            var firstDate = moment(this.workingOffFormStartDate)
+                            var lastDate = moment(this.workingOffFormEndDate)
+                            var firstYear = firstDate.year()
+                            var lastYear = lastDate.year()
+
+                            var holidays = (await axios.get("/re-working-admin/getHolidays?year=" + firstYear)).data
+                            if (firstYear != lastYear) {
+                                holidays.push(...(await axios.get("/re-working-admin/getHolidays?year=" + lastYear)).data)
+                            }
+
+                            this.holidayMap = holidays.reduce((newObj, obj) => {
+                                newObj[obj.holiday_date] = obj
+                                return newObj
+                            }, {})
+
+                            var isDone = false
+
+                            if (typeof firstDate != 'undefined') {
+                                while(!isDone) {
+                                    var firstDateStr = firstDate.format('YYYY-MM-DD')
+                                    if (lastDate.format('YYYY-MM-DD') == firstDateStr) {
+                                        isDone = true
+                                    }
+
+                                    var holiday = this.holidayMap[firstDateStr]
+                                    if (typeof holiday != 'undefined') {
+                                        // 휴일인 경우 제외
+                                        firstDate = firstDate.add(1, 'day')
+                                    } else {
+                                        var weekday = firstDate.isoWeekday()
+                                        if (weekday == 6 || weekday == 7) {
+                                            // 주말인 경우 제외
+                                            firstDate = firstDate.add(1, 'day')
+                                        } else {
+                                            workingOffs.push({
+                                                working_off_type: code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_SICK"),
+                                                working_off_time: code_vue.getCdDtlNoByAlias("WORKING_OFF_TIME_DAY"),
+                                                working_off_date: firstDateStr,
+                                                working_off_start_datetime: firstDateStr + " 09:00",
+                                                working_off_end_datetime: firstDateStr + " 18:00",
+                                            })
+
+                                            firstDate = firstDate.add(1, 'day')
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                } else {
+                    for (var workingOff of this.workingOffs) {
+                        // 공휴일 시간 체크
+                        var holiday = this.holidayMap[workingOff.workingOffDate]
+                        if (typeof holiday != 'undefined') {
+                            if (moment(holiday.holiday_start_datetime) < moment(workingOff.workingOffEndDatetime)) {
+                                this.alert(workingOff.workingOffDate +"은 " + holiday.holiday_name + " 입니다.<br>시간을 확인해 주세요")
+                                return
+                            }
+                        }
+
+                        workingOffs.push({
+                            working_off_id: workingOff.workingOffId,
+                            working_off_type: this.workingOffFormType,
+                            working_off_time: workingOff.workingOffTime,
+                            working_off_date: workingOff.workingOffDate,
+                            working_off_start_datetime: workingOff.workingOffStartDatetime,
+                            working_off_end_datetime: workingOff.workingOffEndDatetime,
+                        })
+                    }
+
+                    if (workingOffs.length == 0) {
+                        this.alert("휴가 기간을 선택해 주세요.")
+                        return
+                    }
+                }
+
+                var approvalMembers = []
+                var approvalRefMembers = []
+                var approvalRecvMembers = []
+                var i = 1;
+                for (var member of this.approvalMembers) {
+                    approvalMembers.push({
+                        member_id: member.member_id,
+                        step: i++
+                    })
+                }
+                if (approvalMembers.length == 0) {
+                    this.alert("결재자를 검색하여 선택해 주세요.")
+                    return
+                }
+
+                for (var member of this.approvalRefMembers) {
+                    approvalRefMembers.push({
+                        member_id: member.member_id
+                    })
+                }
+
+                for (var member of this.approvalRecvMembers) {
+                    approvalRecvMembers.push({
+                        member_id: member.member_id
+                    })
+                }
+
+                if (this.workingOffFormType == this.cdDtlNo('WORKING_OFF_TYPE_ADD')){
+                    if (this.member.working_off_add_remain_days < this.workingOffFormUseNum) {
+                        this.alert("대체일수가 초과 되었습니다.")
+                        return
+                    }
+                }
+
+                var data = {
+                    "working_off_form_title": this.workingOffFormTitle,
+                    "working_off_form_type": this.workingOffFormType,
+                    "working_off_form_start_date": this.workingOffFormStartDate,
+                    "working_off_form_end_date": this.workingOffFormEndDate,
+                    "working_off_form_use_num": this.workingOffFormUseNum,
+                    "reason": this.reason,
+                    "working_offs": workingOffs,
+                    "approval_members": approvalMembers,
+                    "approval_ref_members": approvalRefMembers,
+                    "approval_recv_members": approvalRecvMembers,
+                }
+
+                if (this.isLoading) {
+                    this.alert("저장중 입니다.")
+                    return
+                }
+
+                this.isLoading = true
+                axios.post("/re-working/createWorkingOff", {data: data})
+                .then((response) => {
+                    this.isLoading = false
+
+                    if (response.data[0]) {
+                        var approvalId = response.data[1]
+
+                        // send mail
+                        if (this.workingOffFormType != this.cdDtlNo('WORKING_OFF_TYPE_ADD')) {
+                            axios.post("/re-working/sendMailWorkingOff/" + approvalId)
+                        }                        
+
+                        // upload
+                        if (this.uploadfiles.length > 0) {
+                            this.uploadFile(approvalId)
+                        }
+                    }
+
+                    if (vue.working_type_page == 'working_month_page') {
+                        vue.getWorkingMonthData()
+                    } else if (vue.working_type_page == 'working_off_page') {
+                        vue.getWorkingOffs()
+                    }
+
+                    this.close()
+                })
+            },
+            getMe() {
+                axios.get("/re-member/getMe")
+                .then((response) => {
+                    this.member = response.data
+                })
+            },
+            getPrevApprovalMembers() {
+                axios.get("/re-working/getPrevApprovalMembers")
+                .then((response) => {
+                    var prevApprovalMembers = response.data.prevApprovalMembers
+                    var prevApprovalEtcMembers = response.data.prevApprovalEtcMembers
+
+                    if (prevApprovalMembers.length > 0 ) {
+                        var inx = 1
+                        this.approvalMembers = []
+                        for (var prevApprovalMember of prevApprovalMembers) {
+                            this.approvalMembers.push({
+                                "member_id": prevApprovalMember.member_id,
+                                "member_name": prevApprovalMember.member_name,
+                                "member_email": prevApprovalMember.member_email,
+                                "display": inx++ + ". " + prevApprovalMember.member_name + " (" + prevApprovalMember.member_email + ")"
+                            })
+                        }
+                    }
+
+                    this.approvalRefMembers = []
+                    if (prevApprovalEtcMembers.length > 0 ) {
+                        for (var prevApprovalEtcMember of prevApprovalEtcMembers) {
+                            if (prevApprovalEtcMember.approval_etc_member_type == code_vue.getCdDtlNoByAlias("APPROVAL_ETC_MEMBER_TYPE_REF")) {
+                                this.approvalRefMembers.push({
+                                    "member_id": prevApprovalEtcMember.member_id,
+                                    "member_name": prevApprovalEtcMember.member_name,
+                                    "member_email": prevApprovalEtcMember.member_email,
+                                    "display": prevApprovalEtcMember.member_name + " (" + prevApprovalEtcMember.member_email + ")"
+                                })
+                            }
+                        }
+                    }
+                })
+            },
+            async makeWokringOffDays()  {
+                if (this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_PREGNANCY") || this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_BABY") || this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_SICK") || this.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_LONG_SICK")) {
+                    return;
+                }
+
+                var firstDate = moment(this.workingOffFormStartDate)
+                var lastDate = moment(this.workingOffFormEndDate)
+                var firstYear = firstDate.year()
+                var lastYear = lastDate.year()
+
+                var holidays = (await axios.get("/re-working-admin/getHolidays?year=" + firstYear)).data
+                if (firstYear != lastYear) {
+                    holidays.push(...(await axios.get("/re-working-admin/getHolidays?year=" + lastYear)).data)
+                }
+
+                this.holidayMap = holidays.reduce((newObj, obj) => {
+                    newObj[obj.holiday_date] = obj
+                    return newObj
+                }, {})
+
+                var isDone = false
+                this.workingOffs = []
+                this.workingOffFormUseNumArr = []
+                this.workingOffArr = []
+
+                if (typeof firstDate != 'undefined') {
+                    while(!isDone) {
+                        var firstDateStr = firstDate.format('YYYY-MM-DD')
+                        if (lastDate.format('YYYY-MM-DD') == firstDateStr) {
+                            isDone = true
+                        }
+
+                        var holiday = this.holidayMap[firstDateStr]
+                        if (typeof holiday != 'undefined') {
+                            // 휴일인 경우 제외
+                            if (holiday.holiday_start_datetime == null && holiday.holiday_end_datetime == null) {
+                                firstDate = firstDate.add(1, 'day')
+                            } else {
+                                this.workingOffFormUseNumArr.push(0.5)
+                                if (12 <= moment(holiday.holiday_start_datetime).format("H")) {
+                                    this.workingOffs.push({
+                                        workingOffDate: firstDateStr,
+                                        workingOffTime: code_vue.getCdDtlNoByAlias("WORKING_OFF_TIME_AM"),
+                                        time: "09:00 ~ 14:00",
+                                        workingOffStartDatetime: moment(firstDateStr + " 09:00"),
+                                        workingOffEndDatetime: moment(firstDateStr + " 14:00"),
+                                    })
+                                } else {
+                                    this.workingOffs.push({
+                                        workingOffDate: firstDateStr,
+                                        workingOffTime: code_vue.getCdDtlNoByAlias("WORKING_OFF_TIME_PM"),
+                                        time: "04:00 ~ 18:00",
+                                        workingOffStartDatetime: moment(firstDateStr + " 14:00"),
+                                        workingOffEndDatetime: moment(firstDateStr + " 18:00"),
+                                    })
+                                }
+
+                                firstDate = firstDate.add(1, 'day')
+                            }
+                        } else {
+                            var weekday = firstDate.isoWeekday()
+                            if (weekday == 6 || weekday == 7) {
+                                // 주말인 경우 제외
+                                firstDate = firstDate.add(1, 'day')
+                            } else {
+                                this.workingOffFormUseNumArr.push(1.0)
+                                this.workingOffs.push({
+                                    workingOffDate: firstDateStr,
+                                    workingOffTime: code_vue.getCdDtlNoByAlias("WORKING_OFF_TIME_DAY"),
+                                    time: "09:00 ~ 18:00",
+                                    workingOffStartDatetime: moment(firstDateStr + " 09:00"),
+                                    workingOffEndDatetime: moment(firstDateStr + " 18:00"),
+                                })
+
+                                firstDate = firstDate.add(1, 'day')
+                            }
+                        }
+                    }
+
+                    this.workingOffFormUseNum = this.workingOffs.length
+                    this.useNumAlertText = ""
+                }
+            },
+            uploadFile(approvalId) {
+                var appendCount = 0
+                let formData = new FormData()
+                for (var inx = 0; inx < this.uploadfiles.length; inx++) {
+                    if (typeof this.$refs.uploadFile[inx].files[0] != 'undefined') {
+                        formData.append('files_' + appendCount, this.$refs.uploadFile[inx].files[0]);
+                        appendCount++
+                    }
+                }
+
+                // 파일 업로드
+                if (appendCount > 0) {
+                    $.ajax({
+                        type:"POST",
+                        url: "/re-working/uploadFile/" + approvalId,
+                        processData: false,
+                        contentType: false,
+                        data: formData,
+                        success: function(res){},
+                    })
+                }
+            },
+            plusFile() {
+                if (this.uploadfiles.length < 5) {
+                    this.uploadfiles.push({})
+                }
+            },
+            minusFile() {
+                this.uploadfiles.pop()
+            },
+            close() {
+                $("#working_off_modal").modal('hide')
+
+                this.workingOffFormId = 0
+                this.workingOffFormTitle = "휴가신청서"
+                this.workingOffFormType = code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_PRIVATE")
+                this.workingOffFormStartDate = ""
+                this.workingOffFormEndDate = ""
+                this.workingOffFormUseNum = "0.0"
+                this.reason = ""
+                this.workingOffs = []
+                this.workingOffFormUseNumArr = []
+                this.member = {}
+                this.uploadfiles = []
+                this.approvalMembers = []
+                this.approvalRefMembers = []
+                this.approvalRecvMembers = [{
+                    "member_id": 225,
+                    "display":  "이기백 (gblee@voronoi.io)"
+                },{
+                    "member_id": 19,
+                    "display": "강보람 (boram@voronoi.io)"
+                },{
+                    "member_id": 130,
+                    "display": "마정현 (mjh@voronoi.io)"
+                }]
+            },
+            alert(text) {
+                this.alertText = text
+                $('#working_off_layer_alert').toast('show')
+            }
+        },
+        mounted: function() {
+            var self = this
+            $('#working_off_modal').on('hidden.bs.modal', function (e) {
+                self.close()
+            })
+
+            $('#working_off_form_start_date_datePicker').datepicker({
+                dateFormat: 'yy-mm-dd',
+                closeText: "닫기",
+                currentText: "오늘",
+                prevText: '이전 달',
+                nextText: '다음 달',
+                monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+                weekHeader: "주",
+                yearSuffix: '년',
+                showOtherMonths: true,
+                showMonthAfterYear:true,
+                selectOtherMonths: true,
+                changeYear: true,
+                changeMonth: true,
+                beforeShowDay:function(date) {
+                    var day = date.getDay()
+                    return [(day != 0 && day != 6)]
+                },
+                onSelect:function(selectedDate, datePicker) {
+                    if (self.workingOffFormEndDate < selectedDate) {
+                        self.workingOffFormEndDate = ""
+                    }
+                    self.workingOffFormStartDate = selectedDate
+                    if(self.workingOffFormEndDate < selectedDate) {
+                        self.workingOffFormEndDate = selectedDate
+                    }
+                    self.makeWokringOffDays()
+                }
+            });
+
+            $('#working_off_form_end_date_datePicker').datepicker({
+                dateFormat: 'yy-mm-dd',
+                closeText: "닫기",
+                currentText: "오늘",
+                prevText: '이전 달',
+                nextText: '다음 달',
+                monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+                weekHeader: "주",
+                yearSuffix: '년',
+                showOtherMonths: true,
+                showMonthAfterYear: true,
+                selectOtherMonths: true,
+                changeYear: true,
+                changeMonth: true,
+                beforeShowDay:function(date) {
+                    var day = date.getDay()
+                    return [(day != 0 && day != 6)]
+                },
+                onSelect:function(selectedDate, datePicker) {
+                    self.workingOffFormEndDate = selectedDate
+                    if (self.workingOffFormStartDate > selectedDate) {
+                        self.workingOffFormStartDate = selectedDate
+                    }
+
+                    if (self.workingOffFormType == code_vue.getCdDtlNoByAlias("WORKING_OFF_TYPE_SICK")) {
+                        // 한달 체크
+                        var afterMonth = moment(self.workingOffFormStartDate).add(1, 'months').format("YYYY-MM-DD")
+                        if (afterMonth < self.workingOffFormEndDate) {
+                            self.workingOffFormEndDate = afterMonth
+                        }
+                    }
+
+                    self.makeWokringOffDays()
+                }
+            });
+        },
+    }).mount('#working_off_modal')
+</script>

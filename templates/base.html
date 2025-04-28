@@ -1,0 +1,256 @@
+{% load static %}
+{% load filters %}
+{% load my_filter %}
+<!doctype html>
+<html lang="ko">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- google login -->
+    <meta name="google-site-verification" content="kAva3LDhpp4k8Zc9n7D2VfbjR7lU7s_B4XhjbD7DTqs" />
+    {% comment %} <meta name ="google-signin-client_id" content="652389828694-jk1sfnd4v09beo8atcc1rq89jbr438ga.apps.googleusercontent.com"> {% endcomment %}
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <!-- Bootstrap CSS -->
+    <!-- CSS only -->
+
+    <!-- Bootstrap -->
+    <!-- V.5.2 -->
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous"> -->
+    <!-- V.4.5 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="{% static '/css/main1.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'kpviewer/css/main-style.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/marvinSection.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/search-list.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/sliderbar.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/ruler.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/map.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/map2.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/modal.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/cdd-modal.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/switch.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/search_base.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/target_base.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/dropdown.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/upload.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/uploader.css' %}">
+    <link rel="stylesheet" href="{% static 'kpviewer/css/combo-select.css' %}">
+    {% comment %}
+    <!-- 2022.06.02 k3363 -->
+    <!-- <link rel="stylesheet" href="{% static 'compoundpatentability/css/delete-warning.css' %}">
+    <link rel="stylesheet" href="{% static 'compoundpatentability/css/popup-image-modal.css' %}">
+    <link rel="stylesheet" href="{% static 'compoundpatentability/css/inquiry.css' %}">  -->
+    {% endcomment %}
+    <link rel="stylesheet" href="{% static 'inquiry/js/inquiry_howto.css' %}">
+    <link rel="stylesheet" href="//cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    {% comment %} <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> {% endcomment %}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css"/>
+    <link rel="stylesheet" href="{% static '/css/fSelect.css' %}"/>
+    <!-- <script src="{% static 'inquiry/js/inquiry_btn.js' %}"></script> -->
+    <script src="{% static 'inquiry/js/blind_btn.js' %}"></script>
+    <script src="{% static 'inquiry/js/inquiry_howto_block.js' %}"></script>
+    {% comment %}
+    <!-- 2022.06.02 k3363 -->
+    <script src="https://marvinjs.chemicalize.com/v1/8391348af0654a1ca51ac2d40ba0b298/client-settings.js"></script>
+    <script src="https://marvinjs.chemicalize.com/v1/client.js"></script>
+    {% endcomment %}
+    {% include 'django_quill/media.html' %}
+
+    {% if title %}
+    <title>Voronoi Groupware - {{ title }}</title>
+    {% else %}
+    <title>Voronoi Groupware</title>
+    {% endif %}
+
+    {% block head_extra %}{% endblock head_extra %}
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    {% comment %}
+    <!-- 2022.06.02 k3363 -->
+    <!-- <script src="{% static 'kpviewer/js/marvinInit.js' %}"></script>  -->
+    {% endcomment %}
+    <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="//code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+
+
+
+    <!--Vue API URL -->
+    <script src="{% static 'vue/variables.js' %}"></script>
+    <!--Axios -->
+    <script src="{% static 'js/axios.min.js' %}"></script>
+    <!--VUE -->
+    <script src="{% static 'js/vue.global.js' %}"></script>
+
+
+    <script>
+        const { createApp } = Vue;
+    </script>
+
+
+
+
+
+
+
+    <style type="text/css">
+        .graph-img {
+            display: block;
+            /*margin-left: auto;*/
+            margin-right: auto;
+        }
+        .dataframe {
+            border : 1px solid #000;
+            border-spacing: 0px;
+        }
+        .dataframe thead {
+            background: #ddd;
+        }
+        .dataframe thead th {
+            border : 1px solid #000;
+        }
+        .dataframe th, .dataframe td {
+            border : 1px solid #000;
+        }
+        i {
+            vertical-align:middle;
+        }
+        .loadingDiv {
+            z-index: 3000;
+            top: 50%;
+            position: fixed;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display:none;
+        }
+        .loadingDiv2 {
+            z-index: 3000;
+            top: 50%;
+            position: fixed;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display:none;
+        }
+        .notifyjs-bootstrap-base {
+            /*
+            width:300px;
+            height:100px;
+            */
+        }
+        .cdd-logo {
+            display:none;
+        }
+        .footerDiv {
+            font-size:14px;
+            height: 60px;
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+            padding-top: 20px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    {% if '/110.15.60.66:30025/' in request.build_absolute_uri or '/172.16.1.25:30025/' in request.build_absolute_uri or '/110.15.60.66:30035/' in request.build_absolute_uri or '/172.16.1.35:30035/' in request.build_absolute_uri or 'localhost' in request.build_absolute_uri or '127.0.0.1' in request.build_absolute_uri %}
+        {% comment %} 개발단 최상단 메뉴 (localhost, stage.voronoi.app 에서 노출됨.) {% endcomment %}
+        {% include 'home/navbar.html' %}
+    {% elif 'my.voronoi.app' in request.build_absolute_uri %}
+        {% include 'home/navbar_my.html' %}
+    {% else %}
+        {% comment %} 운영단 최상단 메뉴 {% endcomment %}
+        {% include 'home/navbar_prod.html' %}
+    {% endif %}
+
+    {% if 'my.voronoi.app' not in request.build_absolute_uri %}
+    {% if request|check_if_mobile and not 'data-entry' in request.build_absolute_uri  %}
+        <div style="position:absolute; top: 55px; left:180px;">
+            <a class="btn btn-sm btn-{% if request.GET.assay == 'efficacy' %}warning{% else %}dark{% endif %}" href="/dashboard/data-entry?assay=efficacy" style="float:left;">Efficacy 데이터 입력</a>
+            <a class="btn btn-sm btn-{% if request.GET.assay == 'toxicity' %}warning{% else %}dark{% endif %}" href="/dashboard/data-entry?assay=toxicity" style="float:left; margin-left: 4px;">Toxicity 데이터 입력</a>
+        </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- <p>Hello, this is message from blog-base default!</p> -->
+    <main role="main" class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags}}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+            {% if not request.build_absolute_uri|checkValidUrl  %}
+                <div class="row">
+                    <div class="col-md-12" style="text-align:center;">
+                        <p><span style="font-size:40px;font-weight:bold;">해당 페이지는 접근할 수 없습니다.</span></p>
+                    </div>
+                </div>
+            {% else %}
+                {% block content %}
+                {% endblock content %}
+            {% endif %}
+            </div>
+        </div>
+        </hr>
+
+    </main>
+    {% include 'home/footer.html' %}
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script> -->
+
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap JS -->
+    <!-- V.5.2 -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script> -->
+    <!-- V.4.5 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+
+
+    <!-- Static JS Files -->
+    <!-- <script src="{% static 'inquiry/js/inquiry_sort.js' %}"></script>
+    <script src="{% static 'inquiry/js/inquiry_howto.js' %}"></script>
+    <script src="{% static 'inquiry/js/inquiry.js' %}"></script> -->
+    <script src="{% static 'inquiry/js/blind_sort.js' %}"></script>
+    <script src="{% static 'inquiry/js/blind.js' %}"></script>
+    <script src="{% static '/js/notify.min.js' %}"></script>
+    <script src="{% static '/js/common.js' %}"></script>
+
+    <script src="{% static 'security/js/login.js' %}"></script>
+    <div class="loadingDiv">
+        <img src="{% static 'images/Spinner-1s-300px.svg' %}"/>
+    </div>
+    {% comment %} <div class="loadingDiv2">
+        <img src="{% static 'images/loading_voronoi_280px.svg' %}"/><br>
+        <img src="{% static 'images/loading_loading_280px.svg' %}"/>
+    </div> {% endcomment %}
+    <!-- VGW Tracking Service S -->
+    <!-- <script src="{% static '/js/vgw_analysis.js' %}?ver=0.0.2"></script>
+    <script>
+        var _TRK_USERID = "{{request.user.username}}";
+        var _TRK_USERNM = "{{request.user.member.member_name}}";
+        _vgwCall('send');
+    </script> -->
+    <!-- VGW Tracking Service E -->
+
+
+
+
+</body>
+
+</html>

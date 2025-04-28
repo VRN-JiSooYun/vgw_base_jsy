@@ -1,0 +1,54 @@
+<template id="target_finder_reprot_pubmed_template">
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 10px;" :style="{ backgroundColor: pubmed.color }">Apply</th>
+                <th style="width: 100px;" :style="{ backgroundColor: pubmed.color }">PMID</th>
+                <th :style="{ backgroundColor: pubmed.color }" @click="showAbstract">Title</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="text-align: center; vertical-align: top">
+                    <input type="checkbox" style="width: auto" v-model="pubmed.is_check">
+                </td>
+                <td style="text-align: left; vertical-align: top"><a :href="openPubmed(pubmed.pubmed_id)" target="_blank">[[ pubmed.pubmed_id ]]</a></td>
+                <td style="text-align: left; vertical-align: top">
+                    <div v-html="pubmed.title"></div>
+                    <hr v-if="isShowAbstract">
+                    <div v-if="isShowAbstract" v-html="pubmed.abstract"></div>
+                </th>
+            </tr>
+        </tbody>
+    </table>
+</template>
+
+
+<script>
+    const targetFinderReportPubmedComponent = {
+        delimiters: ["[[", "]]"],
+        props: {
+            index: {
+                type: Number,
+            },
+            pubmed: {
+                type: Object,
+            }
+        },
+        data() {
+            return {
+                isShowAbstract: false,
+            }
+        },
+        methods : {
+            showAbstract() {
+                this.isShowAbstract = !this.isShowAbstract
+            },
+            openPubmed(pubmed_id) {
+                return 'https://pubmed.ncbi.nlm.nih.gov/' + pubmed_id
+            }
+        },
+        mounted: function() {},
+        template:'#target_finder_reprot_pubmed_template',
+    }
+</script>

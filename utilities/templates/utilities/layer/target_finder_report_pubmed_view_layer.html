@@ -1,0 +1,79 @@
+{% load static %}
+<style>
+    .modal {
+        padding-top: 0px
+    }
+
+    @media (min-width: 992px) {
+        .modal-lg, .modal-xl {
+            max-width: 1600px;
+        }
+    }
+
+    .modal-content {
+        width: 1600px;
+        max-width: 1600px;
+        margin: 0px;
+    }
+</style>
+<div id="targer_finder_report_pubmed_view_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row" style="margin: auto">
+                    <div class="col-md-12" style="position: relative; height: 900px; overflow-y: auto">
+                        <div class="row" style="margin: 20px auto; text-align: center; background: white;">
+                            <table class="table" v-for="pubmed in pubmedList">
+                                <thead>
+                                    <tr>
+                                        <th style="background-color:#d9d9d9; width: 100px;">PMID</th>
+                                        <th style="background-color:#138294;">Abstract</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><a :href="openPubmed(pubmed.pubmed_id)" target="_blank">[[ pubmed.pubmed_id ]]</a></td>
+                                        <td rowspan="3" style="text-align: left; vertical-align: middle" v-html="pubmed.abstract"></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background-color:#d9d9d9; width: 200px">Title</th>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 200px" v-html="pubmed.title"></th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="close">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const target_finder_report_pubmed_view_vue = createApp({
+        delimiters: ["[[", "]]"],
+        data () {
+            return {
+                pubmedList: []
+            }
+        },
+        methods: {
+            loadData(pubmedList) {
+                this.pubmedList = pubmedList
+            },
+            openPubmed(pubmed_id) {
+                return 'https://pubmed.ncbi.nlm.nih.gov/' + pubmed_id
+            },
+            close() {
+                $("#targer_finder_report_pubmed_view_modal").modal('hide')
+            }
+        },
+        mounted: function() {
+        },
+    }).mount('#targer_finder_report_pubmed_view_modal')
+</script>

@@ -1,0 +1,30 @@
+
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<!--
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    국가 Event
+-->
+{% for q_event_national in qs_event_national %}
+    {% if q_event_national.date_event.year != dy or q_event_national.date_event.month != dm or q_event_national.date_event.day != cm_day %}
+
+    {% else %}
+        {% if q_event_national.date_event.year == dy and q_event_national.date_event.month == dm and q_event_national.date_event.day == cm_day %}
+            {% if q_event_national.check_holiday == False %}
+                <span class="text-dark">
+                    ({{ q_event_national.name_event }})
+                </span>
+            {% else %}
+                <span class="text-danger">
+                    <strong>
+                        ({{ q_event_national.name_event }})
+                    </strong>
+                </span>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+{% endfor %}

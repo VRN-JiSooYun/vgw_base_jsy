@@ -1,0 +1,334 @@
+{% load static %}
+<style>
+    .modal {
+        padding-top: 0px
+    }
+
+    @media (min-width: 992px) {
+        .modal-lg, .modal-xl {
+            max-width: 1600px;
+        }
+    }
+
+    .modal-content {
+        width: 1600px;
+        max-width: 1600px;
+        margin: 0px;
+    }
+
+    .search_box_warp {
+        background: #e9ecef;
+        border-radius: 5px;
+        padding: 5px;
+        margin: 1px;
+    }
+
+    .search_box {
+        display: inline-flex;
+        margin: 1px;
+        border: 0.5px solid #e2e4e7;
+        border-radius: 5px;
+        padding: 5px;
+        text-align: center;
+        background-color: white;
+        width: fit-content;
+    }
+</style>
+<div id="targer_finder_report_pubmed_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row" style="margin: auto; height: 900px;">
+                    <div class="col-md-6" style="position: relative; height: 400px;">
+                        <div class="row" style="background: white;">
+                            <div class="col-md-3">
+                                <div  class="card card-body" style="height: 150px; background-color:white; border-radius: 10px;">
+                                    <div><span style="font-size: 13px">Protein (PR)</span></div>
+                                    <div><span style="font-size: 11px; font-weight: 600;">[[ protein ]]</span></div>
+                                    <br>
+                                    <div><span style="font-size: 13px">Abverse Effect (AE)</span></div>
+                                    <div><span style="font-size: 11px; font-weight: 600;">[[ selectAdverseEffect ]]</span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div>Default Keywords (OR condition)</div>
+                                <div class="card card-body" style="height: 120px; background-color:white; border-radius: 10px; margin-top: 10px">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div><span style="font-size: 10px">{PR} protein inhibition AND {AE} relationship</span></div>
+                                            <div><span style="font-size: 10px">inhibition of {PR} AND {AE}</span></div>
+                                            <div><span style="font-size: 10px">{PR} inhibition AND associated {se}</span></div>
+                                            <div><span style="font-size: 10px">{PR} inhibitor-induced {AE}</span></div>
+                                            <div><span style="font-size: 10px">{AE} of {PR} inhibitors</span></div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div><span style="font-size: 10px">Clinical implications of {PR} inhibition related to {AE}</span></div>
+                                            <div><span style="font-size: 10px">{PR} {AE} relation</span></div>
+                                            <div><span style="font-size: 10px">{AE} {PR} relation</span></div>
+                                            <div><span style="font-size: 10px">{PR} {AE}</span></div>
+                                            <div><span style="font-size: 10px">{AE} {PR}</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="background: white; margin-top: 30px; height: 300px">
+                            <div class="col-md-12">
+                                <div class="card card-body" style="background-color:white; border-radius: 10px; height: 700px; overflow-y: auto;">
+                                    <targetfinderreportpubmedcomponent v-for="(pubmed, index) in pubmedList" :index="index" :pubmed="pubmed" ></targetfinderreportpubmedcomponent>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="width: 50xp; height: 100%; display: flex; align-items: center">
+                        <button type="button" class="btn btn-sm btn-secondary" @click="add">
+                            <span class="material-symbols-outlined">text_select_move_back_word</span>
+                        </button>
+                    </div>
+                    <div class="col-md-5" style="position: relative; height: 200px;">
+                        <div style="margin-bottom: 5px; margin-left: 5px;"><span>Search History</span></div>
+                        <div class="row" style="background: white; margin-left: 5px;">
+                            <div class="search_box_warp" style="margin-top: 5px; overflow: auto; overflow-x:hidden; height: 45px; width: 100%">
+                                <div v-for="(keyword, index) in keywordList" class="search_box">
+                                    <div>[[ keyword ]]</div>
+                                    <div style="padding-left: 10px; padding-right:10px; cursor: pointer" @click="getKeywordPubmed(keyword)"><span class="material-symbols-outlined" style="font-size: 15px;">search</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row" style="background: white; margin-left: 5px;">
+                            <div style="margin-bottom: 5px;"><span>Keyword Search</span></div>
+                            <div class="input-group flex-nowrap">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="addon-wrapping" style="background: #ffffff">
+                                        <span class="material-symbols-outlined">search</span>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control" style="background: #ffffff" placeholder="PubMed Search" aria-describedby="addon-wrapping" autocomplete="true" v-model="keyword">
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                                <button :disabled="isLoading" class="btn btn-sm btn-success btn-c-w" style="font-size: 15px;" @click="getKeywordPubmed('')">검색</button>
+                            </div>
+                        </div>
+                        <div class="row" style="background: white; margin-top: 30px; height: 300px">
+                            <div class="col-md-12">
+                                <loading :isloading="isLoading" :height="height" :left="left" :top="top"></loading>
+                                <div class="card card-body" style="background-color:white; border-radius: 10px; height: 700px; overflow-y: auto;">
+                                    <targetfinderreportpubmedcomponent v-for="(pubmed, index) in keywordPubmedList" :index="index" :pubmed="pubmed" ></targetfinderreportpubmedcomponent>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="targer_finder_report_pubmed_layer_alert" class="toast toast-danger" role="targer_finder_report_pubmed_layer_alert" aria-live="assertive" data-delay="3000" aria-atomic="true" style="background-color:#f8d7da; z-index:999">
+                    <div class="toast-body" v-html="alertText"></div>
+                </div>
+                <button type="button" class="btn btn-secondary" @click="close">닫기</button>
+                <button :disabled="isLoading" type="button" class="btn btn-primary" @click="apply">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "../components/target_finder_report_pubmed.html" %}
+
+<script>
+    const target_finder_report_pubmed_vue = createApp({
+        delimiters: ["[[", "]]"],
+        components: {
+            "loading": loadingComponent,
+            "targetfinderreportpubmedcomponent": targetFinderReportPubmedComponent,
+        },
+        data () {
+            return {
+                isLoading: false,
+                height: "700px",
+                left: "25%",
+                top: "25%",
+                id: 0,
+                protein: "",
+                selectAdverseEffect: "",
+                keyword: "",
+                keywordList: [],
+                chatGptPubmedList:[],
+                pubmedList: [],
+                keywordPubmedList: [],
+                alertText: "",
+                max: 30,
+                addPubmed: [],
+                rmPubmed: [],
+            }
+        },
+        methods: {
+            loadData(id, protein, selectAdverseEffect) {
+                this.id = id
+                this.protein = protein
+                this.selectAdverseEffect = selectAdverseEffect
+
+                this.getPubmed()
+            },
+            getPubmed() {
+                this.chatGptPubmedList = []
+                this.pubmedList = []
+                this.keywordPubmedList = []
+
+                axios.get("target-finder-report/getTargetFinderReportPubmed?id=" + this.id)
+                .then((response) => {
+                    var chatGptPubmedList = JSON.parse(response.data.chat_gpt_pubmed)
+                    var pubmedList = this.loadPubmed(response.data.pubmed)
+
+                    if (chatGptPubmedList == null) return
+                    var chatGptPubmedIds = []
+                    for (var chatGptPubmed of chatGptPubmedList) {
+                        chatGptPubmedIds.push(chatGptPubmed.pubmed_id)
+                    }
+
+                    pubmedList.unshift(...chatGptPubmedList)
+
+                    let dupPubmedIds = [];
+                    for (var pubmed of pubmedList) {
+                        if (dupPubmedIds.includes(pubmed.pubmed_id)) continue
+
+                        dupPubmedIds.push(pubmed.pubmed_id)
+                        this.pubmedList.push({
+                            "is_check": chatGptPubmedIds.includes(pubmed.pubmed_id) ? true : false,
+                            "pubmed_id": pubmed.pubmed_id,
+                            "title": pubmed.title,
+                            "abstract": pubmed.abstract,
+                            "color": "#d9d9d9"
+
+                        })
+                    }
+                })
+            },
+            getKeywordPubmed(keyword) {
+                if (this.keyword == '') return
+
+                if (keyword != '') {
+                    this.keyword = keyword
+                } else {
+                    if (!this.keywordList.includes(this.keyword)) {
+                        this.keywordList.push(this.keyword)
+                    }
+                }
+
+                this.isLoading = true
+                this.keywordPubmedList = []
+                axios.get("target-finder-report/getKeywordPubmed?keyword=" + this.keyword)
+                .then((response) => {
+                    var keywordPubmedList = this.loadPubmed(response.data)
+
+                    for (var keywordPubmed of keywordPubmedList) {
+                        this.keywordPubmedList.push({
+                            "is_check": false,
+                            "pubmed_id": keywordPubmed.pubmed_id,
+                            "title": keywordPubmed.title,
+                            "abstract": keywordPubmed.abstract,
+                            "color": "#d9d9d9"
+                        })
+                    }
+                    this.isLoading = false
+                })
+            },
+            loadPubmed(pubmed) {
+                var pubmed = JSON.parse(pubmed)
+
+                var pubmedIds = Object.values(pubmed.pubmed_id)
+                var titles = Object.values(pubmed.title)
+                var abstracts = Object.values(pubmed.abstract)
+
+                var pubmedList = []
+                for (var inx = 0; inx < pubmedIds.length; inx++) {
+                    pubmedList.push({
+                        pubmed_id: pubmedIds[inx],
+                        title: titles[inx],
+                        abstract: abstracts[inx],
+                    })
+                }
+                return pubmedList
+            },
+            add() {
+                var plusCount = 0
+                for (var keywordPubmed of this.keywordPubmedList) {
+                    if (keywordPubmed.is_check){
+                        var isDup = false
+                        for (var pubmed of this.pubmedList) {
+                            if (pubmed.pubmed_id == keywordPubmed.pubmed_id){
+                                isDup = true
+                            }
+                        }
+
+                        if (!isDup) {
+                            this.addPubmed.push(keywordPubmed.pubmed_id)
+                            plusCount++
+                            this.pubmedList.unshift({
+                                "is_check": true,
+                                "pubmed_id": keywordPubmed.pubmed_id,
+                                "title": keywordPubmed.title,
+                                "abstract": keywordPubmed.abstract,
+                                "color": "#facc15"
+                            })
+                        }
+                    }
+                }
+
+                var checkCount = 0
+                for (var pubmed of this.pubmedList) {
+                    if (pubmed.is_check == true) {
+                        checkCount++
+                        if (checkCount > this.max) {
+                            pubmed.is_check = false
+                            if (plusCount == 0) continue
+
+                            this.rmPubmed.push(pubmed.pubmed_id)
+                            plusCount--
+                            pubmed.color = "#d75959"
+                        }
+                    }
+                }
+            },
+            apply() {
+                var pubmed_ids = []
+                for (var pubmed of this.pubmedList) {
+                    if (pubmed.is_check){
+                        pubmed_ids.push(pubmed.pubmed_id)
+                    }
+                }
+
+                if (pubmed_ids.length > this.max) {
+                    this.alert("최대 " + this.max + "개 이하로 선택해 주세요")
+                    return
+                }
+
+                this.saveTargetFinderLogJournal()
+
+                vue.remakeTargetFinderReport(pubmed_ids)
+
+                this.close()
+            },
+            saveTargetFinderLogJournal() {
+                var data = {
+                    ade: this.selectAdverseEffect,
+                    prt: this.protein,
+                    keyword: this.keywordList,
+                    add_pmids: this.addPubmed,
+                    rm_pmids: this.rmPubmed,
+                }
+                
+                axios.post("target-finder/saveTargetFinderLogJournal", {data: data})
+            },            
+            close() {
+                this.keywordList = []
+                this.keyword = ""
+                $("#targer_finder_report_pubmed_modal").modal('hide')
+            },
+            alert(text) {
+                this.alertText = text
+                $('#targer_finder_report_pubmed_layer_alert').toast('show')
+            }
+        },
+        mounted: function() {
+        },
+    }).mount('#targer_finder_report_pubmed_modal')
+</script>

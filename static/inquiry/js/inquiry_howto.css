@@ -1,0 +1,19 @@
+.inquiry-block-li-1::marker { font-size: 25px; }
+.inquiry-block-li-2::marker { font-size: 23px; }
+.inquiry-block-li-3::marker { font-size: 18px; }
+.inquiry-block-li-4::marker { font-size: 16px; }
+.inquiry-block-li-5::marker { font-size: 13px; }
+.inquiry-block-li-6::marker { font-size: 11px; }
+.inquiry-block-li-7::marker { font-size: 9px; }
+.inquiry-block-li-8::marker { font-size: 9px; }
+.inquiry-block-li-9::marker { font-size: 9px; }
+.inquiry-block-li-10::marker { font-size: 9px; }
+
+.ul-howto-block {
+    /* margin-left: 15px; */
+}
+
+/* .inquiry-how-to-slide-form-content > .django-quill-widget-container > .ql-blank{ */
+/* .django-quill-widget {
+    height:500px;
+} */

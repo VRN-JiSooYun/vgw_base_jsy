@@ -1,0 +1,159 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<!--
+	수정한 내용 임시저장 창
+-->
+
+<tr
+{% if where_am_i == 'hr' %}
+	{% if q_workingtime_issued.check_hr_wkt_issued_request_to_hr_activated == True %}
+		{% if q_workingtime_issued.status_workingtime_issued_requested_to_hr != STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.3.0 %}
+			style="background-color:rgba(255, 0, 255, 0.15)"
+		{% else %}
+			style="background-color:rgba(0, 255, 255, 0.15)"
+		{% endif %}
+	{% else %}
+		{% if q_workingtime_issued == q_mysettings_hr.workingtime_issued %}
+			style="background-color:rgb(255,255,0,0.15)"
+		{% else %}
+			style="background-color:rgb(255,255,255,0.75)"
+		{% endif %}
+	{% endif %}
+{% elif where_am_i == 'my' %}
+	{% if q_workingtime_issued.check_hr_wkt_issued_request_to_hr_activated == True %}
+		{% if q_workingtime_issued.status_workingtime_issued_requested_to_hr != STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.3.0 %}
+			style="background-color:rgba(255, 0, 255, 0.15)"
+		{% else %}
+			style="background-color:rgba(0, 255, 255, 0.15)"
+		{% endif %}
+	{% else %}
+		{% if q_workingtime_issued == q_mysettings_my.workingtime_issued %}
+			style="background-color:rgba(255, 255, 0, 0.15)"
+		{% else %}
+			style="background-color:rgb(255,255,255,0.85)"
+		{% endif %}
+	{% endif %}
+{% else %}
+{% endif %}
+>
+	<td
+	></td>
+	<td colspan="13">
+
+		<div class="card card-body" style="background-color:rgb(250,250,250,0.75)">
+			<div>
+				<h6>
+					<strong>
+						출퇴근 수정내용 임시저장
+					</strong>
+				</h6>
+			</div>
+
+			<!--
+				수정내용
+			-->
+			<table class="table">
+				<tr>
+					<th>
+						근무일
+					</th>
+					<th>
+						출근 시간
+					</th>
+					<th>
+						출근 상태
+					</th>
+					<th>
+						퇴근 시간
+					</th>
+					<th>
+						퇴근 상태
+					</th>
+					<th>
+						실근무시간
+					</th>
+					<th>
+						근무 형태
+					</th>
+					<th>
+						비고
+					</th>
+				</tr>
+				<tr>
+					<td>
+						{{ q_workingtime_issued.dict_modified_draft_for_workingtime_issued_from_hr.date_of_work }}
+					</td>
+					<td>
+						{{ q_workingtime_issued.dict_modified_draft_for_workingtime_issued_from_hr.time_start }}
+					</td>
+					<td>
+						{% if q_workingtime_issued.dict_modified_draft_for_workingtime_issued_from_hr.status_wkt_start != 'None' %}
+							{% for ITEM in STATUS_WORKING_TIME_START %}
+								{% if q_workingtime_issued.dict_modified_draft_for_workingtime_issued_from_hr.status_wkt_start == ITEM.0 %}
+									<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+						{% else %}
+							None
+						{% endif %}
+					</td>
+					<td>
+						{{ q_workingtime_issued.dict_modified_draft_for_workingtime_issued_from_hr.time_end }}
+					</td>
+					<td>
+						{% if q_workingtime_issued.dict_modified_draft_for_workingtime_issued_from_hr.status_wkt_end != 'None' %}
+							{% for ITEM in STATUS_WORKING_TIME_END %}
+								{% if q_workingtime_issued.dict_modified_draft_for_workingtime_issued_from_hr.status_wkt_end == ITEM.0 %}
+									<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+								{% endif %}
+							{% endfor %}
+						{% else %}
+							None
+						{% endif %}
+					</td>
+					<td>
+						{{ q_workingtime_issued.dict_modified_draft_for_workingtime_issued_from_hr.time_net_working }}
+					</td>
+					<td>
+						{% for ITEM in STATUS_WORKING_TYPE_LOCATION %}
+							{% if q_workingtime_issued.dict_modified_draft_for_workingtime_issued_from_hr.status_working_type_location == ITEM.0 %}
+								<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+							{% endif %}
+						{% endfor %}
+					</td>
+
+					<td width="20%">
+						{% if where_am_i == 'hr' %}
+							{% comment %}
+								<button type="submit" name="button-hr-workingtime-control-response-modification-draft-to-requestor" value="{{ q_workingtime_issued.id }}" class="btn btn-link btn-sm"
+								{% if q_workingtime_issued.status_workingtime_issued_requested_to_hr != STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.2.0 %}
+								disabled
+								{% endif %}
+								>수정안 요청자에게 보내기</button>
+							{% endcomment %}
+
+							<button type="submit" name="button-hr-workingtime-control-workingtime-issued-request-close" value="{{ q_workingtime_issued.id }}" class="btn btn-link btn-sm"
+							{% if q_workingtime_issued.status_workingtime_issued_requested_to_hr != STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.2.0 %}
+							disabled
+							{% endif %}
+							>수정안 적용/완료하기</button>
+
+							<button type="submit" name="button-hr-workingtime-control-response-modification-draft-to-requestor-cancel" value="{{ q_workingtime_issued.id }}" class="btn btn-link btn-sm"
+							{% if q_workingtime_issued.status_workingtime_issued_requested_to_hr != STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.3.0 %}
+							disabled
+							{% endif %}
+							>다시 수정하기</button>
+						{% endif %}
+					</td>
+
+				</tr>
+			</table>
+
+		</div>
+	</td>
+</tr>
+

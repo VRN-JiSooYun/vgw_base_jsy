@@ -1,0 +1,231 @@
+<template id="target_finder_tab_template">
+    <div class="tab-pane fade" :class="{ 'show active' : activetab == index }" :id="`tab_contents_${index}`" role="tabpanel" aria-labelledby="tab" :tabindex="index">
+        <div style="flex: auto; margin: 3vh auto; width: 97vw; min-height: 53vh; padding: 2%; border-radius:25px; background-color: #ffffff">
+            <div><span style="font-size: 18px; font-weight: 600">[[ targetFinderCtcae.definition ]]</span></div>
+            <div v-if="tab[0]['data'].length > 0">
+                <div style="display: flex; justify-content: end; padding: 7px; font-size: 13px; font-weight: 600; cursor: pointer;" @click="togglePP">[[ proteinPredictionText ]]</div>
+                <table class="table table-hover" v-if="isShowProteinPrediction">
+                    <thead>
+                        <tr>
+                            <th scope="col">Symbol</th>
+                            <th scope="col">Score</th>
+                            <th scope="col">HGNC</th>
+                            <th scope="col">UniProt</th>
+                            <th scope="col"># Drugs with AE</th>
+                            <th scope="col"># Drugs with 30uM</th>
+                            <th scope="col">Protein Full Name</th>
+                            <th scope="col">Report</th>
+                        </tr>
+                    </thead>
+                    <tbody v-for="(item, index) in tab[0]['data']">
+                        <tr>
+                            <td><a :href="item.symbol" @click="saveTargetFinderLogAePP('symbol', item)" target="_blank">[[ item.symbol_code ]]</a></td>
+                            <td>[[ item.score ]]</td>
+                            <td><a :href="item.hgnc" @click="saveTargetFinderLogAePP('hgnc', item)" target="_blank">[[ getHgncCode(item.hgnc) ]]</a></td>
+                            <td><a :href="item.uni_prot" @click="saveTargetFinderLogAePP('uniprot', item)" target="_blank">[[ item.uni_prot_code ]]</a></td>
+                            <td>[[ item.ae_c ]]</td>
+                            <td>[[ item.duplication ]]</td>
+                            <td>[[ item.description ]]</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-info btn-c-w" style="font-size: 15px; margin: 5px 0px;" @click="openReport(item, item.adverse_effect, 'PP', item.symbol_code)">보기</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div v-if="tab[1]['data'].length > 0">
+                <div style="display: flex; justify-content: end; padding: 7px; font-size: 13px; font-weight: 600; cursor: pointer;" @click="toggleKP">[[ kinaseProfilingText ]]</div>
+                <table class="table table-hover" v-if="isShowKinaseProfiling">
+                    <thead>
+                        <tr>
+                            <th scope="col">Profiling Symbol</th>
+                            <th scope="col">Activity</th>
+                            <th scope="col">Score</th>
+                            <th scope="col">Symbol</th>
+                            <th scope="col">HGNC</th>
+                            <th scope="col">UniProt</th>
+                            <th scope="col"># Drugs with AE</th>
+                            <th scope="col"># Drugs with 30uM</th>
+                            <th scope="col">Protein Full Name</th>
+                            <th scope="col">Report</th>
+                        </tr>
+                    </thead>
+                    <tbody v-for="(item, index) in tab[1]['data']">
+                        <tr>
+                            <td>[[ item.gene_symbol_discoverx ]]</td>
+                            <td>[[ item.activity ]]</td>
+                            <td>[[ item.score ]]</td>
+                            <td><a :href="item.symbol" @click="saveTargetFinderLogAeKP('symbol', item)" target="_blank">[[ item.symbol_code ]]</a></td>
+                            <td><a :href="item.hgnc" @click="saveTargetFinderLogAeKP('hgnc', item)" target="_blank">[[ getHgncCode(item.hgnc) ]]</a></td>
+                            <td><a :href="item.uni_prot" @click="saveTargetFinderLogAeKP('uniprot', item)" target="_blank">[[ item.uni_prot_code ]]</a></td>
+                            <td>[[ item.ae_c ]]</td>
+                            <td>[[ item.duplication ]]</td>
+                            <td>[[ item.description ]]</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-info btn-c-w" style="font-size: 15px; margin: 5px 0px;" @click="openReport(item, item.adverse_effect, 'KP', item.gene_symbol_discoverx)">보기</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div v-if="tab[2]['data'].length > 0">
+                <div style="display: flex; justify-content: end; padding: 7px; font-size: 13px; font-weight: 600; cursor: pointer;" @click="toggleSP">[[ safetyPanelText ]]</div>
+                <table class="table table-hover" v-if="isShowSafetyPanel">
+                    <thead>
+                        <tr>
+                            <th scope="col">Assay Target</th>
+                            <th scope="col">Value Relation</th>
+                            <th scope="col">RC50</th>
+                            <th scope="col">Score</th>
+                            <th scope="col">Symbol</th>
+                            <th scope="col">HGNC</th>
+                            <th scope="col">UniProt</th>
+                            <th scope="col"># Drugs with AE</th>
+                            <th scope="col"># Drugs with 30uM</th>
+                            <th scope="col">Protein Full Name</th>
+                            <th scope="col">Report</th>
+                        </tr>
+                    </thead>
+                    <tbody v-for="(item, index) in tab[2]['data']">
+                        <tr>
+                            <td>[[ item.assay_target ]]</td>
+                            <td>[[ item.value_prefix ]]</td>
+                            <td>[[ item.rc50 ]]</td>
+                            <td>[[ item.score ]]</td>
+                            <td><a :href="item.symbol" @click="saveTargetFinderLogAePP('symbol', item)" target="_blank">[[ item.symbol_code ]]</a></td>
+                            <td><a :href="item.hgnc" @click="saveTargetFinderLogAePP('hgnc', item)" target="_blank">[[ getHgncCode(item.hgnc) ]]</a></td>
+                            <td><a :href="item.uni_prot" @click="saveTargetFinderLogAePP('uniprot', item)" target="_blank">[[ item.uni_prot_code ]]</a></td>
+                            <td>[[ item.ae_c ]]</td>
+                            <td>[[ item.duplication ]]</td>
+                            <td>[[ item.description ]]</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-info btn-c-w" style="font-size: 15px; margin: 5px 0px;" @click="openReport(item, item.adverse_effect, 'SP', item.assay_target)">보기</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</template>
+
+
+<script>
+    const targetFinderTabComponent = {
+        delimiters: ["[[", "]]"],
+        props: {
+            index: {
+                type: Number,
+            },
+            activetab: {
+                type: Number,
+            },
+            tab: {
+                type: Array,
+            }
+        },
+        data() {
+            return {
+                proteinPredictionText: "Prediction & Search ↑",
+                kinaseProfilingText: "Kinase Profiling ↑",
+                safetyPanelText: "Safety Panel ↑",
+                isShowProteinPrediction: true,
+                isShowKinaseProfiling: true,
+                isShowSafetyPanel: true,
+                targetFinderCtcae: {},
+            }
+        },
+        methods : {
+            getTargetFinderCtcae() {
+                axios.get("target-finder/getTargetFinderCtcae?adverse_effect=" + this.tab[0].title)
+                .then((response) => {
+                    this.targetFinderCtcae = response.data
+                })
+            },
+            getHgncCode(url) {
+                return url.substring(url.indexOf('HGNC:') + 5)
+            },
+            togglePP() {
+                this.isShowProteinPrediction = !this.isShowProteinPrediction
+                if (this.isShowProteinPrediction) {
+                    this.proteinPredictionText = "Prediction & Search ↑"
+                } else {
+                    this.proteinPredictionText = "Prediction & Search ↓"
+
+                }
+            },
+            toggleKP() {
+                this.isShowKinaseProfiling = !this.isShowKinaseProfiling
+                if (this.isShowKinaseProfiling) {
+                    this.kinaseProfilingText = "Kinase Profiling ↑"
+                } else {
+                    this.kinaseProfilingText = "Kinase Profiling ↓"
+
+                }
+            },
+            toggleSP() {
+                this.isShowSafetyPanel = !this.isShowSafetyPanel
+                if (this.isShowSafetyPanel) {
+                    this.safetyPanelText = "Safety Panel ↑"
+                } else {
+                    this.safetyPanelText = "Safety Panel ↓"
+
+                }
+            },
+            saveTargetFinderLogAePP(type, item) {
+                var data = {
+                    ade: this.tab[0].title,
+                    prt_condi: "PP",
+                    prt: item.symbol_code,
+                    symbol: type == 'symbol' ? 1 : 0,
+                    hgnc: type == 'hgnc' ? 1 : 0,
+                    uniprot: type == 'uniprot' ? 1 : 0,
+                    report: type == 'report' ? 1 : 0,
+                }
+                axios.post("target-finder/saveTargetFinderLogAeClick", {data: data})
+            },            
+            saveTargetFinderLogAeKP(type, item) {
+                var data = {
+                    ade: this.tab[0].title,
+                    prt_condi: "KP",
+                    prt: item.gene_symbol_discoverx,
+                    symbol: type == 'symbol' ? 1 : 0,
+                    hgnc: type == 'hgnc' ? 1 : 0,
+                    uniprot: type == 'uniprot' ? 1 : 0,
+                    report: type == 'report' ? 1 : 0,
+                }
+                axios.post("target-finder/saveTargetFinderLogAeClick", {data: data})
+            },
+            saveTargetFinderLogAeSP(type, item) {
+                var data = {
+                    ade: this.tab[0].title,
+                    prt_condi: "SP",
+                    prt: item.assay_target,
+                    symbol: type == 'symbol' ? 1 : 0,
+                    hgnc: type == 'hgnc' ? 1 : 0,
+                    uniprot: type == 'uniprot' ? 1 : 0,
+                    report: type == 'report' ? 1 : 0,
+                }
+                axios.post("target-finder/saveTargetFinderLogAeClick", {data: data})
+            },          
+            openReport(item, adverse_effect, type, protein) {
+                if (type == 'PP') {
+                    this.saveTargetFinderLogAePP('report', item)
+                } else if (type == 'KP') {
+                    this.saveTargetFinderLogAeKP('report', item)
+                } else if (type == 'SP') {
+                    this.saveTargetFinderLogAeSP('report', item)
+                }
+
+                window.open("/utilities/target-finder-report-popup?adverse_effect=" + adverse_effect + "&type=" + type + "&protein=" + protein, "", "width = 1800, height = 5000, top = 100, left = 0, right=0, location = no")
+            },
+        },
+        mounted: function() {
+            this.getTargetFinderCtcae()
+        },
+        template:'#target_finder_tab_template',
+    }
+</script>

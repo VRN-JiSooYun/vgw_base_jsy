@@ -1,0 +1,93 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+
+<form method="POST" action="{% url 'hr-task-control' %}"  enctype="multipart/form-data">
+	{% csrf_token %}
+
+	<div class="content-section">
+		<fieldset class="form-group">
+			<legend class="border-bottom mb-4">프로젝트 정보 삭제</legend>
+			<div class="card card-body" style="background-color:rgb(240,240,240,0.5)">
+				<fieldset class="form-group">
+
+					{% if q_mysettings_hr.project_simple != Null %}
+						<table class="table">
+							<tr>
+								<th>
+									프로젝트 이름
+								</th>
+								<td style="background-color:rgb(255,255,255,0.85)">
+									{{ q_mysettings_hr.project_simple.project_name }}
+								</td>
+							</tr>
+							
+							<tr>
+								<th>
+									프로젝트 개발형태
+								</th>
+								<td style="background-color:rgb(255,255,255,0.85)">
+									{% for ITEM in LIST_PROJECT_SIMPLE_STATUS %}
+										{% if q_mysettings_hr.project_simple.status_project == ITEM.0 %}
+											{{ ITEM.1 }}
+										{% endif %}
+									{% endfor%}
+								</td>
+							</tr>
+							
+							<tr>
+								<th>
+									프로젝트 이름
+								</th>
+								<td style="background-color:rgb(255,255,255,0.85)">
+									{{ q_mysettings_hr.project_simple.project_name }}
+								</td>
+							</tr>
+							<tr>
+								<th>
+									프로젝트 개시일
+								</th>
+								<td style="background-color:rgb(255,255,255,0.85)">
+									{{ q_mysettings_hr.project_simple.date_project_start|date:"Y-m-d" }}
+								</td>
+							</tr>
+							<tr>
+								<th>
+									프로젝트 종료일
+								</th>
+								<td style="background-color:rgb(255,255,255,0.85)">
+									{{ q_mysettings_hr.project_simple.date_project_end|date:"Y-m-d" }}
+								</td>
+							</tr>
+						</table>
+					{% else %}
+						<div class="text-center" style="background-color:rgb(255,255,255,0.85)">
+							선택된 프로젝트가 없습니다.
+						</div>
+						<hr>
+					{% endif %}
+					<div class="text-right">
+						<button type="submit" name="button-hr-task-control-delete-project-simple" value="true" class="btn btn-danger"
+						{% if q_mysettings_hr.project_simple == Null %}
+							disabled
+						{% endif %}
+						>
+							Delete
+						</button>
+						<button type="submit" name="button-hr-task-control-cancel-action-project-simple" value="true" class="btn btn-dark btn-sm"
+						{% if q_mysettings_hr.project_simple == Null %}
+							disabled
+						{% endif %}
+						>
+							Cancel
+						</button>
+					</div>
+				</fieldset>
+			</div>
+		</fieldset>
+	</div>
+</form>
+

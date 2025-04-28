@@ -1,0 +1,44 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+{% if qs_hrlayout|length > 0 %}
+    <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+        <legend>
+            <strong>
+                퇴사 처리 요청된 {{ q_profile.name_korean }} 님의 포지션
+            </strong>
+        </legend>
+        {% for q_hrlayout in qs_hrlayout %}
+            <table class="table">
+
+                    <tr>
+                        <th width="25%">
+                            회사
+                        </th>
+                        <td style="background-color:rgb(255,255,255,0.85);">
+                            {{ q_hrlayout.company.company_name }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            부서
+                        </th>
+                        <td style="background-color:rgb(255,255,255,0.85);">
+                            {{ q_hrlayout.division.division_name }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            팀
+                        </th>
+                        <td style="background-color:rgb(255,255,255,0.85);">
+                            {{ q_hrlayout.team.team_name }}
+                        </td>
+                    </tr>
+            </table>
+            <hr>
+        {% endfor %}
+    </div>
+{% endif %}

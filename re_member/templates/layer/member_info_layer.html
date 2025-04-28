@@ -1,0 +1,138 @@
+{% load getCode %}
+{% load getCodeDtls %}
+
+
+<div class="modal fade" id="member_info_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">인사정보</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form class="row g-3">
+                    <div class="col-6">
+                        <label for="member_type" class="form-label">근로구분</label>
+                        <select class="form-select" id="member_type">
+                            <option value="">--선택하세요--</option>
+                            {% with codes|getCdNo:"MEMBER_TYPE" as cdNo %}
+                            {% for codeDtl in codeDtls|getCodeDtls:cdNo %}
+                            <option value="{{ codeDtl.cd_dtl_no }}" {% if member.member_type == codeDtl.cd_dtl_no %}selected{% endif %}>{{ codeDtl.cd_dtl_desc }}</option>
+                            {% endfor %}
+                            {% endwith %}
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label for="working_type" class="form-label">구분</label>
+                        <select class="form-select" id="working_type">
+                            <option value="">--선택하세요--</option>
+                            {% with codes|getCdNo:"WORKING_TYPE" as cdNo %}
+                            {% for codeDtl in codeDtls|getCodeDtls:cdNo %}
+                            <option value="{{ codeDtl.cd_dtl_no }}" {% if member.working_type == codeDtl.cd_dtl_no %}selected{% endif %}>{{ codeDtl.cd_dtl_desc }}</option>
+                            {% endfor %}
+                            {% endwith %}
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label for="working_type_detail" class="form-label">부문 세부</label>
+                        <select class="form-select" id="working_type_detail">
+                            <option value="">--선택하세요--</option>
+                            {% with codes|getCdNo:"WORKING_TYPE_DETAIL" as cdNo %}
+                            {% for codeDtl in codeDtls|getCodeDtls:cdNo %}
+                            <option value="{{ codeDtl.cd_dtl_no }}" {% if member.working_type_detail == codeDtl.cd_dtl_no %}selected{% endif %}>{{ codeDtl.cd_dtl_desc }}</option>
+                            {% endfor %}
+                            {% endwith %}
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label for="lab" class="form-label">연구소</label>
+                        <select class="form-select" id="lab">
+                            <option value="">--선택하세요--</option>
+                            {% with codes|getCdNo:"LAB" as cdNo %}
+                            {% for codeDtl in codeDtls|getCodeDtls:cdNo %}
+                            <option value="{{ codeDtl.cd_dtl_no }}" {% if member.lab == codeDtl.cd_dtl_no %}selected{% endif %}>{{ codeDtl.cd_dtl_desc }}</option>
+                            {% endfor %}
+                            {% endwith %}
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label for="working_place" class="form-label">근무지</label>
+                        <select class="form-select" id="working_place">
+                            <option value="">--선택하세요--</option>
+                            {% with codes|getCdNo:"WORKING_PLACE" as cdNo %}
+                            {% for codeDtl in codeDtls|getCodeDtls:cdNo %}
+                            <option value="{{ codeDtl.cd_dtl_no }}" {% if member.working_place == codeDtl.cd_dtl_no %}selected{% endif %}>{{ codeDtl.cd_dtl_desc }}</option>
+                            {% endfor %}
+                            {% endwith %}
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label for="memo" class="form-label">메모</label>
+                        <input type="text" class="form-control" id="memo" value="{{ member.memo | default_if_none:'' }}" autocomplete="off">
+                    </div>
+                    <div class="col-6">
+                        <label for="check_working" class="form-label">근무체크여부</label>
+                        <select class="form-select" id="check_working">
+                            <option value="Y" {% if member.check_working == True %}selected{% endif %}>Y</option>
+                            <option value="N" {% if member.check_working == False %}selected{% endif %}>N</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label for="check_working_off_promote" class="form-label">연차촉진체크여부</label>
+                        <select class="form-select" id="check_working_off_promote">
+                            <option value="Y" {% if member.check_working_off_promote == True %}selected{% endif %}>Y</option>
+                            <option value="N" {% if member.check_working_off_promote == False %}selected{% endif %}>N</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="save()">수정</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function save() {
+        var member_type = $("#member_type option:selected").val();
+        var working_type = $("#working_type option:selected").val();
+        var working_type_detail = $("#working_type_detail option:selected").val();
+        var lab = $("#lab option:selected").val();
+        var working_place = $("#working_place option:selected").val();
+        var memo = $("#memo").val();
+        var check_working = $("#check_working option:selected").val();
+        var check_working_off_promote = $("#check_working_off_promote option:selected").val();
+
+        var data = {
+            "member_id": "{{ member.member_id }}",
+            "member_type": member_type,
+            "working_type": working_type,
+            "working_type_detail": working_type_detail,
+            "lab": lab,
+            "working_place": working_place,
+            "memo": memo,
+            "check_working": check_working,
+            "check_working_off_promote": check_working_off_promote,
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/re-member/updateMemberInfo",
+            data: data,
+            success: function (data) {
+                $("#member_info_modal").modal("hide");
+
+                $("#view_member_type").html(data.member_type)
+                $("#view_working_type").html(data.working_type)
+                $("#view_working_type_detail").html(data.working_type_detail)
+                $("#view_lab").html(data.lab)
+                $("#view_working_place").html(data.working_place)
+                $("#view_memo").html(data.memo)
+                $("#view_check_working").html(data.check_working ? "근무 체크 함" : "근무 체크 안함")
+                $("#view_check_working_off_promote").html(data.check_working_off_promote ? "연차 촉진 체크 함" : "연차 촉진 체크 안함")
+            }
+        })
+    }
+</script>

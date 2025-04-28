@@ -1,0 +1,104 @@
+
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+<table class="table table-bordered">
+    {% for cm_week in cm %}
+        <tr>
+            {% for cm_day in cm_week %}
+                <td
+                {% for q_event_national in qs_event_national %}
+                    {% if q_event_national.date_event.year == dy and q_event_national.date_event.month == dm and q_event_national.date_event.day == cm_day and q_event_national.check_holiday == True %}
+                        style="background-color:rgba(255, 0, 0, 0.15);"
+                    {% endif %}
+                {% endfor %}
+                {% for q_event_voronoi in qs_event_voronoi %}
+                    {% if q_event_voronoi.date_event.year == dy and q_event_voronoi.date_event.month == dm and q_event_voronoi.date_event.day == cm_day and q_event_voronoi.check_holiday == True %}
+                        style="background-color:rgba(255, 125, 0, 0.15);"
+                    {% endif %}
+                {% endfor %}
+
+                {% if ls_today.year == dy and dm == ls_today.month and ls_today.day == cm_day %}
+                    style="background-color:rgba(0, 255, 255, 0.15);"
+                {% else %}
+                    {% if forloop.counter == 1 or forloop.counter == 7 %}
+                        {% if ls_today.year == dy and dm == ls_today.month and ls_today.day == cm_day %}
+                            style="background-color:rgba(255, 255, 0, 0.15);"
+                        {% else %}
+                            style="background-color:rgba(50, 50, 50, 0.15);"
+                        {% endif %}
+                    {% else %}
+                        style="background-color:rgba(255, 255, 255, 0.85);"
+                    {% endif %}
+                {% endif %}
+                {% if forloop.counter == 1 or forloop.counter == 7 %}
+                    width="10%"
+                {% else %}
+                    width="16"
+                {% endif %}
+                >
+
+                    {% if cm_day != 0 %}
+
+                        <span class="text-dark">
+                            {{ dm }}/{{ cm_day }}
+                        </span>
+
+                        <!--
+                            국가 이벤트
+                        -->
+                        {% include 'hr/hr_calendar_control_calendar_fullweeks_event_national.html' %}
+
+
+
+                        {% comment %}
+                            <button type="submit" name="button-calendar-save" value="{{ cm_day }}" class="btn btn-link btn-sm">
+                                +
+                            </button>
+                        {% endcomment %}
+                        <!--
+                            보로노이 이벤트
+                        -->
+                        {% include 'hr/hr_calendar_control_calendar_fullweeks_event_voronoi.html' %}
+
+
+                        <hr>
+                        <!--
+                            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                            휴가자 리스트
+                        -->
+
+                        <!--
+                            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                            My Vacation
+                        -->
+                        {% if forloop.counter == 1 or forloop.counter == 7 %}
+                        <!-- 주말 -->
+                        0
+                        {% else %}
+                        <!-- 주중 -->
+                            {% for q_event_national in qs_event_national %}
+                                {% if q_event_national.date_event.year == dy and q_event_national.date_event.month == dm and q_event_national.date_event.day == cm_day and q_event_national.check_holiday == True %}
+                                <!-- 등록된 국가공휴일 회사공휴일 이벤트날 (휴가차감 안되는날) -->
+                                11111111111111
+                                {% else %}
+                                3
+                                    {% if forloop.counter == 1 %}
+                                    <!-- 평일 (등록된 국가공휴일 혹은 회사공휴일이 아님 (휴가차감 되는날)) -->
+                                    22222222222
+                                        {% include 'hr/hr_calendar_control_calendar_fullweeks_event_vacation.html' %}
+
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
+
+                    {% endif %}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>

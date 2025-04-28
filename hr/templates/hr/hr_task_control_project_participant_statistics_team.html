@@ -1,0 +1,26 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+
+<form method="POST" action="{% url 'hr-task-control' %}"  enctype="multipart/form-data">
+	{% csrf_token %}
+
+	<div class="content-section">
+		<fieldset class="form-group">
+			<legend class="border-bottom mb-4">팀별 참여비율 분석</legend>
+			<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+				<table class="table">
+					<tr>
+						<th>
+							추가 업데이트 예정
+						</th>
+					</tr>
+				</table>
+			</div>
+		</fieldset>
+	</div>
+</form>
+

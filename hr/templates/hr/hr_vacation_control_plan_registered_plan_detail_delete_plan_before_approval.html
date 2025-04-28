@@ -1,0 +1,65 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load mathfilters %}
+
+
+
+
+
+<tr
+	{% if q_vacation_plan.check_hr_vc_plan_request_from_hr_activated == True or q_vacation_plan.check_hr_xxx_document_plan_request_to_hr_activated == True %}
+		style="background-color:rgba(255, 0, 255, 0.15)"
+	{% else %}
+		{% if q_vacation_plan == q_mysettings_xxx.vacation_plan or q_vacation_plan.id in q_mysettings_xxx.list_vacation_plan_id_selected %}
+			style="background-color:rgba(255, 255, 0, 0.15);"
+		{% else %}
+			{% if q_vacation_plan.id in q_mysettings_xxx.list_vacation_plan_id_searched  %}
+				style="background-color:rgba(0, 255, 255, 0.15);"
+			{% else %}
+			{% endif %}
+		{% endif %}
+	{% endif %}
+>
+
+	<td></td>
+	<td colspan="12">
+
+	<!--
+		휴가 계획서 승인 전 삭제하기 내용
+	-->
+
+		<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+			<legend>
+				<strong>
+					제출된 휴가계획서 승인 전 삭제하기
+				</strong>
+				
+			</legend>
+
+			<!-- 휴가계획서 승인 전 삭제하기 내용입력-->
+			
+				<table class="table">
+					<tr>
+						<th width="20%">
+							제출한 휴가계획서 등록취소 이유작성
+						</th>
+					
+						<td class="text-right">
+							<input type="text" name="text-my-vacation-plan-cancel-reason" class="form-control" placeholder="취소 이유 명시">
+							<button type="submit" name="button-my-vacation-plan-cancel-reason-confirm" value="{{ q_vacation_plan.id }}" class="btn btn-link btn-sm">
+								취소 확정하기
+							</button>
+							<button type="submit" name="button-activate-my-vacation-plan-cancel-after-submission" value="{{ q_vacation_plan.id }}" class="btn btn-link btn-sm">
+								Cancel
+							</button>
+						</td>
+					</tr>
+				</table>
+
+
+		</div>
+
+
+	</td>
+</tr>

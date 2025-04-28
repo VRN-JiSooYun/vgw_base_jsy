@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'home/navbar/re_navbar.html' %}
+
+<style>
+    .weeks {
+        padding-top: 1vh;
+        border-top: 0.5px solid #e2e4e7;
+        border-bottom: 0.5px solid #e2e4e7;
+        height: 5vh;
+    }
+    .today {
+        color: orange;
+        font-weight: 700
+    }
+</style>
+
+<div id="working_week_admin" class="row" style="padding: 1%; background-color: #f9f9f9;">
+    <div class="col-md-18" style="position: relative;">
+        <div style="flex: auto; width: 97vw; min-height: 74vh; padding: 1%; border-radius:25px; background-color: #ffffff">
+            <div class="row">
+                <div class="col-1">
+                    <button type="button" class="btn btn-outline-secondary" @click="goToday">오늘</button>
+                </div>
+                <div class="col-2" style="padding-top: 1vw">
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" class="form-check-input" id="showWorkingOff" v-model="isShowWorkingOff">
+                        <label class="form-check-label" for="showWorkingOff">휴가</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" class="form-check-input" id="showWorkingOut" v-model="isShowWorkingOut">
+                        <label class="form-check-label" for="showWorkingOut">외부근무</label>
+                    </div>
+                </div>
+                <div class="col-7" style="text-align:center;">
+                    <button type="button" class="btn btn-outline-danger" @click="goPrevWeeks"><</button>
+                    &nbsp;&nbsp;
+                    <div style="display:inline; width: 6vw; height: 3vh; border-width: 0; outline: none; color: orange; font-weight: bold;" v-html="working_week_display" readonly></div>
+                    &nbsp;&nbsp;
+                    <button type="button" class="btn btn-outline-danger" @click="goNextWeeks">></button>
+                </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-outline-secondary form-control float-right" style="width: 3vw" @click="goMonth">월</button>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 50px">
+                <div v-for="date in week" class="col weeks"><div :class="{today: date.today}" style="text-align:center" v-html="date.display"></div></div>
+            </div>
+            <div class="row">
+                <div class="col" v-for="(item, index) in dates" style="padding: 1vh; border-right: 0.5px solid #e2e4e7;">
+                    <workingweekdayadmin :index="index" :item="item" :isshowworkingoff="isShowWorkingOff" :isshowworkingout="isShowWorkingOut"></workingweekdayadmin>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "./components/working_week_day_admin.html" %}
+
+<script src="{% static '/js/moment-timezone.min.js' %}"></script>
+<script>
+    const vue = createApp({
+        components: {
+            "workingweekdayadmin": workingWeekDayAdminComponent,
+        },
+        data () {
+            return {
+                working_week_display: "",
+                working_week: "",
+                week: [],
+                dates: [],
+                isShowWorkingOff: true,
+                isShowWorkingOut: true,
+            }
+        },
+        methods: {
+            goToday() {
+                this.working_week = moment()
+                this.makeWeeks()
+            },
+            goPrevWeeks() {
+                this.working_week = moment(this.working_week).add(-1,"weeks")
+                this.makeWeeks()
+            },
+            goNextWeeks() {
+                this.working_week = moment(this.working_week).add(1,"weeks")
+                this.makeWeeks()
+            },
+            makeWeeks() {
+                var today = moment()
+                var sunday = moment(this.working_week).set('day', 0)
+                var saturday  = moment(this.working_week).set('day', 6)
+                this.working_week_display = moment(sunday).format('YYYY년 M월 D') + " ~ " + moment(saturday).format('M월 D일')
+
+                this.week = []
+                var loopDay = moment(sunday)
+                for (var inx = 0; inx < 7; inx++) {
+                    var day = loopDay.set('day', inx)
+                    var isToday = false
+                    if (day.format('YYYY년 MM월 DD') == today.format('YYYY년 MM월 DD')) {
+                        isToday = true
+                    }
+
+                    this.week.push(
+                        {
+                            date: day.format('YYYY-MM-DD'),
+                            display: day.format('dddd MM.DD'),
+                            today: isToday
+                        }
+                    )
+                }
+
+                this.getWorkingWeekData()
+            },
+            getWorkingWeekData() {
+                var startDate = this.week.at(0).date
+                var endDate = this.week.at(-1).date
+                var date = this.working_week.format("YYYY-MM-DD")
+
+                axios.get("/re-working-admin/getWorkingWeekData?start_date=" + startDate + "&end_date=" + endDate)
+                .then((response) => {
+                    let data = response.data
+                    var workingOuts = data.workingOuts
+                    var workingOffs = data.workingOffs
+
+
+                    let workingOutMap = workingOuts.reduce((map, workingOut) => {
+                        if (typeof map[workingOut.working_out_date] == 'undefined') {
+                            map[workingOut.working_out_date] = [workingOut]
+                        } else {
+                            map[workingOut.working_out_date].push(workingOut)
+                        }
+                        return map
+                    }, {})
+
+                    let workingOffMap = workingOffs.reduce((map, workingOff) => {
+                        if (typeof map[workingOff.working_off_date] == 'undefined') {
+                            map[workingOff.working_off_date] = [workingOff]
+                        } else {
+                            map[workingOff.working_off_date].push(workingOff)
+                        }
+                        return map
+                    }, {})
+
+                    this.dates = []
+                    for (var inx = 0; inx < this.week.length; inx++) {
+                        var date = this.week[inx].date
+                        this.dates.push({
+                            date: date,
+                            workingOuts: workingOutMap[date],
+                            workingOffs: workingOffMap[date],
+                        })
+                    }
+                })
+            },
+            goMonth() {
+                document.location.href='/re-working-admin/working-month-admin-view'
+            }
+        },
+        mounted: function() {
+            moment.locale('ko', {weekdays: ["일","월","화","수","목","금","토"]})
+            this.working_week = moment()
+            this.makeWeeks()
+        }
+    }).mount('#working_week_admin')
+</script>
+
+{% endblock content %}

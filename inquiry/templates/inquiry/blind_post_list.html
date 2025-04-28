@@ -1,0 +1,116 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+<div style="margin-bottom:5px;">
+  <form class="inquiry-search-by-keyword" method="POST" action="{% url 'blind-get-post-list' %}" style="float:right;">
+    {% csrf_token %}
+    <select name="inquiry-post-keyword-category">
+      <option value="title" selected> 제목 </option>
+      <option value="content"> 내용 </option>
+      <option value="writer"> 글쓴이 </option>
+    </select>
+    <input name="inquiry-post-keyword" style="display: inline-block;" type="text"><button>&#128269;&nbsp;&nbsp;검색</button>
+  </form>
+  <div style="clear:both;"></div>
+  <hr>
+</div>
+<table class="table table-striped table-bordered no-footer dataTable">
+  <thead class="thead-light">
+    <tr>
+      <th scope="row" style="text-align: center; background-color: black; color:white;">#</th>
+      <th href="{% url 'blind-get-post-list' %}?" style="width: 12%; text-align: center; background-color: black; color:white;" class="sorting inquiry-post-table-sort inquiry-post-table-writer" value="member_name" toggle=1>글쓴이</th>
+      <th href="{% url 'blind-get-post-list' %}?" style="width: 73%; text-align: center; background-color: black; color:white;" class="sorting inquiry-post-table-sort inquiry-post-table-title" value="title" toggle=1>제목</th>
+      <th href="{% url 'blind-get-post-list' %}?" style="width: 15%; text-align: center; background-color: black; color:white;" class="sorting inquiry-post-table-sort inquiry-post-table-create-date" value="create_date" toggle=1 scope="col">작성일</th>
+    </tr>
+    <tr>
+      <td colspan="4" style="border: solid 1px; border-style: groove;">
+        <span>카테고리 선택: </span>
+        <a href="{% url 'blind-get-post-list' %}" style="font-size: 15px; margin-bottom: 5px; background-color: whitesmoke; color:black; font-weight:normal; border: solid 2px; border-style: groove;" class="inquiry-category-btn badge badge-primary badge-pill">전체</a>
+        <a href="{% url 'blind-get-post-list' %}?category=open" style="font-size: 15px; margin-bottom: 5px; background-color: whitesmoke; color:black; font-weight:normal; border: solid 2px; border-style: groove;" class="inquiry-category-btn badge badge-primary badge-pill">공개</a>
+        <a href="{% url 'blind-get-post-list' %}?category=close" style="font-size: 15px; margin-bottom: 5px; background-color: whitesmoke; color:black; font-weight:normal; border: solid 2px; border-style: groove;" class="inquiry-category-btn badge badge-primary badge-pill">비공개</a>
+      </td>
+    </tr>
+  </thead>
+  <tbody class="inquiry-post-table"></tbody>
+</table>
+
+<script>
+  let inquiryPageData = {
+    'data': [
+      {% for post in post_list %}
+        {
+          'id': {{ post.id }},
+          'title': `{{ post.title }}`,
+          'member_name': `{{ post.member_name }}`,
+          'category_name': `{{ post.category_name }}`,
+          'create_date': `{{ post.create_date| safe }}`,
+          'comments': {{ post.comments }},
+          'best_comments': {{ post.best_comments }},
+          'latest_comment_create_date': `{{ post.latest_comment_create_date| safe  }}`,
+          'check_hide': {{ post.check_hide }},
+        },
+      {% endfor %}
+    ],
+    'paginator': {
+      'start_index': {{ post_list.start_index }},
+      'end_index': {{ post_list.end_index }}
+    },
+    'post_list_len': {{ post_list_len }}
+  };
+
+  let inquiryPagePostId = {% if inquiry_post.id != None %} {{ inquiry_post.id }} {% else %} undefined {% endif %};
+
+  displayInquiryPostList(inquiryPageData, inquiryPagePostId);
+
+  function displayInquiryPostList(inquiryPageData, post) {
+
+    var body = "";
+    var today = new Date();
+
+    $.each(inquiryPageData['data'], (i, elem) => {
+      var postedTime = today - new Date(elem['create_date'].replace('<br>', ' '));
+      var commentedTime = null;
+      if (elem['latest_comment_create_date'] != null) commentedTime = today - new Date(elem['latest_comment_create_date'].replace('<br>', ' '));
+
+      var postHours = Math.floor(postedTime / 1000 / 60 / 60);
+      var commentHours = Math.floor(commentedTime / 1000 / 60 / 60);
+
+      var redOrBlue =  (elem['best_comments'] != '0') ? 'style="background-color:red;"' : '';
+
+      body += `
+          <tr class="inquiry-post inquiry-post-${elem['id']}">
+              <th scope="row" style="text-align: center;">${inquiryPageData['post_list_len'] - inquiryPageData['paginator']['start_index'] - i + 1}</th>
+              <td style="width: 12%; text-align: center;">${elem['check_hide'] == 0 ? elem['member_name'] : '익명'}</td>
+              <td style="width: 68%;">
+                  <a href="#" style="font-size: 15px; margin-bottom: 5px; margin-right: 5px; background-color: whitesmoke; color:black; font-weight:normal; border: solid 1px; border-color:gray;" class="badge badge-primary badge-pill">
+                      ${elem['check_hide'] == 0 ? '공개' : '비공개'}
+                  </a>
+                  <a href="/inquiry/blind/get-post-list?post=${elem['id']}" class="inquiry-post-title" post="${elem['id']}" style="color:black;">
+                      ${typeof post !== 'undefined' && post['id'] == elem['id'] ? `<b>` : ``} ${elem['check_hide'] ? '<i>비밀글입니다.</i>' : elem['title']} ${typeof post !== 'undefined' && post['id'] == elem['id'] ? `</b>` : ``}
+                      ${elem['comments'] > 0 ? `<span class="badge badge-primary badge-pill" ${redOrBlue}>` + elem['comments'] + `</span>`:``}
+                      ${ postHours <= 72 || (elem['latest_comment_create_date'] != null && commentHours <= 72) ? `<span class="badge badge-primary badge-pill" style="background-color: green;">new</span>`:``}
+                  </a>
+              </td>
+              <td style="width:20%; text-align: center;">${elem['create_date']}</td>
+          </tr>
+      `;
+    });
+
+    $('.inquiry-post-table').html(body);
+  }
+
+</script>
+
+<div style="margin: 0 auto; width:350px; margin-top:30px;">
+  <a href="/inquiry/blind" class="btn btn-light btn-sm" style="border:solid 1px;">맨 앞으로</a>
+  <a href="/inquiry/blind{% if post_list.has_previous %}?on={{ post_list.previous_page_number }}{% endif %}" class="btn btn-light btn-sm" style="border:solid 1px;">이전 페이지</a>
+
+  <span> < {{ post_list.number }}</span>
+  <span>/</span>
+  <span>{{ post_list.paginator.num_pages }} > </span>
+
+  <a href="/inquiry/blind{% if post_list.has_next %}?on={{ post_list.next_page_number }}{% endif %}" class="btn btn-light btn-sm" style="border:solid 1px;">다음 페이지</a>
+  <a href="/inquiry/blind?on={{ post_list.paginator.num_pages }}" class="btn btn-light btn-sm" style="border:solid 1px;">맨 뒤로</a>
+</div>
+

@@ -1,0 +1,324 @@
+<div id="working_weekend_note_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">휴일 근무 일지</h5>
+                <button type="button" class="close"><span aria-hidden="true" @click="close">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="border-top: 0.5px solid #e2e4e7; border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일 신청<br>결재문서번호</div>
+                    <div class="col-4" style="padding: 15px;">
+                        <select class="form-control" aria-label=".form-select-sm example" placeholder="결재 아이디" v-model="selStr" @change="getWorkingWeekendForm">
+                            <option v-for="option in options" :value="option.value" v-html="option.text"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">제목</div>
+                    <div class="col" style="padding: 15px;">
+                        <input type="text" class="form-control" v-model="workingWeekendNoteFormTitle">
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">근무일</div>
+                    <div class="col" style="padding: 15px;" v-html="workingWeekendDate"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">출퇴근 시간</div>
+                    <div class="col" style="padding: 15px;" v-html="workingTime"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴게시간</div>
+                    <div class="col-3" style="padding: 15px;">
+                        <input type="text" class="form-control" style="width: 140px" v-model="freeTime" @change="makeFreeTime" placeholder='00:00'>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">총근무시간</div>
+                    <div class="col" style="padding: 15px;" v-html="totalTime"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">프로젝트명</div>
+                    <div class="col" style="padding: 15px;">
+                        <input class="form-control" v-model="workingProjectName">
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일업무 내용</div>
+                    <div class="col" style="padding: 15px;">
+                        <textarea v-model="workingNote" class="form-control" rows="4" cols="70" placeholder="휴일업무 내용을 입력해주세요."></textarea>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col" style="padding: 15px;">
+                        <workingapproval :type="type" :title="title1" :index="0" :members="approvalMembers"></workingapproval>
+                        <workingapproval :type="type" :title="title2" :index="1" :members="approvalRefMembers"></workingapproval>
+                        <workingapproval :type="type" :title="title3" :index="2" :members="approvalRecvMembers"></workingapproval>
+                    </div>
+                </div>
+                <div id="working_weekend_note_layer_alert" class="toast toast-danger" role="layer_alert" aria-live="assertive" data-delay="1500" aria-atomic="true" style="position:absolute; left:25%; background-color:#f8d7da; z-index:999">
+                    <div class="toast-body" v-html="alertText"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="close">취소</button>
+                <button type="button" class="btn btn-primary" @click="save">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    createApp({
+        components: {
+            "workingapproval": workingApprovalComponent,
+        },
+        data () {
+            return {
+                options: [],
+                selStr: "",
+                refApprovalId: 0,
+                workingWeekendFormMap: {},
+                workingWeekendFormId: 0,
+                workingWeekendNoteFormTitle: "휴일근무 일지 신청서",
+                workingWeekendDate: "",
+                isExsitWorkingTime: false,
+                workingTime: "",
+                workingWeekenddate: "",
+                workingWeekendStartDatetime: "",
+                workingWeekendEndDatetime: "",
+                datetime: "",
+                freeTime: "",
+                totalTime: "",
+                workingProjectName: "",
+                workingNote: "",
+                type: "weekendnote",
+                title1: "결재",
+                title2: "참조",
+                title3: "수신",
+                approvalMembers: [],
+                approvalRefMembers: [],
+                approvalRecvMembers: [{
+                    "member_id": 19,
+                    "display": "강보람 (boram@voronoi.io)"
+                }],
+                alertText: "",
+                isLoading: false,
+            }
+        },
+        methods: {
+            getPrevWorkingWeekendForms() {
+                axios.get("/re-working/getPrevWorkingWeekendForms")
+                .then((response) => {
+                    var prevWorkingWeekendForms = response.data
+                    if (typeof prevWorkingWeekendForms != "undefined") {
+                        this.options = []
+                        this.options.push({
+                            "value": "",
+                            "text": "--선택하세요--",
+                        })
+                        this.selStr = ""
+                        for (workingWeekendForm of prevWorkingWeekendForms) {
+                            this.options.push({
+                                "value": workingWeekendForm.working_weekend_form_id,
+                                "text": workingWeekendForm.approval_id,
+                            })
+                        }
+                    }
+                })
+            },
+            getWorkingWeekendForm() {
+                axios.get("/re-working/getWorkingWeekendForm/" + this.selStr)
+                .then((response) => {
+                    var workingWeekendForm = response.data.workingWeekendForm
+                    this.workingWeekendDate = workingWeekendForm.working_weekend_date
+                    this.refApprovalId = workingWeekendForm.approval_id
+                    this.getWorkingDatetime()
+                })
+            },
+            getWorkingDatetime() {
+                axios.get("/re-working/getWorking/" + this.workingWeekendDate)
+                .then((response) => {
+                    let working = response.data
+                    if (working == '') {
+                        this.workingTime =  "출퇴근 시간이 존재 하지 않습니다."
+                        this.isExsitWorkingTime = false
+                    } else {
+                        if (working[0].working_start_check_datetime == null && working[0].working_end_check_datetime == null) {
+                            this.workingTime =  "출퇴근 시간이 존재 하지 않습니다."
+                            return
+                        }
+                        if (working[0].working_start_check_datetime == null) {
+                            this.workingTime =  "출근 시간이 존재 하지 않습니다."
+                            return
+                        }
+                        if (working[0].working_end_check_datetime == null) {
+                            this.workingTime =  "퇴근 시간이 존재 하지 않습니다."
+                            return
+                        }
+                        this.workingWeekendStartDatetime = moment(working[0].working_start_check_datetime)
+                        this.workingWeekendEndDatetime = moment(working[0].working_end_check_datetime)
+
+                        console.log(working[0].working_start_check_datetime)
+                        console.log(working[0].working_end_check_datetime)
+
+                        var durationTime = this.workingWeekendEndDatetime.diff(this.workingWeekendStartDatetime, 'minutes')
+                        this.workingTime = moment(this.workingWeekendStartDatetime).format('HH:mm') + " ~ " + moment(this.workingWeekendEndDatetime).format('HH:mm') + " /  " + parseInt(durationTime / 60) + " 시간 " + (durationTime % 60) + "분 근무"
+                        this.totalTime = parseInt(durationTime / 60) + " 시간 " + (durationTime % 60) + "분 근무"
+                        this.isExsitWorkingTime = true
+                    }
+                })
+            },
+            makeFreeTime() {
+                if (this.selStr == "") {
+                    this.freeTime = ""
+                    return
+                }
+
+                let time = this.freeTime.replace(/[^0-9:]/g, ''); // 숫자와 콜론(:) 외 제거
+
+                if (time.includes(':')) {
+                    var timeArr = time.split(":")
+                    time = timeArr[0].padStart(2, "0") + ":" + timeArr[1].padStart(2, "0")
+                    this.freeTime = time;
+
+                    var datetime = moment(this.workingWeekendEndDatetime).subtract(timeArr[0], 'h').subtract(timeArr[1], 'm')
+                    var durationTime = datetime.diff(this.workingWeekendStartDatetime, 'minutes')
+                } else {
+                    this.freeTime = ""
+
+                    var datetime = moment(this.workingWeekendEndDatetime).subtract(0, 'h').subtract(0, 'm')
+                    var durationTime = datetime.diff(this.workingWeekendStartDatetime, 'minutes')
+                }
+                this.totalTime = parseInt(durationTime / 60) + " 시간 " + (durationTime % 60) + "분 근무"
+            },
+            save() {
+                if (!this.isExsitWorkingTime) {
+                    this.alert("출퇴근 시간이 존재 하지 않습니다.")
+                    return
+                }
+
+                var approvalMembers = []
+                var approvalRefMembers = []
+                var approvalRecvMembers = []
+                var i = 1;
+                for (var member of this.approvalMembers) {
+                    approvalMembers.push({
+                        member_id: member.member_id,
+                        step: i++
+                    })
+                }
+                if (approvalMembers.length == 0) {
+                    this.alert("결재자를 검색하여 선택해 주세요.")
+                    return
+                }
+
+                for (var member of this.approvalRefMembers) {
+                    approvalRefMembers.push({
+                        member_id: member.member_id,
+                    })
+                }
+
+                for (var member of this.approvalRecvMembers) {
+                    approvalRecvMembers.push({
+                        member_id: member.member_id,
+                    })
+                }
+
+                var data = {
+                    "ref_approval_id": this.refApprovalId,
+                    "working_weekend_note_form_title": this.workingWeekendNoteFormTitle,
+                    "working_weekend_date": this.workingWeekendDate,
+                    "working_weekend_start_datetime": this.workingWeekendStartDatetime,
+                    "working_weekend_end_datetime": this.workingWeekendEndDatetime,
+                    "working_weekend_free_time" : this.freeTime == "" ? "00:00" : this.freeTime,
+                    "working_project_name": this.workingProjectName,
+                    "working_note": this.workingNote,
+                    "approval_members": approvalMembers,
+                    "approval_ref_members": approvalRefMembers,
+                    "approval_recv_members": approvalRecvMembers,
+                }
+
+                if (this.isLoading) {
+                    this.alert("저장중 입니다.")
+                    return
+                }
+
+                this.isLoading = true
+                axios.post("/re-working/createWorkingWeekendNote", {data: data})
+                .then((response) => {
+                    this.isLoading = false
+
+                    if (response.data[0]) {
+                        var approvalId = response.data[1]
+                        // send mail
+                        axios.post("/re-working/sendMailWorkingWeekendNote/" + approvalId)
+                    }
+
+                    working_weekend_note_vue.getWorkingWeekendNoteForms()
+                    $("#working_weekend_note_modal").modal('hide')
+
+                    this.selStr = ""
+                    this.refApprovalId = 0
+                    this.workingWeekendFormMap = {}
+                    this.workingWeekendFormId = 0
+                    this.workingWeekendNoteFormTitle = "휴일근무 일지 신청서"
+                    this.workingWeekendDate = ""
+                    this.isExsitWorkingTime = false
+                    this.workingTime = ""
+                    this.workingWeekendStartDatetime = ""
+                    this.workingWeekendEndDatetime = ""
+                    this.datetime =""
+                    this.freeTime = ""
+                    this.totalTime = ""
+                    this.workingProjectName = ""
+                    this.workingNote = ""
+                    this.approvalMembers = []
+                    this.approvalRefMembers = []
+                    this.approvalRecvMembers = [{
+                        "member_id": 19,
+                        "display": "강보람 (boram@voronoi.io)"
+                    }]
+                })
+            },
+            close() {
+                $("#working_weekend_note_modal").modal('hide')
+
+                this.selStr = ""
+                this.refApprovalId = 0
+                this.workingWeekendFormMap = {}
+                this.workingWeekendFormId = 0
+                this.workingWeekendNoteFormTitle = "휴일근무 일지 신청서"
+                this.workingWeekendDate = ""
+                this.isExsitWorkingTime
+                this.workingTime = ""
+                this.workingWeekendStartDatetime = ""
+                this.workingWeekendEndDatetime = ""
+                this.datetime =""
+                this.freeTime = ""
+                this.totalTime = ""
+                this.workingProjectName = ""
+                this.workingNote = ""
+                this.approvalMembers = []
+                this.approvalRefMembers = []
+                this.approvalRecvMembers = [{
+                    "member_id": 19,
+                    "display": "강보람 (boram@voronoi.io)"
+                }]
+            },
+            alert(text) {
+                this.alertText = text
+                $('#working_weekend_note_layer_alert').toast('show')
+            }
+        },
+        mounted: function() {
+            var self = this
+            $('#working_weekend_note_modal').on('hidden.bs.modal', function (e) {
+                self.close()
+            })
+
+            this.getPrevWorkingWeekendForms()
+        },
+    }).mount('#working_weekend_note_modal')
+</script>

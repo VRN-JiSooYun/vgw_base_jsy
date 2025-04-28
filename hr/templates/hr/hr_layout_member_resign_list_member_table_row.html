@@ -1,0 +1,56 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<td>
+    {{ q_profile.id }}
+</td>
+<td>
+    <button type="submit" name="button-selected-resign-member-further-task" value="{{  q_mysettings_hr.profile_resign.id }}" class="btn btn-link btn-sm">
+        {{ q_profile.name_korean }}
+    </button>
+</td>
+<td>
+    {{ q_profile.last_name }}_{{ q_profile.first_name }}
+</td>
+<td>
+    {% if q_profile != Null %}
+        {% if q_profile.date_joined == Null %}
+            <span class="badge badge-danger">입사일 정보 없음</span>
+        {% else %}
+            {{ q_profile.date_joined|date:"Y-m-d" }}
+        {% endif %}
+    {% endif %}
+</td>
+<td>
+    {% if q_profile != Null %}
+        {% if q_profile.date_left == Null %}
+            <span class="badge badge-danger">퇴사일 정보 없음</span>
+        {% else %}
+            {{ q_profile.date_left|date:"Y-m-d" }}
+        {% endif %}
+    {% endif %}
+</td>
+<td>
+    {{ q_profile.delta_day_joined }}
+</td>
+<td>
+    {{ q_profile.email }}
+</td>
+<td>
+    {{ q_profile.phone_office }}
+</td>
+<td>
+    {{ q_profile.phone_mobile }}
+</td>
+<td>
+    {{ q_profile.date_of_birth|date:"Y-m-d" }}
+</td>
+<td>
+    {% if  q_mysettings_hr.profile_resign != Null %}
+        <a href="" type="button" class="btn btn-outline-secondary btn-sm" >Update</a>
+    {% endif %}
+</td>
+

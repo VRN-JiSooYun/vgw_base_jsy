@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+{% include 'hr/hr_navbar_task.html' %}
+
+
+
+<!--
+
+<script>
+	const { createApp } = Vue;
+</script>
+ -->
+
+<!-- Modal HR 업무관리 프로젝트 멤버전체 참여비율 결과분석 -->
+{% if q_mysettings_hr.check_activate_task_plan_analysis_modal_view == True %}
+	<form method="POST" action="{% url 'hr-task-control' %}"  enctype="multipart/form-data">
+		{% csrf_token %}
+		{% include 'hr/hr_task_control_project_contribution_analysis_modal_contents.html' %}
+	</form>
+	{% include 'hr/hr_task_control_project_contribution_analysis_modal_activation_condition.html' %}
+{% endif %}
+
+
+<!-- Modal HR 업무관리 프로젝트 팀별 참여비율 결과분석 -->
+{% if q_mysettings_hr.check_activate_task_plan_analysis_by_team_modal_view == True %}
+	<form method="POST" action="{% url 'hr-task-control' %}"  enctype="multipart/form-data">
+		{% csrf_token %}
+		{% include 'hr/hr_task_control_project_contribution_analysis_by_team_modal_contents.html' %}
+	</form>
+	{% include 'hr/hr_task_control_project_contribution_analysis_by_team_modal_activation_condition.html' %}
+{% endif %}
+
+
+
+<legend class="border-bottom mb-4">
+    <strong>
+        {{ ls_today }}  업무관리
+    </strong>
+</legend>
+
+
+
+<div class="row">
+	<div class="col-md-12">
+		<form method="POST" action="{% url 'hr-task-control' %}"  enctype="multipart/form-data">
+            {% csrf_token %}
+			<ul class="nav nav-tabs">
+				{% for ITEM in LIST_HR_TASK_CONTROL_TYPE %}
+					<li class="nav-item">
+						<button type="submit" name="button-hr-task-control-type-switch" value="{{ ITEM.0 }}"
+						{% if q_mysettings_hr.task_control_type == ITEM.0 %}
+							class="btn btn-dark btn-sm"
+						{% else %}
+							class="nav-link"
+						{% endif %}
+						>
+							{{ ITEM.1 }}
+						</button>
+					</li>
+				{% endfor %}
+			</ul>
+        </form>
+	</div>
+</div>
+
+<hr>
+
+
+	{% if q_mysettings_hr.task_control_type == LIST_HR_TASK_CONTROL_TYPE.0.0 %}
+	<div class="row">
+		{% include 'hr/hr_task_control_project_main.html' %}
+	</div>
+	{% elif q_mysettings_hr.task_control_type == LIST_HR_TASK_CONTROL_TYPE.1.0 %}
+	<div class="row">
+		{% include 'hr/hr_task_control_task_main.html' %}
+	</div>
+	{% elif q_mysettings_hr.task_control_type == LIST_HR_TASK_CONTROL_TYPE.2.0 %}
+		main 3
+	{% elif q_mysettings_hr.task_control_type == LIST_HR_TASK_CONTROL_TYPE.3.0 %}
+	<div class="row">
+		main 4
+	</div>
+	{% endif %}
+
+{% endblock content %}

@@ -1,0 +1,29 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<form method="POST" action="{% url 'hr-vacation-control' %}"  enctype="multipart/form-data">
+	{% csrf_token %}
+
+	<div class="content-section">
+		<fieldset class="form-group">
+			<legend class="border-bottom mb-4">멤버 연차 관리 이력</legend>
+			<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+				<fieldset class="form-group">
+					<legend class="border-bottom mb-4">
+						자동으로 등록하기
+					</legend>
+					<small>
+						<ul>
+							<li>
+								휴가관리 리스트에 멤버가 없으면 initiate를 눌러 신규등록된 멤버의 휴가관리 쿼리를 생성한다.
+							</li>
+						</ul>
+					</small>
+				</fieldset>
+			</div>
+		</fieldset>
+	</div>
+</form>

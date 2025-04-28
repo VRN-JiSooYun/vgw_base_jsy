@@ -1,0 +1,108 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load mathfilters %}
+
+
+
+<tr>
+	<td>
+		<input type="checkbox" name="checkbox-vc-control-promotion-select-member-vc-control-id" value="{{ q_vacation_control_promotion.id }}"
+		{% if q_vacation_control_promotion.id in q_mysettings_hr.list_selected_vc_control_id_for_promotion %}
+			checked
+		{% endif %}
+		>
+	</td>
+	<td>
+		{{ q_vacation_control_promotion.owner.profile.name_korean }}
+		(
+		{% if q_vacation_control_promotion.status_working_year == 1 %}
+		<span class="badge badge-warning">
+			{{ q_vacation_control_promotion.status_working_year }}년차 ({{ q_vacation_control_promotion.status_working_month_first_year }})
+		</span>
+		{% elif q_vacation_control_promotion.status_working_year >= 2 %}
+			{{ q_vacation_control_promotion.status_working_year }}년차
+		{% else %}
+			오류
+		{% endif %}
+		)
+	</td>
+	<td>
+		{{ q_vacation_control_promotion.date_workingyear_end|date:"Y-m-d" }}
+	</td>
+	<td>
+		{% for k_vc_cont_id_str, v_consumption_percent in dict_vc_usedprogress_promotion.items %}
+
+			{% if q_vacation_control_promotion.id|slugify == k_vc_cont_id_str %}
+				<div class="progress">
+					<div class="progress-bar" role="progressbar" style="width: {{ v_consumption_percent }}%" aria-valuenow="{{ v_consumption_percent }}" aria-valuemin="0" aria-valuemax="100">{{ q_vacation_control_promotion.percent_consumption|stringformat:".1f" }}% ({{ q_vacation_control_promotion.vc_count_used_total }}/{{ q_vacation_control_promotion.vc_count_issued_total }})</div>
+				</div>
+			{% endif %}
+		{% endfor %}
+	</td>
+	<td>
+		{% for k_vc_cont_id_str, v_percent_deadline in dict_vc_deadline_promotion.items %}
+
+			{% if q_vacation_control_promotion.id|slugify == k_vc_cont_id_str %}
+				<div class="progress">
+					{% if q_vacation_control_promotion.status_working_year == 1 %}
+						{% if q_vacation_control_promotion.days_remained <= q_hr_vacation_promotion_settings.delta_days_warning_y1_l1 %}
+							{% if q_vacation_control_promotion.days_remained <= q_hr_vacation_promotion_settings.delta_days_warning_y1_l2 %}
+								<div class="progress-bar bg-danger" role="progressbar" style="width: {{ v_percent_deadline }}%" aria-valuenow="{{ v_percent_deadline }}" aria-valuemin="0" aria-valuemax="100">{{ q_vacation_control_promotion.percent_deadline|stringformat:".1f" }}% ({{ q_vacation_control_promotion.days_remained }}days left)</div>
+							{% else %}
+								<div class="progress-bar bg-warning" role="progressbar" style="width: {{ v_percent_deadline }}%" aria-valuenow="{{ v_percent_deadline }}" aria-valuemin="0" aria-valuemax="100">{{ q_vacation_control_promotion.percent_deadline|stringformat:".1f" }}% ({{ q_vacation_control_promotion.days_remained }}days left)</div>
+							{% endif %}
+						{% else %}
+							<div class="progress-bar bg-success" role="progressbar" style="width: {{ v_percent_deadline }}%" aria-valuenow="{{ v_percent_deadline }}" aria-valuemin="0" aria-valuemax="100">{{ q_vacation_control_promotion.percent_deadline|stringformat:".1f" }}% ({{ q_vacation_control_promotion.days_remained }}days left)</div>
+						{% endif %}
+					{% else %}
+						{% if q_vacation_control_promotion.days_remained <= q_hr_vacation_promotion_settings.delta_days_warning_y2_l1 %}
+							{% if q_vacation_control_promotion.days_remained <= q_hr_vacation_promotion_settings.delta_days_warning_y2_l2 %}
+								<div class="progress-bar bg-danger" role="progressbar" style="width: {{ v_percent_deadline }}%" aria-valuenow="{{ v_percent_deadline }}" aria-valuemin="0" aria-valuemax="100">{{ q_vacation_control_promotion.percent_deadline|stringformat:".1f" }}% ({{ q_vacation_control_promotion.days_remained }}days left)</div>
+							{% else %}
+								<div class="progress-bar bg-warning" role="progressbar" style="width: {{ v_percent_deadline }}%" aria-valuenow="{{ v_percent_deadline }}" aria-valuemin="0" aria-valuemax="100">{{ q_vacation_control_promotion.percent_deadline|stringformat:".1f" }}% ({{ q_vacation_control_promotion.days_remained }}days left)</div>
+							{% endif %}
+						{% else %}
+							<div class="progress-bar bg-success" role="progressbar" style="width: {{ v_percent_deadline }}%" aria-valuenow="{{ v_percent_deadline }}" aria-valuemin="0" aria-valuemax="100">{{ q_vacation_control_promotion.percent_deadline|stringformat:".1f" }}% ({{ q_vacation_control_promotion.days_remained }}days left)</div>
+						{% endif %}
+					{% endif %}
+
+				</div>
+			{% endif %}
+		{% endfor %}
+	</td>
+	<td>
+		{% for ITEM in STATUS_MY_VACATION_CONTROL %}
+			{% if q_vacation_control_promotion.status_vacation_control == ITEM.0 %}
+				{{ ITEM.1 }}
+			{% endif %}
+		{% endfor %}
+		{% if q_vacation_control_promotion.check_promotion_inform_manually == True %}
+			<span class="badge badge-success">수동공지</span>
+		{% endif %}
+	</td>
+	<td>
+		{% if q_vacation_control_promotion.date_confirm_promotion_l1 != Null %}
+			{{ q_vacation_control_promotion.date_confirm_promotion_l1|date:"Y-m-d" }}
+		{% else %}
+			None
+		{% endif %}
+		/
+		{% if q_vacation_control_promotion.date_confirm_promotion_l1 != Null %}
+			{{ q_vacation_control_promotion.date_confirm_promotion_l2|date:"Y-m-d" }}
+		{% else %}
+			None
+		{% endif %}
+
+	</td>
+	<td>
+		{% if q_vacation_control_promotion.promotion_plan_file != Null and q_vacation_control_promotion.promotion_plan_file != '' %}
+			<a href="{{ q_vacation_control_promotion.promotion_plan_file.url }}" download>
+				Download
+			</a>
+		{% else %}
+			None
+		{% endif %}
+	</td>
+</tr>
+

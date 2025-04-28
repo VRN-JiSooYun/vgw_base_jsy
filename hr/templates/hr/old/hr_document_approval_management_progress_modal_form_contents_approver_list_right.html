@@ -1,0 +1,56 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<div class="card card-body" style="background-color:rgb(255,255,255,0.5)">
+	<table class="table">
+		<tr
+		v-for="(dict_approver, index) in list_dict_document_approver" :key="dict_approver"
+		>
+			<th>
+				순번
+			</th>
+			<td>
+				[[ dict_approver.id ]]
+			</td>
+			<th>
+				이름
+			</th>
+			<td>
+				[[ dict_approver.name ]]
+			</td>
+			<th>
+				포지션
+			</th>
+			<td>
+				[[ dict_approver.position ]]
+			</td>
+			<th>
+				승인여부
+			</th>
+			<td>
+				<span v-if="dict_approver.validation == 'APPROVAL' ">
+					승인
+				</span>
+				<span v-else-if="dict_approver.validation == 'REQ_MODIFICATION'">
+					수정요청
+				</span>
+				<span v-else-if="dict_approver.validation == 'REJECTION' ">
+					거절
+				</span>
+				<span v-else>
+					범주 외
+				</span>
+				([[ dict_approver.datetime ]])
+			</td>
+			<th>
+				코멘트
+			</th>
+			<td>
+				[[ dict_approver.comment ]]
+			</td>
+		</tr>
+	</table>
+</div>

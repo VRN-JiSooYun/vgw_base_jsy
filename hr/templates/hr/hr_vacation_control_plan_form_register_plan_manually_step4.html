@@ -1,0 +1,29 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+<form method="POST" action="{% url 'hr-vacation-control' %}"  enctype="multipart/form-data">
+	{% csrf_token %}
+	<legend>
+		<strong>
+			휴가계획서 최종 확인 (Step 4)
+		</strong>
+	</legend>
+
+	<div>
+		<input type="text" name="text-hr-vacation-plan-register-commment" class="form-control" placeholder="코멘트 달기(옵션)">
+	</div>
+
+	<hr>
+
+{% csrf_token %}
+	<fieldset class="form-group">
+		<button type="submit" name="button-hr-vacation-plan-save-step4-to-step3" class="btn btn-secondary btn-sm" value="true">Previous Step</button>
+		<button type="submit" name="button-hr-vacation-plan-save-confirm" class="btn btn-info" value="true">Confirm Register</button>
+		<button type="submit" name="button-hr-vacation-plan-save-step-cancel" value="true" class="btn btn-dark btn-sm">Cancel</button>
+	</fieldset>
+</form>
+
+
+

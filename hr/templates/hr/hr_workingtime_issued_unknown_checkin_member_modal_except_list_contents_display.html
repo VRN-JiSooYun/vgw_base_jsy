@@ -1,0 +1,141 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load bootstrap %}
+
+
+
+
+
+<div class="modal fade bd-example-modal-xl" id="hrWorkingtimeIssuedUncheckedMemberListExceptListModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">
+					<strong>
+						출퇴근관리 리스트에서 제외하는 멤버 리스트
+					</strong>
+				</h5>
+				<button type="submit" name="button-hr-workingtime-issued-today-unchecked-member-list-except-modal-view" value="false" class="btn btn-dark btn-sm" >Close</button>
+			</div>
+
+			<div class="modal-body">
+				<table class="table">
+					<tr>
+						<td>
+							<!--
+								미출근자 체크 제외 등록 리스트
+							-->
+							<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+								{% include 'hr/hr_workingtime_issued_unknown_checkin_member_modal_except_list_contents_table.html' %}
+							</div>
+
+						</td>
+						<td>
+							<!--
+								미출근자 체크 제외 검색하기
+							-->
+							<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+								{% include 'hr/hr_workingtime_issued_unknown_checkin_member_modal_except_list_contents_table_search.html' %}
+							</div>
+
+						</td>
+					</tr>
+				</table>
+
+			</div>
+
+
+			<div class="modal-footer">
+				<button type="submit" name="button-hr-workingtime-issued-today-unchecked-member-list-except-modal-view" value="false" class="btn btn-dark btn-sm" >Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script>
+	//const { createApp } = Vue;
+	var uncheckedMemberExceptModal = createApp({
+        delimiters: ["[[", "]]"],
+        data() {
+        return {
+			list_dict_excepter: [],
+			list_dict_excepter_searched: [],
+			inputTextName: '',
+        }
+        },
+        methods: {
+
+            refreshData() {
+				axios.get(variables.API_URL+'hr/hr_workingtime_issued_unchecked_except_member_modal_api_refresh_view/')
+				.then((response) => {
+					this.list_dict_excepter = response.data['list_dict_excepter']
+					console.log(response.data)
+                })
+            },
+
+			f_excepterSearch(event) {
+                this.inputTextName = event.target.value
+                inputTextName = this.inputTextName
+                axios.get(variables.API_URL+'hr/hr_workingtime_issued_unchecked_except_member_modal_api_search_member_view/?inputTextName='+inputTextName)
+				.then((response) => {
+					this.list_dict_excepter_searched = response.data['list_dict_excepter_searched']
+                    console.log(response)
+                })
+				.catch(() => {
+                    console.log('Error!')
+				})
+            },
+
+			f_excepterSelect(event) {
+				axios.post(variables.API_URL+'hr/hr_workingtime_issued_unchecked_except_member_modal_api_select_member_view/', {
+					'buttonSelectNameExcepter': event,
+				}, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+					'X-CSRFToken': "{{ csrf_token }}"
+                }
+				})
+				.then((response) => {
+					this.refreshData()
+                    console.log(response)
+                })
+				.catch(() => {
+                    console.log('Error!')
+				})
+			},
+
+			f_excepterDelete(event) {
+				axios.post(variables.API_URL+'hr/hr_workingtime_issued_unchecked_except_member_modal_api_delete_member_view/', {
+					'buttonDeleteNameExcepter': event,
+				}, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+					'X-CSRFToken': "{{ csrf_token }}"
+                }
+				})
+				.then((response) => {
+					this.refreshData()
+                    console.log(response)
+                })
+				.catch(() => {
+                    console.log('Error!')
+				})
+			},
+        },
+
+
+		computed: {
+		},
+        mounted: function() {
+            this.refreshData()
+        }
+    }).mount('#hrWorkingtimeIssuedUncheckedMemberListExceptListModal')
+</script>
+
+
+<style>
+.modal-content {
+		max-width:none;
+	}
+</style>

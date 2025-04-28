@@ -1,0 +1,73 @@
+{% load static %}
+
+<div id="working_off_yearly_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span style="font-size: 18px;">연차내역</span>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">근속연차</th>
+                                <th scope="col">전체일수</th>
+                                <th scope="col">사용일수</th>
+                                <th scope="col">잔여일수</th>
+                                <th scope="col">연차사용기간</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-if="workingOffYearlys.length > 0" v-for="workingOffYearly in workingOffYearlys">
+                                <td>[[ sinceYears(workingOffYearly.since_years) ]]</td>
+                                <td>[[ workingOffYearly.working_off_total_days ]]</td>
+                                <td>[[ workingOffYearly.working_off_use_days ]]</td>
+                                <td>[[ workingOffYearly.working_off_remain_days ]]</td>
+                                <td>[[ workingOffYearly.working_off_start_date ]] ~ [[ workingOffYearly.working_off_end_date ]]</td>
+                            </tr>
+                            <tr v-else>
+                                <td colspan="5">이전 연차 내역이 없습니다.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="close">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const working_off_yearly_vue = createApp({
+        delimiters: ["[[", "]]"],
+        data () {
+            return {
+                workingOffYearlys: [],
+            }
+        },
+        methods: {
+            sinceYears(sinceYears) {
+                if (sinceYears == 0) {
+                    return "1년 미만"
+                }
+
+                return sinceYears + "년차"
+
+            },
+            getWorkingOffYearlys() {
+                axios.get("/re-working/getWorkingOffYearlys")
+                .then((response) => {
+                    this.workingOffYearlys = response.data
+                })
+            },
+            close() {
+                $("#working_off_yearly_modal").modal('hide')
+            },
+        },
+        mounted: function() {
+        },
+    }).mount('#working_off_yearly_modal')
+</script>

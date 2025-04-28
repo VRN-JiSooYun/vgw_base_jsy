@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+{% include 'hr/hr_navbar_workingtime.html' %}
+
+
+
+<!-- Modal 휴가계획서 보기 -->
+{% if q_mysettings_hr.check_activate_modal_view_for_vacation_plan == True %}
+	<script type="text/javascript">
+		$(window).on('load', function() {$('#hrWorkingtimeVacationPlanDisplayModal').modal({show:true, backdrop:false});});
+	</script>
+	<form method="POST" action="{% url 'hr-workingtime-control' %}"  enctype="multipart/form-data">
+		{% csrf_token %}
+		{% include 'hr/hr_workingtime_control_modal_vacation_plan_contents_display.html' %}
+	</form>
+{% endif %}
+
+<!-- Modal 미출근자 리스트 보기 -->
+{% if q_mysettings_hr.check_activate_wkt_issued_unchecked_member_list_modal_view == True %}
+	<script type="text/javascript">
+		$(window).on('load', function() {$('#hrWorkingtimeIssuedUncheckedMemberListModal').modal({show:true, backdrop:false});});
+	</script>
+	<form method="POST" action="{% url 'hr-workingtime-control' %}"  enctype="multipart/form-data">
+		{% csrf_token %}
+		{% include 'hr/hr_workingtime_issued_unknown_checkin_member_modal_contents_display.html' %}
+	</form>
+{% endif %}
+
+<!-- Modal 출퇴근관리 제외자 리스트 보기 -->
+{% if q_mysettings_hr.check_activate_wkt_issued_unchecked_member_except_modal_view == True %}
+	<script type="text/javascript">
+		$(window).on('load', function() {$('#hrWorkingtimeIssuedUncheckedMemberListExceptListModal').modal({show:true, backdrop:false});});
+	</script>
+	<form method="POST" action="{% url 'hr-workingtime-control' %}"  enctype="multipart/form-data">
+		{% csrf_token %}
+		{% include 'hr/hr_workingtime_issued_unknown_checkin_member_modal_except_list_contents_display.html' %}
+	</form>
+{% endif %}
+
+<!-- Modal 개인맞춤형 출퇴근관리자 리스트 보기 -->
+{% if q_mysettings_hr.check_activate_wkt_personalized_member_list_modal_view == True %}
+	<script type="text/javascript">
+		$(window).on('load', function() {$('#hrWorkingtimePersonalizedMemberListModal').modal({show:true, backdrop:false});});
+	</script>
+	<form method="POST" action="{% url 'hr-workingtime-control' %}"  enctype="multipart/form-data">
+		{% csrf_token %}
+		{% include 'hr/hr_workingtime_issued_personalized_member_modal_contents_disaply.html' %}
+	</form>
+{% endif %}
+
+<!-- Modal 선택멤버 한달치 발행출퇴근쿼리 리스트 리스트 보기 -->
+{% if q_mysettings_hr.check_activate_modal_view_for_member_wkt_issued_monthly == True %}
+	<script type="text/javascript">
+		$(window).on('load', function() {$('#hrSelectedMemberMonthlyWorkingtimeIssuedTable').modal({show:true, backdrop:false});});
+	</script>
+	<form method="POST" action="{% url 'hr-workingtime-control' %}"  enctype="multipart/form-data">
+		{% csrf_token %}
+		{% include 'hr/hr_workingtime_control_selected_member_monthly_wkt_issued_modal_view.html' %}
+	</form>
+{% endif %}
+
+
+
+<legend class="border-bottom mb-4">
+    <strong>
+        {{ ls_today }}
+    </strong>
+</legend>
+
+
+
+<div class="row">
+	<div class="col-md-12">
+		<form method="POST" action="{% url 'hr-workingtime-control' %}"  enctype="multipart/form-data">
+            {% csrf_token %}
+			<ul class="nav nav-tabs">
+				{% for ITEM in LIST_HR_WORKINGTIME_CONTROL_TYPE %}
+					<li class="nav-item">
+						<button type="submit" name="button-hr-workingtime-control-type-switch" value="{{ ITEM.0 }}"
+						{% if q_mysettings_hr.workingtime_control_type == ITEM.0 %}
+							class="btn btn-dark btn-sm"
+						{% else %}
+							{% if ITEM.0 == LIST_HR_WORKINGTIME_CONTROL_TYPE.2.0 and qs_wkt_issued_requested|length > 0 %}
+								class="btn btn-light btn-sm"
+							{% elif ITEM.0 == LIST_HR_WORKINGTIME_CONTROL_TYPE.5.0 and qs_wkt_plan_requested|length > 0 %}
+								class="btn btn-light btn-sm"
+							{% else %}
+								class="nav-link"
+							{% endif %}
+						{% endif %}
+						>
+							{{ ITEM.1 }}
+
+							{% if ITEM.0 == LIST_HR_WORKINGTIME_CONTROL_TYPE.2.0 and qs_wkt_issued_requested|length > 0%}
+								<span class="badge badge-warning">{{ qs_wkt_issued_requested|length }}</span>
+							{% elif ITEM.0 == LIST_HR_WORKINGTIME_CONTROL_TYPE.5.0 and qs_wkt_plan_requested|length > 0%}
+								<span class="badge badge-warning">{{ qs_wkt_plan_requested|length }}</span>
+							{% endif %}
+
+						</button>
+					</li>
+				{% endfor %}
+			</ul>
+        </form>
+
+	</div>
+
+</div>
+
+<hr>
+
+<div class="row">
+	{% if q_mysettings_hr.workingtime_control_type == LIST_HR_WORKINGTIME_CONTROL_TYPE.0.0 %}
+		{% include 'hr/hr_workingtime_control_today.html' %}
+	{% elif q_mysettings_hr.workingtime_control_type == LIST_HR_WORKINGTIME_CONTROL_TYPE.1.0 %}
+		{% include 'hr/hr_workingtime_control_analytics.html' %}
+	{% elif q_mysettings_hr.workingtime_control_type == LIST_HR_WORKINGTIME_CONTROL_TYPE.2.0 %}
+		{% include 'hr/hr_workingtime_control_request.html' %}
+	{% elif q_mysettings_hr.workingtime_control_type == LIST_HR_WORKINGTIME_CONTROL_TYPE.3.0 %}
+		{% include 'hr/hr_workingtime_control_settings.html' %}
+	{% elif q_mysettings_hr.workingtime_control_type == LIST_HR_WORKINGTIME_CONTROL_TYPE.4.0 %}
+		{% include 'hr/hr_workingtime_control_plan_registered.html' %}
+	{% elif q_mysettings_hr.workingtime_control_type == LIST_HR_WORKINGTIME_CONTROL_TYPE.5.0 %}
+		{% include 'hr/hr_workingtime_control_plan_requested.html' %}
+
+
+	{% endif %}
+</div>
+
+{% endblock content %}
+
+

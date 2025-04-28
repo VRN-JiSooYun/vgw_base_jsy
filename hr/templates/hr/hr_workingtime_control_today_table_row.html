@@ -1,0 +1,353 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+<tr
+{% if where_am_i == 'hr' %}
+	{% if q_workingtime_issued.check_hr_wkt_issued_request_to_hr_activated == True %}
+		{% if q_workingtime_issued.status_workingtime_issued_requested_to_hr != STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.3.0 %}
+			style="background-color:rgba(255, 0, 255, 0.15)"
+		{% else %}
+			style="background-color:rgba(0, 255, 255, 0.15)"
+		{% endif %}
+	{% else %}
+		{% if q_workingtime_issued == q_mysettings_hr.workingtime_issued %}
+			style="background-color:rgb(255,255,0,0.15)"
+		{% else %}
+			style="background-color:rgb(255,255,255,0.75)"
+		{% endif %}
+	{% endif %}
+{% elif where_am_i == 'my' %}
+	{% if q_workingtime_issued.check_hr_wkt_issued_request_to_hr_activated == True %}
+		{% if q_workingtime_issued.status_workingtime_issued_requested_to_hr != STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.3.0 %}
+			style="background-color:rgba(255, 0, 255, 0.15)"
+		{% else %}
+			style="background-color:rgba(0, 255, 255, 0.15)"
+		{% endif %}
+	{% else %}
+		{% if q_workingtime_issued == q_mysettings_my.workingtime_issued %}
+			style="background-color:rgba(255, 255, 0, 0.15)"
+		{% else %}
+			style="background-color:rgb(255,255,255,0.85)"
+		{% endif %}
+	{% endif %}
+{% else %}
+{% endif %}
+>
+	<td width="5%">
+		<input type="checkbox" name="checkbox-hr-workingtime-select-member" value="{{ q_workingtime_issued.id }}"
+		{% if q_workingtime_issued.id in q_mysettings_hr.list_workingtime_issued_id_selected %}
+			checked
+		{% endif %}
+		>
+		<button type="submit" name="button-hr-workingtime-control-selected-member-monthly-wkt-issued-modal-view-open" value="{{ q_workingtime_issued.id }}" class="btn btn-link btn-sm">
+			{{ q_workingtime_issued.owner.profile.name_korean }}
+		</button>
+	</td>
+
+	{% if where_am_i == 'hr' %}
+		<td width="9%">
+			{% if q_workingtime_issued.workingtime_control.hrlayout.check_division_leader != True and q_workingtime_issued.workingtime_control.hrlayout.check_company_leader != True %}
+				<button type="submit" name="button-hr-workingtime-control-select-workingtime-today-table-row-division" value="{{ q_workingtime_issued.id }}" class="btn btn-link btn-sm">
+					{{ q_workingtime_issued.workingtime_control.hrlayout.division.division_name }}
+				</button>
+			{% else %}
+				{% if q_workingtime_issued.workingtime_control.hrlayout.check_division_leader == True %}
+					<button type="submit" name="button-hr-workingtime-control-select-workingtime-today-table-row-division" value="{{ q_workingtime_issued.id }}" class="btn btn-link btn-sm">
+						{{ q_workingtime_issued.workingtime_control.hrlayout.division.division_name }}
+					</button>
+				{% else %}
+					{{ q_workingtime_issued.workingtime_control.hrlayout.company.company_name }}
+				{% endif %}
+			{% endif %}
+		</td>
+		<td width="9%">
+			{% if q_workingtime_issued.workingtime_control.hrlayout.check_division_leader != True and q_workingtime_issued.workingtime_control.hrlayout.check_company_leader != True %}
+				<button type="submit" name="button-hr-workingtime-control-select-workingtime-today-table-row-team" value="{{ q_workingtime_issued.id }}" class="btn btn-link btn-sm">
+					{{ q_workingtime_issued.workingtime_control.hrlayout.team.team_name }}
+				</button>
+			{% else %}
+				{% if q_workingtime_issued.workingtime_control.hrlayout.check_division_leader == True %}
+				{% else %}
+				{% endif %}
+			{% endif %}
+		</td>
+	{% endif %}
+	<td>
+		<!-- 근무일 -->
+		{{ q_workingtime_issued.date_of_work|date:"Y-m-d" }}
+	</td>
+	{% if where_am_i == 'my' %}
+		<td>
+			{% for ITEM in STATUS_WORKING_DAY %}
+				{% if q_workingtime_issued.status_working_day == ITEM.0 %}
+					<a type="button" href="#"
+					{% if q_workingtime_issued.status_working_day == STATUS_WORKING_DAY.0.0 %}
+						class="btn btn-success btn-sm"
+					{% elif q_workingtime_issued.status_working_day == STATUS_WORKING_DAY.1.0 %}
+						class="btn btn-warning btn-sm"
+					{% elif q_workingtime_issued.status_working_day == STATUS_WORKING_DAY.2.0 %}
+						class="btn btn-danger btn-sm"
+					{% else %}
+						class="btn btn-secondary btn-sm"
+					{% endif %}
+					>
+						{{ ITEM.1 }}
+					</a>
+				{% endif %}
+			{% endfor %}
+		</td>
+	{% endif %}
+	<td>
+		<!-- 출근시간 -->
+		{% if q_workingtime_issued.datetime_start != Null %}
+			{{ q_workingtime_issued.datetime_start|time:"H:i" }}
+		{% else %}
+			None
+		{% endif %}
+	</td>
+	<td>
+		<!-- 출근상태 -->
+		{% if q_workingtime_issued.status_wkt_start != 'None' %}
+			{% for ITEM in STATUS_WORKING_TIME_START %}
+				{% if q_workingtime_issued.status_wkt_start == ITEM.0 %}
+					<a type="button" href="#"
+					{% if q_workingtime_issued.status_wkt_start == STATUS_WORKING_TIME_START.0.0 %}
+						class="btn btn-primary btn-sm"
+					{% elif q_workingtime_issued.status_wkt_start == STATUS_WORKING_TIME_START.1.0 %}
+						class="btn btn-success btn-sm"
+					{% elif q_workingtime_issued.status_wkt_start == STATUS_WORKING_TIME_START.2.0 %}
+						class="btn btn-warning btn-sm"
+					{% elif q_workingtime_issued.status_wkt_start == STATUS_WORKING_TIME_START.3.0 %}
+						class="btn btn-danger btn-sm"
+					{% elif q_workingtime_issued.status_wkt_start == STATUS_WORKING_TIME_START.4.0 %}
+						class="btn btn-dark btn-sm"
+					{% elif q_workingtime_issued.status_wkt_start == STATUS_WORKING_TIME_START.5.0 %}
+						class="btn btn-primary btn-sm"
+					{% else %}
+						class="btn btn-secondary btn-sm"
+					{% endif %}
+					>
+						{{ ITEM.1 }}
+					</a>
+				{% endif %}
+			{% endfor %}
+		{% else %}
+			None
+		{% endif %}
+	</td>
+	<td>
+		<!-- 퇴근시간 -->
+		{% if q_workingtime_issued.datetime_end != Null %}
+			{{ q_workingtime_issued.datetime_end|time:"H:i" }}
+		{% else %}
+			None
+		{% endif %}
+	</td>
+	<td>
+		<!-- 퇴근상태 -->
+		{% if q_workingtime_issued.status_wkt_end != 'None' %}
+			{% for ITEM in STATUS_WORKING_TIME_END %}
+				{% if q_workingtime_issued.status_wkt_end == ITEM.0 %}
+					<a type="button" href="#"
+					{% if q_workingtime_issued.status_wkt_end == STATUS_WORKING_TIME_END.0.0 %}
+						class="btn btn-warning btn-sm"
+					{% elif q_workingtime_issued.status_wkt_end == STATUS_WORKING_TIME_END.1.0 %}
+						class="btn btn-success btn-sm"
+					{% elif q_workingtime_issued.status_wkt_end == STATUS_WORKING_TIME_END.2.0 %}
+						class="btn btn-primary btn-sm"
+					{% elif q_workingtime_issued.status_wkt_end == STATUS_WORKING_TIME_END.3.0 %}
+						class="btn btn-danger btn-sm"
+					{% elif q_workingtime_issued.status_wkt_end == STATUS_WORKING_TIME_END.4.0 %}
+						class="btn btn-dark btn-sm"
+					{% elif q_workingtime_issued.status_wkt_end == STATUS_WORKING_TIME_END.5.0 %}
+						class="btn btn-primary btn-sm"
+					{% else %}
+						class="btn btn-secondary btn-sm"
+					{% endif %}
+					>
+						{{ ITEM.1 }}
+					</a>
+				{% endif %}
+			{% endfor %}
+		{% else %}
+			None
+		{% endif %}
+	</td>
+	{% if where_am_i == 'hr' %}
+		<td>
+			{% if q_workingtime_issued.datetime_start != Null and q_workingtime_issued.datetime_end != Null %}
+				{{ q_workingtime_issued.time_net_working|time:"H:i" }}
+			{% else %}
+				None
+			{% endif %}
+		</td>
+	{% endif %}
+	<td>
+		{% for ITEM in STATUS_WORKING_TYPE_LOCATION %}
+			{% if ITEM.0 == q_workingtime_issued.status_working_type_location %}
+				<a type="button" href="#"
+				{% if q_workingtime_issued.status_working_type_location == STATUS_WORKING_TYPE_LOCATION.0.0 %}
+					class="btn btn-success btn-sm"
+				{% elif q_workingtime_issued.status_working_type_location == STATUS_WORKING_TYPE_LOCATION.1.0 %}
+					class="btn btn-warning btn-sm"
+				{% elif q_workingtime_issued.status_working_type_location == STATUS_WORKING_TYPE_LOCATION.2.0 %}
+					class="btn btn-primary btn-sm"
+				{% else %}
+					class="btn btn-secondary btn-sm"
+				{% endif %}
+				> {{ ITEM.1 }} </a>
+			{% endif %}
+		{% endfor %}
+	</td>
+	<td>
+		{% if q_workingtime_issued.workingtime_plan != Null %}
+			<button type="submit" name="button-hr-workingtime-control-activate-workingtime-plan-detail" value="{{ q_workingtime_issued.workingtime_plan.id }}" class="btn btn-link btn-sm" >
+				근무계획서({{ q_workingtime_issued.workingtime_plan.datetime_start|date:"Y-m-d" }} - {{ q_workingtime_issued.workingtime_plan.datetime_end|date:"Y-m-d" }})
+			</button>
+		{% else %}
+			None
+		{% endif %}
+	</td>
+	<td>
+		{% if q_workingtime_issued.vacation_plan != Null %}
+			<button type="submit" name="button-hr-workingtime-control-activate-vacation-plan-detail" value="{{ q_workingtime_issued.vacation_plan.id }}" class="btn btn-link btn-sm" >
+				휴가계획서({{ q_workingtime_issued.vacation_plan.datetime_start|date:"Y-m-d" }} - {{ q_workingtime_issued.vacation_plan.datetime_end|date:"Y-m-d" }})
+			</button>
+		{% else %}
+			None
+		{% endif %}
+	</td>
+	{% if where_am_i == 'hr' %}
+		<td>
+			{% if q_workingtime_issued.workingtime_control.check_default_datetime_start_activated == True or q_workingtime_issued.workingtime_control.check_default_datetime_end_activated == True %}
+				{% if q_workingtime_issued.workingtime_control.check_default_datetime_start_activated == True %}
+					<span class="badge badge-warning">출근</span>
+				{% endif %}
+				{% if q_workingtime_issued.workingtime_control.check_default_datetime_end_activated == True %}
+					<span class="badge badge-danger">퇴근</span>
+				{% endif %}
+			{% else %}
+				None
+			{% endif %}
+		</td>
+	{% endif %}
+	<td class="text-right">
+		{% if q_workingtime_issued.status_workingtime_issued_requested_to_hr == STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.1.0 %}
+			<span class="badge badge-danger">문제 수정요청</span>
+		{% elif q_workingtime_issued.status_workingtime_issued_requested_to_hr == STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.2.0 %}
+			<span class="badge badge-primary">인사팀 요청확인/검토중</span>
+		{% elif q_workingtime_issued.status_workingtime_issued_requested_to_hr == STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.3.0 %}
+			<span class="badge badge-warning">인사팀 수정내용 도착</span>
+		{% elif q_workingtime_issued.status_workingtime_issued_requested_to_hr == STATUS_MY_WORKINGTIME_ISSUED_REQUEST_TO_HR.4.0 %}
+			<span class="badge badge-success">수정내용 동의/종료</span>
+		{% endif %}
+
+		{% if where_am_i == 'hr' %}
+			{% if request.user.is_superuser == True or request.user.profile.check_hr_head == True or request.user.member.id in q_authority.auth_hr_validation %}
+				<button type="submit" name="button-hr-workingtime-control-workingtime-issued-modify-activate" value="{{ q_workingtime_issued.id }}" class="btn btn-link btn-sm"
+				{% if q_workingtime_issued.check_confirmed == True %}
+					disabled
+				{% endif %}
+				>
+				{% if q_mysettings_hr.workingtime_issued == q_workingtime_issued %}
+					수정 요청 접기
+				{% else %}
+					수정 요청 펼치기
+				{% endif %}
+				</button>
+			{% endif %}
+		{% elif where_am_i == 'my' %}
+			<button type="submit" name="button-my-workingtime-control-workingtime-issued-request-activate-view" value="{{ q_workingtime_issued.id }}" class="btn btn-link btn-sm" >
+				{% if q_mysettings_my.check_wkt_issued_request_to_hr_communication_panel_show == True and q_mysettings_my.workingtime_issued == q_workingtime_issued %}
+					수정 요청 접기
+				{% else %}
+					수정 요청 펼치기
+				{% endif %}
+			</button>
+		{% else %}
+		{% endif %}
+
+	</td>
+</tr>
+
+
+<!--
+	MY Workingtime Issued 선택된 경우
+-->
+{% if where_am_i == 'my' %}
+	{% if q_mysettings_my.workingtime_issued == q_workingtime_issued %}
+		<!--
+			수정 요청 입력창
+		-->
+		{% if q_mysettings_my.check_wkt_issued_request_to_hr_communication_panel_show == True %}
+			{% include 'my/my_workingtime_issued_status_table_row_request.html' %}
+			<!--
+				수정한 내용 임시저장 창
+			-->
+			{% if q_workingtime_issued.dict_modified_draft_for_workingtime_issued_from_hr != Null %}
+				{% include 'hr/hr_workingtime_control_today_table_row_draft_display.html' %}
+			{% endif %}
+		{% endif %}
+
+		<!--
+			다음 내용과 흰색 여백의 공란으로 구분짓기
+		-->
+		<tr>
+			<th colspan="11" style="background-color:rgb(255,255,255,0.85)">
+
+			</th>
+		</tr>
+
+	{% endif %}
+{% endif %}
+
+
+{% if where_am_i == 'hr' %}
+	<!--
+		HR Workingtime Issued 선택된 경우
+	-->
+	{% if q_mysettings_hr.workingtime_issued == q_workingtime_issued %}
+		<!--
+			수정요청내용 대화 창
+		-->
+		{% if q_mysettings_hr.workingtime_control_type == LIST_HR_WORKINGTIME_CONTROL_TYPE.2.0 %}
+			{% include 'hr/hr_workingtime_control_today_table_row_communication.html' %}
+		{% endif %}
+
+
+		<!--
+			Workingtime 선택된 경우 출퇴근 시간 수정하기 폼 창
+		-->
+		{% include 'hr/hr_workingtime_control_today_table_row_modification_form.html' %}
+
+
+		<!--
+			Workingtime 선택된 경우 출퇴근 시간 자동등록 창
+		-->
+		{% if q_mysettings_hr.workingtime_control_type != LIST_HR_WORKINGTIME_CONTROL_TYPE.2.0 %}
+			{% include 'hr/hr_workingtime_control_today_table_row_set_autostamping.html' %}
+		{% endif %}
+
+
+
+		<!--
+			수정한 내용 임시저장 창
+		-->
+		{% if q_workingtime_issued.dict_modified_draft_for_workingtime_issued_from_hr != Null %}
+			{% include 'hr/hr_workingtime_control_today_table_row_draft_display.html' %}
+		{% endif %}
+
+
+		<!--
+			다음 내용과 흰색 여백의 공란으로 구분짓기
+		-->
+		<tr>
+			<th colspan="15" style="background-color:rgb(255,255,255,0.85)">
+			</th>
+		</tr>
+
+
+	{% endif %}
+{% endif %}

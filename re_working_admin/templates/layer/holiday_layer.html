@@ -1,0 +1,137 @@
+<div id="holiday_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" v-html="title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-3" style="padding: 15px; background: #f7f6f9;">공휴일명</div>
+                    <div class="col-4" style="padding: 15px;">
+                        <input type="text" class="form-control" v-model="holidayName">
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-3" style="padding: 15px; background: #f7f6f9;">공휴일</div>
+                    <div class="col-4" style="padding: 15px;">
+                        <input type="date" class="form-control" v-model="holidayDate">
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-3" style="padding: 15px; background: #f7f6f9;">공휴일 시작 시간</div>
+                    <div class="col-4" style="padding: 15px;">
+                        <input type="time" class="form-control" v-model="holidayStartDatetime">
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-3" style="padding: 15px; background: #f7f6f9;">공휴일 종료 시간</div>
+                    <div class="col-4" style="padding: 15px;">
+                        <input type="time" class="form-control" v-model="holidayEndDatetime">
+                    </div>
+                </div>
+                <div id="layer_alert" class="toast toast-danger" role="layer_alert" aria-live="assertive" data-delay="1500" aria-atomic="true" style="position:absolute; left:25%; background-color:#f8d7da; z-index:999">
+                    <div class="toast-body" v-html="alertText"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="close">취소</button>
+                <button type="button" class="btn btn-primary" @click="save">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const holiday_vue = createApp({
+        data () {
+            return {
+                title: "공휴일 생성",
+                holidayId: 0,
+                holidayName: "",
+                holidayDate: "",
+                holidayStartDatetime: "",
+                holidayEndDatetime: "",
+                alertText: "",
+            }
+        },
+        methods: {
+            getHoliday(holidayId) {
+                this.title = "공휴일 수정"
+                axios.get("/re-working-admin/getHoliday?holiday_id=" + holidayId)
+                .then((response) => {
+                    var holiday = response.data
+                    this.holidayId = holiday.holiday_id
+                    this.holidayName = holiday.holiday_name
+                    this.holidayDate = holiday.holiday_date
+                    this.holidayStartDatetime = this.time(holiday.holiday_start_datetime)
+                    this.holidayEndDatetime = this.time(holiday.holiday_end_datetime)
+                })
+            },
+            time(datetime) {
+                if (datetime == null) return ""
+                return moment(datetime).format('HH:mm')
+            },
+            save() {
+                if (this.holidayName == "") {
+                    this.alert("공휴일명을 입력해 주세요.")
+                    return;
+                }
+
+                if (this.holidayDate == "") {
+                    this.alert("공휴일 날짜를 입력해 주세요.")
+                    return;
+                }
+
+                var holidayStartDatetime = "";
+                var holidayEndDatetime = "";
+                if (this.holidayStartDatetime != "" && this.holidayEndDatetime  !== "") {
+                    holidayStartDatetime = moment(this.holidayDate + " " + this.holidayStartDatetime + ":00").format("YYYY-MM-DD HH:mm:ss")
+                    holidayEndDatetime = moment(this.holidayDate + " " + this.holidayEndDatetime + ":00").format("YYYY-MM-DD HH:mm:ss")
+                }
+
+                var data = {
+                    holiday_id: this.holidayId,
+                    holiday_name: this.holidayName,
+                    holiday_date: moment(this.holidayDate).format("YYYY-MM-DD"),
+                    holiday_start_datetime: holidayStartDatetime,
+                    holiday_end_datetime: holidayEndDatetime,
+                }
+                var url;
+                if (this.holidayId == 0) {
+                    url = "/re-working-admin/createHoliday"
+                } else {
+                    url = "/re-working-admin/updateHoliday"
+                }
+                axios.post(url, {data: data})
+                .then((response) => {
+                    this.holidayId = 0
+                    this.holidayName = ""
+                    this.holidayDate = ""
+                    this.holidayStartDatetime = ""
+                    this.holidayEndDatetime = ""
+                    vue.getHolidays()
+                    $("#holiday_modal").modal('hide')
+                })
+            },
+            close() {
+                this.holidayId = 0
+                this.holidayName = ""
+                this.holidayDate = ""
+                this.holidayStartDatetime = ""
+                this.holidayEndDatetime = ""
+                $("#holiday_modal").modal('hide')
+            },
+            alert(text) {
+                this.alertText = text
+                $('#layer_alert').toast('show')
+            }
+        },
+        mounted: function() {
+            var self = this
+            $('#holiday_modal').on('hidden.bs.modal', function (e) {
+                self.close()
+            })
+        }
+    }).mount('#holiday_modal')
+</script>

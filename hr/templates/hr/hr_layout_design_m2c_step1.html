@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% block content %}
+{% include 'hr/hr_navbar_layout.html' %}
+{% include 'hr/hr_navbar_layout_design.html' %}
+{% include 'hr/hr_layout_design_navbar_company.html' %}
+
+
+
+<div class="row">
+
+
+    <div class="col-md-12">
+        <legend class="border-bottom mb-4">
+                회사 구성하기
+        </legend>
+    </div>
+
+        <div class="col-md-6">
+            <legend class="border-bottom mb-4">
+                 Step 5: 회사 선택하기
+            </legend>
+            <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+                <form method="POST" action="{% url 'hr-layout-design-m2c-step1' %}">
+                    {% csrf_token %}
+
+                    <table class="table table-hover">
+                        <tr>
+                            <th width=23% >
+                                회사선택<br>
+                                <button type="submit" name="name-company-select" value="value-company-select" class="btn btn-info btn-sm" >Select</button>
+                            </th>
+
+                            <th>
+                                소속된부서
+                            </th>
+                            <th>
+                               부서없이소속된 멤버
+                               <br>
+                               회사리더선택
+                               <button type="submit" name="name-company-leader-select" value="value-company-leader-select" class="btn btn-info btn-sm" disabled>Select</button>
+                            </th>
+                            <th>
+
+                            </th>
+                            <th width=5%>선택해제<br>
+                                <button type="submit" name="name-company-member-deselect" value="value-company-member-deselect" class="btn btn-danger btn-sm" disabled>Deselect</button>
+                            </th>
+                        </tr>
+                        {% for q_company in qs_company %}
+                        <tr>
+
+                            <td>
+                                <input type="radio" name="company-selected" value="{{ q_company.id }}" />
+                                {{ q_company.company_name }}
+                                <br>
+                                {% if q_company.comment != Null %}
+                                ({{ q_company.comment }})
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% for k_q_company, v_list_q_d2c in dict_d2c_selected.items %}
+                                {% if k_q_company == q_company %}
+                                {% for v_q_d2c in v_list_q_d2c %}
+                                {% if v_q_d2c.team2division != Null %}
+                                <ul>
+                                <li>
+                                <input type="checkbox" name="division-deselected" value="{{v_q_d2c.id}}" disabled="disabled"/>
+                                <button class="btn btn-outline-info btn-sm">{{ v_q_d2c.team2division.division.division_name }}</button>
+                                </li>
+                                </ul>
+                                {% elif v_q_d2c.member2division != Null %}
+                                <ul>
+                                <li>
+                                <input type="checkbox" name="division-deselected" value="{{v_q_d2c.id}}" disabled="disabled"/>
+                                <button class="btn btn-outline-info btn-sm">{{ v_q_d2c.member2division.division.division_name }}</button>
+                                </li>
+                                </ul>
+                                {% endif %}
+                                {% endfor %}
+                                {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td >
+                                {% for k_q_company, v_list_q_m2c in dict_m2c_selected.items %}
+                                {% if k_q_company == q_company %}
+                                {% for v_q_m2c in v_list_q_m2c %}
+                                {% if v_q_m2c.member != Null %}
+                                {% if v_q_m2c.check_company_leader == True %}
+                                <ul>
+                                <li>
+                                <input type="checkbox" name="member-deselected" value="{{v_q_m2c.id}}" disabled="disabled" />
+                                <button class="btn btn-outline-info btn-sm">{{ v_q_m2c.member.member_name }}</button>
+                                </li>
+                                </ul>
+                                {% endif %}
+                                {% endif %}
+                                {% endfor %}
+                                {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td colspan="2">
+                                {% for k_q_company, v_list_q_m2c in dict_m2c_selected.items %}
+                                {% if k_q_company == q_company %}
+                                {% for v_q_m2c in v_list_q_m2c %}
+                                {% if v_q_m2c.member != Null %}
+                                {% if v_q_m2c.check_company_leader != True %}
+                                <ul>
+                                <li>
+                                <input type="checkbox" name="member-deselected" value="{{v_q_m2c.id}}" disabled="disabled" />
+                                <button class="btn btn-outline-info btn-sm">{{ v_q_m2c.member.member_name }}</button>
+                                </li>
+                                </ul>
+                                {% endif %}
+                                {% endif %}
+                                {% endfor %}
+                                {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="col-md-6">
+            <legend class="border-bottom mb-4">
+                Step 6-2: 멤버 선택하기 (회사를 먼저 선택하세요)
+                <h6>
+                    <a href="{% url 'hr-layout-design-d2c-step1' %}">회사에 부서 구성하기 </a>
+                </h6>
+
+            </legend>
+
+            <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+                <table class="table table-hover">
+                    <tr>
+                        <th>
+                            멤버 이름
+                        </th>
+                        <th >
+                            {{form.search_keyword|bootstrap}}
+                        </th>
+                        <th>
+                            {{form.check_member_search_duplication|bootstrap}}
+                        </th>
+                        <th>
+                            <button type="submit" class="btn btn-info btn-sm" disabled>Select</button>
+                            <button type="submit" name="reset" value="true" class="btn btn-dark btn-sm" disabled >Reset</button>
+                        </th>
+                    </tr>
+
+
+                        {% for q_member in qs_member %}
+                        <tr>
+                            <td colspan="4">
+                                <input type="checkbox" name="member-selected" value="{{q_member.id}}"  disabled="disabled"/>
+                                {{ q_member.member_name}}
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+
+                </table>
+            </div>
+        </div>
+
+</div>
+
+{% endblock content %}

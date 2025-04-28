@@ -1,0 +1,61 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<tr
+{% if q_vacation_issued_mine.check_hr_vc_issued_request_to_hr_activated == True %}
+	style="background-color:rgba(255, 0, 255, 0.15)"
+{% elif q_vacation_issued_mine.check_hr_vc_issued_request_to_hr_responsed == True %}
+	style="background-color:rgba(0, 255, 255, 0.15)"
+{% else %}
+	{% if q_vacation_issued_mine == q_mysettings_hr.vacation_issued %}
+		style="background-color:rgba(255, 255, 0, 0.15);"
+	{% else %}
+		style="background-color:rgb(255,255,255,0.85)"
+	{% endif %}
+{% endif %}
+>
+	{% include 'hr/hr_vacation_control_register_member_vacation_table_row_column.html' %}
+</tr>
+
+
+{% if q_mysettings_hr.check_activate_detail_vacation_issued_modification_view == True %}
+	{% if q_mysettings_hr.vacation_issued == q_vacation_issued_mine %}
+	<tr
+	{% if q_vacation_issued_mine.check_hr_vc_issued_request_to_hr_activated == True %}
+		style="background-color:rgba(255, 0, 255, 0.15)"
+	{% elif q_vacation_issued_mine.check_hr_vc_issued_request_to_hr_responsed == True %}
+		style="background-color:rgba(0, 255, 255, 0.15)"
+	{% else %}
+		{% if q_vacation_issued_mine == q_mysettings_hr.vacation_issued %}
+			style="background-color:rgba(255, 255, 0, 0.15);"
+		{% else %}
+			style="background-color:rgb(255,255,255,0.85)"
+		{% endif %}
+	{% endif %}>
+		{% include 'hr/hr_vacation_control_register_member_vacation_table_row_column_communication.html' %}
+	</tr>
+	{% endif %}
+{% endif %}
+
+
+{% if q_mysettings_hr.check_activate_detail_vacation_issued_revival_view == True %}
+	{% if q_mysettings_hr.vacation_issued == q_vacation_issued_mine %}
+	<tr
+	{% if q_vacation_issued_mine.check_hr_vc_issued_request_to_hr_activated == True %}
+		style="background-color:rgba(255, 0, 255, 0.15)"
+	{% elif q_vacation_issued_mine.check_hr_vc_issued_request_to_hr_responsed == True %}
+		style="background-color:rgba(0, 255, 255, 0.15)"
+	{% else %}
+		{% if q_vacation_issued_mine == q_mysettings_hr.vacation_issued %}
+			style="background-color:rgba(255, 255, 0, 0.15);"
+		{% else %}
+			style="background-color:rgb(255,255,255,0.85)"
+		{% endif %}
+	{% endif %}>
+		{% include 'hr/hr_vacation_control_register_member_vacation_table_row_column_revive.html' %}
+	</tr>
+	{% endif %}
+{% endif %}

@@ -1,0 +1,131 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<div
+{% if q_mysettings_hr.check_display_size_document_format_table_fullwidth == True %}
+	class="col-md-12"
+{% else %}
+	class="col-md-9"
+{% endif %}
+>
+
+	<div class="content-section">
+		<fieldset class="form-group">
+			<form method="POST" action="{% url 'hr-document-control' %}"  enctype="multipart/form-data">
+				{% csrf_token %}
+				<table class="table">
+					<tr>
+						<td>
+							<legend class="border-bottom mb-4">
+								<strong>
+									등록된 문서양식
+								</strong>
+							</legend>
+						</td>
+							<td>
+								<input type="text" class="form-control" name="text-hr-document-control-member-search-keyword" placeholder="이름 입력">
+							</td>
+							<td>
+								<button type="submit" name="button-hr-document-control-search-document" value="true" class="btn btn-info btn-md">Search</button>
+							</td>
+							<td>
+								<button type="submit" name="button-hr-document-control-reset-document-search" value="true" class="btn btn-dark btn-sm">
+									Reset
+								</button>
+							</td>
+							<td>
+								<button type="submit" name="button-hr-document-control-delete-selected-document-view" value="true" class="btn btn-warning btn-sm">
+									Delete
+								</button>
+							</td>
+							<td>
+								{% if request.user.is_superuser == True %}
+									<button type="submit" name="button-hr-document-control-register-new-document-modal-view-open" value="true" class="btn btn-primary btn-md">
+										Register
+									</button>
+								{%  endif %}
+							</td>
+							<td>
+								<button type="submit" name="button-hr-document-control-statistics-table-display-size-switch" value="true" class="btn btn-light btn-sm">
+									{% if q_mysettings_hr.check_display_size_document_today_table_fullwidth == False %}
+										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
+											<path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"/>
+										</svg>
+									{% else %}
+										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-fullscreen-exit" viewBox="0 0 16 16">
+											<path d="M5.5 0a.5.5 0 0 1 .5.5v4A1.5 1.5 0 0 1 4.5 6h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5zm5 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 10 4.5v-4a.5.5 0 0 1 .5-.5zM0 10.5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 6 11.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zm10 1a1.5 1.5 0 0 1 1.5-1.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4z"/>
+										</svg>
+									{% endif %}
+								</button>
+							</td>
+					</tr>
+				</table>
+
+
+				<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+					<table class="table table-sm">
+						<tr>
+							{% for ITEM in LIST_DOCUMENT_CONTROL_TABLE_COLUMN_INDEX %}
+							<th>
+								{% if ITEM.0 == LIST_DOCUMENT_CONTROL_TABLE_COLUMN_INDEX.0 %}
+									<input type="checkbox" name="checkbox-hr-document-select-member" value="all">
+								{% endif %}
+								<button type="submit" name="button-hr-document-control-select-document-today-table-column-index" value="{{ ITEM.0 }}" class="btn btn-link btn-sm">
+									{{ ITEM.1 }}
+								</button>
+							</th>
+							{% endfor %}
+							<th>
+								비고
+							</th>
+						</tr>
+						
+						<!--
+							선택된 문서포맷
+						-->
+						{% for q_hr_document_format in qs_hr_document_format %}
+							{% if q_hr_document_format == q_mysettings_hr.document_format %}
+								{% include 'hr/hr_document_control_document_format_table_row.html' %}
+							{% endif %}
+						{% endfor %}
+						
+						<!--
+							선택안된 문서포맷
+						-->
+						{% for q_hr_document_format in qs_hr_document_format %}
+							{% if q_hr_document_format == q_mysettings_hr.document_format %}
+							{% else %}
+								{% include 'hr/hr_document_control_document_format_table_row.html' %}
+							{% endif %}
+						{% endfor %}
+
+					</table>
+				</div>
+
+
+
+			</form>
+		</fieldset>
+	</div>
+
+</div>
+
+
+
+{% if q_mysettings_hr.check_display_size_document_format_table_fullwidth == False %}
+	<div class="col-md-3">
+
+		<form method="POST" action="{% url 'hr-document-control' %}"  enctype="multipart/form-data">
+			{% csrf_token %}
+
+			extension
+
+		</form>
+	</div>
+{% endif %}
+
+

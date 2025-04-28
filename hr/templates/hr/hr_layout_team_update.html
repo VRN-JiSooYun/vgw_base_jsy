@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% block content %}
+{% include 'hr/hr_navbar_layout.html' %}
+{% include 'hr/hr_navbar_layout_register_team.html' %}
+
+
+
+<div class="row">
+
+    <div class="col-md-12">
+    <legend class="border-bottom mb-4">
+            <strong>
+                팀 세부 내용
+            </strong>
+            <br>
+            <small>
+                <a href="{% url 'hr-layout-register-team' %}" > <<< 팀 관리으로 돌아가기</a>
+            </small>
+    </legend>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+            <table class="table table-hover ">
+                <tr>
+                    <th>
+                        팀명
+                    </th>
+                    <th>
+                        코멘트
+                    </th>
+                </tr>
+                <tr>
+                    <td style="background-color:rgb(255,255,255,0.5);">
+                        {{ q_team.team_name}}
+                    </td>
+                    <td style="background-color:rgb(255,255,255,0.5);">
+                        {% if q_team.comment != Null %}
+                        {{ q_team.comment }}
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+            <form method = "POST" action = "{% url 'hr-layout-update-team' q_team.id %}">
+                {% csrf_token %}
+                {{ form|bootstrap}}
+                <div class="text-right">
+                    <button type="submit" class="btn btn-info btn-lg" name="button-hr-layout-team-control-team-register" value="{{ q_team.id }}">Save</button>
+                    <button type="submit" class="btn btn-danger btn-sm" name="button-hr-layout-team-control-team-delete" value="{{ q_team.id }}">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

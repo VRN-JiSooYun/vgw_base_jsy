@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+{% include 'hr/hr_navbar_evaluation.html' %}
+
+
+
+<legend class="border-bottom mb-4">
+    <strong>
+        {{ ls_today }}  인사평가
+    </strong>
+</legend>
+
+
+
+<div class="row">
+	<div class="col-md-12">
+		<form method="POST" action="{% url 'hr-vacation-control' %}"  enctype="multipart/form-data">
+            {% csrf_token %}
+			<ul class="nav nav-tabs">
+				{% for ITEM in LIST_HR_VACATION_CONTROL_TYPE %}
+					<li class="nav-item">
+						<button type="submit" name="button-hr-vacation-control-type-switch" value="{{ ITEM.0 }}"
+						{% if q_mysettings_hr.vacation_control_type == ITEM.0 %}
+							class="btn btn-dark btn-sm"
+						{% else %}
+							class="nav-link"
+						{% endif %}
+						>
+							{{ ITEM.1 }}
+						</button>
+					</li>
+				{% endfor %}
+			</ul>
+        </form>
+
+	</div>
+
+</div>
+
+<hr>
+
+
+	{% if q_mysettings_hr.vacation_control_type == LIST_HR_VACATION_CONTROL_TYPE.0.0 %}
+	<div class="row">
+		{% include 'hr/hr_vacation_control_calendar_main.html' %}
+	</div>
+	{% elif q_mysettings_hr.vacation_control_type == LIST_HR_VACATION_CONTROL_TYPE.1.0 %}
+	<div class="row">
+		{% include 'hr/hr_vacation_control_register_member_vacation.html' %}
+	</div>
+	{% elif q_mysettings_hr.vacation_control_type == LIST_HR_VACATION_CONTROL_TYPE.2.0 %}
+		{% include 'hr/hr_vacation_control_plan_registered.html' %}
+	{% elif q_mysettings_hr.vacation_control_type == LIST_HR_VACATION_CONTROL_TYPE.3.0 %}
+	<div class="row">
+		{% include 'hr/hr_vacation_control_promotion.html' %}
+	</div>
+	{% endif %}
+
+{% endblock content %}

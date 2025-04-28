@@ -1,0 +1,201 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+
+<!--
+    멤버 Profile로 등록하기
+-->
+
+<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+    <fieldset class="form-group">
+        <legend class="border-bottom mb-4">
+            <strong>
+                멤버 파일로 등록하기
+            </strong>
+        </legend>
+
+
+            <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+                <legend class="border-bottom mb-4">Profile 파일 업로드 양식 등록/다운</legend>
+                <form method="POST" action="{% url 'hr-layout-register-member' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <table class="table">
+
+                        {% if request.user.is_superuser == True %}
+                            <tr>
+                                <th colspan="3">
+                                    서식 업로드(관리자 화면)
+                                </th>
+                            </tr>
+                            <tr>
+                                <td style="background-color:rgb(255,255,255,0.85)" colspan="3">
+                                    {{ form_member_profile_register_by_file|bootstrap }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-right" colspan="3">
+                                    <button type="submit" name="button-hr-member-profile-autoregister-upload-format" value="true" class="btn btn-info btn-sm">
+                                        Upload File
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <th colspan="3">
+                                서식 다운로드
+                            </th>
+                        </tr>
+                        <tr>
+                            <td style="background-color:rgb(255,255,255,0.85)" colspan="3">
+                                {% if q_hr_vacation_document_management.file_member_profile_autoupload == Null or q_hr_vacation_document_management.file_member_profile_autoupload == '' %}
+                                    <strong>서식 업로드가 필요합니다.</strong>
+                                {% else %}
+                                    <a href="{{ q_hr_vacation_document_management.file_member_profile_autoupload.url }}" download>
+                                        휴가 계획서 자동업로드 서식
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr>
+
+
+			<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+                <legend class="border-bottom mb-4">
+                    <strong>
+                        조직도 파일 업로드를 통한 프로파일 정보만 등록
+                    </strong>
+                </legend>
+                <form method="POST" action="{% url 'hr-layout-register-member' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+
+                    <table class="table">
+                        <tr>
+                            <th>
+                                업데이트 항목
+                            </th>
+                            <td>
+                                <ul>
+                                    <li>
+                                        영문 성
+                                    </li>
+                                    <li>
+                                        영문 이름
+                                    </li>
+                                    <li>
+                                        한글 이름
+                                    </li>
+                                    <li>
+                                        email
+                                    </li>
+                                    <li>
+                                        사용자 ID
+                                    </li>
+                                    <li>
+                                        입사일
+                                    </li>
+                                    <li>
+                                        생일
+                                    </li>
+                                    <li>
+                                        핸드폰번호
+                                    </li>
+                                    <li>
+                                        사무실전화번호
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                파일 Type 선택
+                            </th>
+                            <td style="background-color:rgb(255,255,255,0.85);">
+                                <input type="radio" name="file-type" value="xlsx" checked> XLSX(엑셀) 파일
+                            </td>
+                            <td style="background-color:rgb(255,255,255,0.85);">
+                                <input type="radio" name="file-type" value="csv"> CSV 파일
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                파일 업로드
+                                <br><small>파일명은 영어/숫자만 인식</small>
+                            </th>
+                            <td colspan="2" style="background-color:rgb(255,255,255,0.85);">
+                                <input class="btn btn-sm btn-success" type="file" name="file-upload-hrlayout-for-profile-only">
+                            </td>
+
+                        </tr>
+                    </table>
+
+                    <hr>
+                    <div class="text-right">
+                        <button class="btn btn-info btn-sm" name="button-hr-layout-control-update-member-profile-only-by-file-upload" value="true" type="submit">
+                            Upload File
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <hr>
+
+			<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+                <legend class="border-bottom mb-4">
+                    <strong>
+                        조직도 파일 업로드를 통한 멤버 조직도 등록
+                    </strong>
+                </legend>
+                <form method="POST" action="{% url 'hr-layout-register-member' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+
+                    <table class="table">
+                        <tr>
+                            <th>
+                                파일 Type 선택
+                            </th>
+                            <td style="background-color:rgb(255,255,255,0.85);">
+                                <input type="radio" name="file-type" value="xlsx" checked> XLSX(엑셀) 파일
+                            </td>
+                            <td style="background-color:rgb(255,255,255,0.85);">
+                                <input type="radio" name="file-type" value="csv"> CSV 파일
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                파일 업로드
+                                <br><small>파일명은 영어/숫자만 인식</small>
+                            </th>
+                            <td colspan="2" style="background-color:rgb(255,255,255,0.85);">
+                                <input class="btn btn-sm btn-success" type="file" name="file-upload-hrlayout-for-hrlayout-and-profile">
+                            </td>
+
+                        </tr>
+                    </table>
+
+                    <hr>
+                    <div class="text-right">
+                        <button class="btn btn-info btn-sm" name="button-hr-layout-control-update-member-hrlayout-and-profile-by-file-upload" value="true" type="submit"
+                        {% if request.user.is_superuser == True %}
+                        {% else %}
+                            disabled
+                        {% endif %}
+                        >Upload File</button>
+                    </div>
+                </form>
+            </div>
+
+            <hr>
+
+        <br>
+    </fieldset>
+</div>

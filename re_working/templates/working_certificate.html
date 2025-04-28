@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'home/navbar/re_navbar.html' %}
+
+<div id="working_certificate" class="row" style="padding: 1%; background-color: #f9f9f9;">
+    <div class="col-md-18" style="position: relative;">
+        <div style="flex: auto; margin: 3vh auto; width: 97vw; min-height: 53vh; padding: 2%; border-radius:25px; background-color: #ffffff">
+
+            <div class="row" style="padding-bottom: 1vh;">
+                <div class="col-12" style="text-align:end">
+                    <button type="button" class="btn btn-outline-primary" @click="showWorkingCertificate">증명서 신청</button>
+                </div>
+            </div>
+
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">발급번호</th>
+                        <th scope="col">발급요청일</th>
+                        <th scope="col">발급완료일</th>
+                        <th scope="col">발급희망일</th>
+                        <th scope="col">증명서종류</th>
+                        <th scope="col">용도</th>
+                        <th scope="col">수령방법</th>
+                        <th scope="col">수령 E-MAIL</th>
+                        <th scope="col">발급상태</th>
+                        <th scope="col">기능</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in workingCertificates">
+                        <td>[[ item.doc_id ]]</td>
+                        <td>[[ item.working_certificate_req_date ]]</td>
+                        <td>[[ item.working_certificate_done_date ]]</td>
+                        <td>[[ item.receive_date ]]</td>
+                        <td>[[ cdDtlNm(item.working_certificate_type) ]]</td>
+                        <td>[[ cdDtlNm(item.working_certificate_purpose) ]]</td>
+                        <td>[[ cdDtlNm(item.receive_type) ]]</td>
+                        <td>[[ item.receive_email ]]</td>
+                        <td>[[ cdDtlNm(item.working_certificate_status) ]]</td>
+                        <td>
+                            <button v-if="isShow(item)" type="button" class="btn btn-outline-success btn-sm"  @click="showWorkingCertificateView(item)">증명서보기</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% include "./layer/working_certificate_layer.html" %}
+{% include "./layer/working_certificate_view_layer.html" %}
+
+<script>
+    const vue = createApp({
+        delimiters: ["[[", "]]"],
+        data () {
+            return {
+                workingCertificates: [],
+            }
+        },
+        methods: {
+            getWorkingCertificates() {
+                axios.get("/re-working/getWorkingCertificates")
+                .then((response) => {
+                    this.workingCertificates = response.data
+                })
+            },
+            cdDtlNm(cdDtlNo) {
+                return code_vue.getCodeDtl(cdDtlNo).cd_dtl_nm
+            },
+            isShow(item) {
+                if (item.working_certificate_type == code_vue.getCdDtlNoByAlias("WORKING_CERTIFICATE_TYPE_1") && item.working_certificate_status == code_vue.getCdDtlNoByAlias("WORKING_CERTIFICATE_STATUS_DONE")) {
+                    return true
+                }
+
+                return false
+            },
+            showWorkingCertificate() {
+                working_certificate_vue.loadData()
+                $("#working_certificate_modal").modal('show')
+            },
+            showWorkingCertificateView(item) {
+                working_certificate_view_vue.loadData(item)
+                $("#working_certificate_view_modal").modal('show')
+            }
+        },
+        mounted: function() {
+            this.getWorkingCertificates()
+        }
+    }).mount('#working_certificate')
+</script>
+
+{% endblock content %}

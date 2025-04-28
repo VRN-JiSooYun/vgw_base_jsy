@@ -1,0 +1,140 @@
+<style>
+    .reason {
+        width: 200px;
+        padding-left: 30px;
+        padding-top: 30px;
+        padding-bottom: 30px;
+        background: #e9ecef;
+        border-radius: 10px;
+    }
+</style>
+<template id="working_week_day_admin_template">
+    <!-- working off -->
+    <div v-for="(workingOff, inx) in item.workingOffs" v-if="isshowworkingoff">
+        <div style="padding-top: 1vh;">
+            <div v-if="workingOff.working_off_type == codeDtlNo('WORKING_OFF_TYPE_PRIVATE')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px;">
+                <span v-if="workingOff.working_off_time != codeDtlNo('WORKING_OFF_TIME_DAY')" v-html="time(workingOff.working_off_start_datetime)"></span> <span v-html="workingOff.member_name"></span> - <span v-html="codeDtlNm(workingOff.working_off_type)"></span>(<span v-html="codeDtlNm(workingOff.working_off_time)"></span>)
+                <div tabindex="0"  style="font-size: 12px; margin: 10px 1px; color: #28a745;cursor: pointer" data-toggle="popover" data-trigger="focus" data-container="body" data-placement="right" :data-content="reason(workingOff.reason)" :id="`reason_${codeDtlNo('WORKING_OFF_TYPE_PRIVATE')}_${index}_${inx}`">더보기</div>
+            </div>
+            <div v-if="workingOff.working_off_type == codeDtlNo('WORKING_OFF_TYPE_FAMILY_EVENT')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px">
+                <span v-if="workingOff.working_off_time != codeDtlNo('WORKING_OFF_TIME_DAY')" v-html="time(workingOff.working_off_start_datetime)"></span><span v-html="workingOff.member_name"></span> - <span v-html="codeDtlNm(workingOff.working_off_type)"></span>(<span v-html="codeDtlNm(workingOff.working_off_time)"></span>)
+                <div tabindex="0"  style="font-size: 12px; margin: 10px 1px; color: #28a745;cursor: pointer" data-toggle="popover" data-trigger="focus" data-container="body" data-placement="right" :data-content="reason(workingOff.reason)" :id="`reason_${codeDtlNo('WORKING_OFF_TIME_DAY')}_${index}_${inx}`">더보기</div>
+            </div>
+            <div v-if="workingOff.working_off_type == codeDtlNo('WORKING_OFF_TYPE_SICK')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px">
+                <span v-if="workingOff.working_off_time != codeDtlNo('WORKING_OFF_TIME_DAY')" v-html="time(workingOff.working_off_start_datetime)"></span><span v-html="workingOff.member_name"></span> - <span v-html="codeDtlNm(workingOff.working_off_type)"></span>(<span v-html="codeDtlNm(workingOff.working_off_time)"></span>)
+                <div tabindex="0"  style="font-size: 12px; margin: 10px 1px; color: #28a745;cursor: pointer" data-toggle="popover" data-trigger="focus" data-container="body" data-placement="right" :data-content="reason(workingOff.reason)" :id="`reason_${codeDtlNo('WORKING_OFF_TYPE_SICK')}_${index}_${inx}`">더보기</div>
+            </div>
+            <div v-if="workingOff.working_off_type == codeDtlNo('WORKING_OFF_TYPE_LONG_SICK')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px">
+                <span v-if="workingOff.working_off_time != codeDtlNo('WORKING_OFF_TIME_DAY')" v-html="time(workingOff.working_off_start_datetime)"></span><span v-html="workingOff.member_name"></span> - <span v-html="codeDtlNm(workingOff.working_off_type)"></span>(<span v-html="codeDtlNm(workingOff.working_off_time)"></span>)
+                <div tabindex="0"  style="font-size: 12px; margin: 10px 1px; color: #28a745;cursor: pointer" data-toggle="popover" data-trigger="focus" data-container="body" data-placement="right" :data-content="reason(workingOff.reason)" :id="`reason_${codeDtlNo('WORKING_OFF_TYPE_LONG_SICK')}_${index}_${inx}`">더보기</div>
+            </div>
+            <div v-if="workingOff.working_off_type == codeDtlNo('WORKING_OFF_TYPE_PUBLIC')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px">
+                <span v-if="workingOff.working_off_time != codeDtlNo('WORKING_OFF_TIME_DAY')" v-html="time(workingOff.working_off_start_datetime)"></span><span v-html="workingOff.member_name"></span> - <span v-html="codeDtlNm(workingOff.working_off_type)"></span>(<span v-html="codeDtlNm(workingOff.working_off_time)"></span>)
+                <div tabindex="0"  style="font-size: 12px; margin: 10px 1px; color: #28a745;cursor: pointer" data-toggle="popover" data-trigger="focus" data-container="body" data-placement="right" :data-content="reason(workingOff.reason)" :id="`reason_${codeDtlNo('WORKING_OFF_TYPE_PUBLIC')}_${index}_${inx}`">더보기</div>
+            </div>
+            <div v-if="workingOff.working_off_type == codeDtlNo('WORKING_OFF_TYPE_MILITARY')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px">
+                <span v-if="workingOff.working_off_time != codeDtlNo('WORKING_OFF_TIME_DAY')" v-html="time(workingOff.working_off_start_datetime)"></span><span v-html="workingOff.member_name"></span> - <span v-html="codeDtlNm(workingOff.working_off_type)"></span>(<span v-html="codeDtlNm(workingOff.working_off_time)"></span>)
+                <div tabindex="0"  style="font-size: 12px; margin: 10px 1px; color: #28a745;cursor: pointer" data-toggle="popover" data-trigger="focus" data-container="body" data-placement="right" :data-content="reason(workingOff.reason)" :id="`reason_${codeDtlNo('WORKING_OFF_TYPE_MILITARY')}_${index}_${inx}`">더보기</div>
+            </div>
+            <div v-if="workingOff.working_off_type == codeDtlNo('WORKING_OFF_TYPE_HEALTH')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px">
+                <span v-if="workingOff.working_off_time != codeDtlNo('WORKING_OFF_TIME_DAY')" v-html="time(workingOff.working_off_start_datetime)"></span><span v-html="workingOff.member_name"></span> - <span v-html="codeDtlNm(workingOff.working_off_type)"></span>(<span v-html="codeDtlNm(workingOff.working_off_time)"></span>)
+                <div tabindex="0"  style="font-size: 12px; margin: 10px 1px; color: #28a745;cursor: pointer" data-toggle="popover" data-trigger="focus" data-container="body" data-placement="right" :data-content="reason(workingOff.reason)" :id="`reason_${codeDtlNo('WORKING_OFF_TYPE_HEALTH')}_${index}_${inx}`">더보기</div>
+            </div>
+            <div v-if="workingOff.working_off_type == codeDtlNo('WORKING_OFF_TYPE_PREGNANCY')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px">
+                <span v-if="workingOff.working_off_time != codeDtlNo('WORKING_OFF_TIME_DAY')" v-html="time(workingOff.working_off_start_datetime)"></span><span v-html="workingOff.member_name"></span> - <span v-html="codeDtlNm(workingOff.working_off_type)"></span>(<span v-html="codeDtlNm(workingOff.working_off_time)"></span>)
+                <div tabindex="0"  style="font-size: 12px; margin: 10px 1px; color: #28a745;cursor: pointer" data-toggle="popover" data-trigger="focus" data-container="body" data-placement="right" :data-content="reason(workingOff.reason)" :id="`reason_${codeDtlNo('WORKING_OFF_TYPE_PREGNANCY')}_${index}_${inx}`">더보기</div>
+            </div>
+            <div v-if="workingOff.working_off_type == codeDtlNo('WORKING_OFF_TYPE_BABY')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px">
+                <span v-if="workingOff.working_off_time != codeDtlNo('WORKING_OFF_TIME_DAY')" v-html="time(workingOff.working_off_start_datetime)"></span><span v-html="workingOff.member_name"></span> - <span v-html="codeDtlNm(workingOff.working_off_type)"></span>(<span v-html="codeDtlNm(workingOff.working_off_time)"></span>)
+                <div tabindex="0"  style="font-size: 12px; margin: 10px 1px; color: #28a745;cursor: pointer" data-toggle="popover" data-trigger="focus" data-container="body" data-placement="right" :data-content="reason(workingOff.reason)" :id="`reason_${codeDtlNo('WORKING_OFF_TYPE_BABY')}_${index}_${inx}`">더보기</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- working out -->
+    <div v-for="workingOut in item.workingOuts" v-if="isshowworkingout">
+        <div style="padding-top: 1vh; ">
+            <div v-if="workingOut.working_out_type == codeDtlNo('WORKING_OUT_TYPE_EDU')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px">
+                <span v-html="workingOut.member_name"></span> - <span v-html="codeDtlNm(workingOut.working_out_type)"></span>
+            </div>
+            <div v-if="workingOut.working_out_type == codeDtlNo('WORKING_OUT_TYPE_LOCAL')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px">
+                <span v-html="workingOut.member_name"></span> - <span v-html="codeDtlNm(workingOut.working_out_type)"></span>
+            </div>
+            <div v-if="workingOut.working_out_type == codeDtlNo('WORKING_OUT_TYPE_FOREIGN')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px">
+                <span v-html="workingOut.member_name"></span> - <span v-html="codeDtlNm(workingOut.working_out_type)"></span>
+            </div>
+            <div v-if="workingOut.working_out_type == codeDtlNo('WORKING_OUT_TYPE_OUT')" style="text-align:center; border: 1px solid #e2e4e7; padding: 10px">
+                <span v-html="workingOut.member_name"></span> - <span v-html="codeDtlNm(workingOut.working_out_type)"></span>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    const workingWeekDayAdminComponent = {
+        props: {
+            item: {
+                type: Object,
+            },
+            index: {
+                type: Number,
+            },
+            isshowworkingoff: {
+                type: Boolean,
+            },
+            isshowworkingout: {
+                type: Boolean,
+            }
+        },
+        data() {
+            return {}
+        },
+        methods : {
+            time(datetime) {
+                return moment(datetime).format("HH:mm")
+            },
+            codeDtlNo(alias) {
+                return code_vue.getCdDtlNoByAlias(alias)
+            },
+            codeDtlNm(cdDtlNo) {
+                return code_vue.getCodeDtl(cdDtlNo).cd_dtl_nm
+            },
+            reason(reason) {
+                if (reason ==  null) reason = ""
+
+                var html = ""
+                html += "<div class='reason'>"
+                html += "<div class='row'>"
+                html += "<div>" + reason + "</div>"
+                html += "</div>"
+                html += "</div>"
+                return html;
+            },
+        },
+        updated: function() {
+            if (typeof this.item.workingOffs != 'undefined') {
+                var cdDtls = code_vue.getCdDtlsByCdAlias("WORKING_OFF_TYPE")
+                for (inx = 0; inx < cdDtls.length; inx++) {
+                    for (jnx = 0; jnx < this.item.workingOffs.length; jnx++) {
+                        $("#reason_" + cdDtls[inx].cd_dtl_no + "_" + this.index + "_" + jnx).popover({
+                            html: true
+                        })
+                    }
+                }
+            }
+        },
+        mounted: function() {
+            if (typeof this.item.workingOffs != 'undefined') {
+                var cdDtls = code_vue.getCdDtlsByCdAlias("WORKING_OFF_TYPE")
+                for (inx = 0; inx < cdDtls.length; inx++) {
+                    for (jnx = 0; jnx < this.item.workingOffs.length; jnx++) {
+                        $("#reason_" + cdDtls[inx].cd_dtl_no + "_" + this.index + "_" + jnx).popover({
+                            html: true
+                        })
+                    }
+                }
+            }
+        },
+        template:'#working_week_day_admin_template',
+    }
+</script>

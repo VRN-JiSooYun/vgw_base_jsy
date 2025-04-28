@@ -1,0 +1,83 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<form method="POST" action="{% url 'hr-vacation-control' %}"  enctype="multipart/form-data">
+	{% csrf_token %}
+
+	{% if q_mysettings_hr.vacation_control == Null %}
+	<div class="p-3 mb-2 bg-warning text-black">휴가 발행 대상을 먼저 선택하세요.</div>
+
+	{% else %}
+		<div class="content-section">
+			<fieldset class="form-group">
+				<legend class="border-bottom mb-4">
+					{{ q_mysettings_hr.vacation_control.owner.profile.name_korean }}님의
+					<strong>
+						{{ q_mysettings_hr.vacation_control.status_working_year }}년차
+					</strong>
+					휴가 수동 발행
+				</legend>
+				<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+					<small>
+						* 표: 필수 입력란
+					</small>
+					<hr>
+
+
+					<div class="form-group">
+						<label for="hr-vacation-control-form-vacation-type">휴가 종류</label>
+						<select class="form-control" name="hr-vacation-control-form-vacation-type">
+							<option value="{{ LIST_VACATION_TYPES.1.0 }}">{{ LIST_VACATION_TYPES.1.1 }}</option>
+							<option value="{{ LIST_VACATION_TYPES.2.0 }}">{{ LIST_VACATION_TYPES.2.1 }}</option>
+							<option value="{{ LIST_VACATION_TYPES.3.0 }}">{{ LIST_VACATION_TYPES.3.1 }}</option>
+							<option value="{{ LIST_VACATION_TYPES.4.0 }}">{{ LIST_VACATION_TYPES.4.1 }}</option>
+							<option value="{{ LIST_VACATION_TYPES.5.0 }}">{{ LIST_VACATION_TYPES.5.1 }}</option>
+							<option value="{{ LIST_VACATION_TYPES.6.0 }}">{{ LIST_VACATION_TYPES.6.1 }}</option>
+						</select>
+					</div>
+
+					<hr>
+
+					<div class="form-group">
+						<label for="hr-vacation-control-form-vacation-credit">발행 개수 (1 ~ 365)</label>
+						<input type="number" name="hr-vacation-control-form-vacation-credit" class="form-control" min="1" max="365">
+					</div>
+
+					<hr>
+
+					{{ form_hr_vacation_member_date_issued|bootstrap }}
+
+					<hr>
+
+					<div>
+						만료일 연장 선택
+						<br>
+						(발행 일짜 +)
+						<select class="form-control" name="select_hr_vacation_control_issued_vacation_manual_extension_days">
+							<option selected value={{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.0.0 }}>
+								{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.0.1 }}
+							</option>
+							<option value="{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.1.0 }}">{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.1.1 }}</option>
+							<option value="{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.2.0 }}">{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.2.1 }}</option>
+							<option value="{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.3.0 }}">{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.3.1 }}</option>
+							<option value="{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.4.0 }}">{{ VACATION_ISSUED_REVIVAL_EXTENDED_DAYS.4.1 }}</option>
+						</select>
+					</div>
+					<br>
+					만료일 직접 지정
+					{{ form_hr_vacation_member_date_expired|bootstrap }}
+
+					<hr>
+					<div class="form-group">
+						<button type="submit" name="button-hr-vacation-control-register-vacation-manual" value="true" class="btn btn-info" >Register</button>
+						<button type="submit" name="button-hr-vacation-control-cancel-register-vacation-manual" value="true" class="btn btn-dark btn-sm">Cancel</button>
+					</div>
+
+				</div>
+			</fieldset>
+		</div>
+	{% endif %}
+</form>

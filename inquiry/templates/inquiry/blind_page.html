@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load floatFormatter %}
+{% block content %}
+
+<div>
+    <div class="inquiry-rich-text-form" style="background-color: white;">
+        {{ quill_form.content }}
+    </div>
+</div>
+<div style="max-width: 1650px; margin: 0 auto; margin-bottom:80px;">
+    <div class="inquiry-page inquiry-post-qna-list" style="width:100%; margin: 0 auto;">
+        <div style="text-align: center;">
+            <br><h2> 블라인드 게시판 </h2><br>
+        </div>
+        <div class="row" style="min-width: 1650px; background-color: rgba(255, 255, 255, 0.5);">
+            <div class="col-md-6" style="border: solid gainsboro 2px; padding:25px;">
+                {% include 'inquiry/blind_post_list.html' %}
+            </div>
+            <div class="col-md-6 inquiry-post-panel" style="border: solid gainsboro 2px; padding:25px; {% if not 'inquiry-post' in pagesToLoad %}display:none;{% endif %}">
+                {% include 'inquiry/blind_post.html' %}
+            </div>
+            <div class="col-md-6 inquiry-post-form-panel" style="border: solid gainsboro 2px; padding:25px; {% if not 'inquiry-post-form' in pagesToLoad %}display:none;{% endif %}">
+                {% include 'inquiry/blind_write_post_form.html' %}
+            </div>
+        </div>
+    </div>    
+</div>
+
+{% endblock content %}

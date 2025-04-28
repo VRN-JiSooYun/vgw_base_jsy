@@ -1,0 +1,69 @@
+{% load getCodeDtl %}
+
+<div class="tab-pane fade show active" id="member-info-tab-pane" role="tabpanel" aria-labelledby="member-info-tab" tabindex="0">
+    <div style="margin-top: 10px;">
+        <div class="float-end">
+            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#member_info_modal">인사정보 수정</button>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row" style="margin-top: 30px; padding: 10px;">
+        <div class="col-6">
+            <table style="width: 350px; text-align:left;">
+                <tr>
+                    <th><p class="h7 text-muted">근로구분</p></th>
+                    {% with codeDtls|getCodeDtl:member.member_type as codeDtl %}
+                    <th><p class="h7 font-weight-bold text-secondary" id="view_member_type">{{ codeDtl.cd_dtl_nm|default:'--'}}</p></th>
+                    {% endwith %}
+                </tr>
+                <tr>
+                    <th><p class="h7 text-muted">구분</p></th>
+                    {% with codeDtls|getCodeDtl:member.working_type as codeDtl %}
+                    <th><p class="h7 font-weight-bold text-secondary" id="view_working_type">{{ codeDtl.cd_dtl_nm|default:'--'}}</p></th>
+                    {% endwith %}
+
+                </tr>
+                <tr>
+                    <th><p class="h7 text-muted">부문 세부</p></th>
+                    {% with codeDtls|getCodeDtl:member.working_type_detail as codeDtl %}
+                    <th><p class="h7 font-weight-bold text-secondary" id="view_working_type_detail">{{ codeDtl.cd_dtl_nm|default:'--'}}</p></th>
+                    {% endwith %}
+                </tr>
+                <tr>
+                    <th><p class="h7 text-muted">연구소</p></th>
+                    {% with codeDtls|getCodeDtl:member.lab as codeDtl %}
+                    <th><p class="h7 font-weight-bold text-secondary" id="view_lab">{{ codeDtl.cd_dtl_nm|default:'--'}}</p></th>
+                    {% endwith %}
+                </tr>
+                <tr>
+                    <th><p class="h7 text-muted">근무층</p></th>
+                    {% with codeDtls|getCodeDtl:member.working_place as codeDtl %}
+                    <th><p class="h7 font-weight-bold text-secondary" id="view_working_place">{{ codeDtl.cd_dtl_nm|default:'--'}}</p></th>
+                    {% endwith %}
+                </tr>
+                <tr>
+                    <th><p class="h7 text-muted">메모</p></th>
+                    <th><p class="h7 font-weight-bold text-secondary" id="view_memo">{{ member.memo|default:'--'}}</p></th>
+                </tr>
+                <tr>
+                    <th><p class="h7 text-muted">근무 체크 여부</p></th>
+                    {% if member.check_working == True %}
+                    <th><p class="h7 font-weight-bold text-secondary" id="view_check_working">근무 체크 함</p></th>
+                    {% else %}
+                    <th><p class="h7 font-weight-bold text-secondary" id="view_check_working">근무 체크 안함</p></th>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <th><p class="h7 text-muted">연차 촉진 체크 여부</p></th>
+                    {% if member.check_working_off_promote == True %}
+                    <th><p class="h7 font-weight-bold text-secondary" id="view_check_working_off_promote">연차 촉진 체크 함</p></th>
+                    {% else %}
+                    <th><p class="h7 font-weight-bold text-secondary" id="view_check_working_off_promote">연차 촉진 체크 안함</p></th>
+                    {% endif %}
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

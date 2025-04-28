@@ -1,0 +1,94 @@
+
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+    <table class="table">
+        <tr>
+            <td>
+                <label>
+                    <strong>
+                        <u>
+                            조직도 DB 업데이트 :
+                        </u>
+                    </strong>
+                    <small>
+                        <ul>
+                            <li>
+                                조직도 디자인 후 적용을 위해 버튼 클릭
+                            </li>
+                        </ul>
+                    </small>
+                </label>
+                <p><button type="submit" name="button-hr-layout-db-update-from-hr-design" value="true" class="btn btn-info btn-lg">조직도 DB 업데이트</button></p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<hr>
+
+<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+    <table class="table">
+        <tr>
+            <td>
+                <label>
+                    <strong>
+                        <u>
+                            조직도 파일로 Export:
+                        </u>
+                    </strong>
+
+                </label>
+                <br>
+                <p><button type="submit" name="button-export-hr-layout-all" value="true" class="btn btn-info btn-lg">Export All</button></p>
+
+            </td>
+        </tr>
+    </table>
+</div>
+
+<hr>
+
+<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+    <table class="table">
+        <tr>
+            <td>
+                <label>
+                    <strong>
+                        <u>
+                            조직도 파일로 가져오기:
+                        </u>
+                    </strong>
+                </label>
+                <br>
+                <span class="badge bg-warning">Warning</span>
+                <ul>
+                    <li>
+                        조직도 정보(q_m2t, q_t2d, ... )가 리셋됩니다.
+                    </li>
+                    <li>
+                        권한 정보(q_hrlayout)가 리셋됩니다.
+                    </li>
+                </ul>
+                <input type="radio" name="radio-import-hr-layout-type" value="all" checked> All  <br>
+
+                <hr>
+
+                <input type="file" name="inputfile" class="form-control">
+                <hr>
+                <button class="btn btn-info btn-md" name="button-import-hr-layout-design-by-file-upload" value="true" type="submit"
+                {% if request.user.is_superuser == True %}
+                {% else %}
+                disabled
+                {% endif %}
+                >
+                    Upload
+                </button>
+
+            </td>
+        </tr>
+    </table>
+</div>

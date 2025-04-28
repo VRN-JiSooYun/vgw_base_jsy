@@ -1,0 +1,747 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load floatFormatter %}
+{% load getItem %}
+{% load isnan %}
+{% load split %}
+{% load filters %}
+{% block content %}
+{% include 'utilities/navbar.html' %}
+
+{% comment %} <link rel="stylesheet" href="https://cdn.datatables.net/1.12.0/css/jquery.dataTables.min.css"> {% endcomment %}
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.3/css/fixedHeader.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.1.0/css/fixedColumns.dataTables.min.css">
+<style>
+    .cdd-logo {
+        display:none;
+    }
+    .both {
+        height:15px;
+    }
+    .date_search {
+        width:150px;
+        display:inline-block;
+    }
+
+    .font-12 {
+        font-size:12px;
+    }
+    .dataTables_wrapper .dataTables_scroll {
+        background: #fff;
+    }
+    table.dataTable thead th {
+        text-align:center;
+    }
+    th, td { white-space: nowrap; }
+    div.dataTables_wrapper {
+        width: 100%;
+        margin: 0 auto;
+    }
+    .table {
+        width:100% !important;
+    }
+    {% comment %} table.dataTable thead tr>.dtfc-fixed-left, table.dataTable thead tr>.dtfc-fixed-right {
+        background-color: black;
+    }
+    div.dtfc-left-top-blocker, div.dtfc-right-top-blocker {
+        background-color: initial;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        width: 300px;
+    }
+    table.fixedHeader-floating.no-footer {
+        table-layout:auto !important;
+    } {% endcomment %}
+    .numb{
+        text-align:right;
+    }
+    .alCenter {
+        text-align:center;
+    }
+    .alRight {
+        text-align:right;
+    }
+    .checkb {
+        width:20px;
+        height:20px;
+        outline:none;
+        float:left;
+    }
+    .checklabel {
+        padding-left:5px;
+    }
+
+    .chart_font_title {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        font-size:16px;
+        font-weight:700;
+    }
+    .chart_font_subtitle {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        font-size:13px;
+        font-weight:700;
+    }
+    .chart_font_content {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        font-size:14px;
+        font-weight:200;
+    }
+    .chart_font_content_num {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        font-size:30px;
+        font-weight:200;
+    }
+    #chartExt {
+        display:none;
+    }
+    #chartExt2 {
+        display:none;
+    }
+    .chartDescription {
+        font-family: Open Sans,Helvetica,Arial,sans-serif;
+        height: 100px;
+        background: #fff;
+        display: flex;
+    }
+    .chartDescription .play-highlight {
+        margin-right: 10px;
+        transition: background-color .3s;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .chartDescription .play-highlight {
+        min-width: 100px;
+    }
+    .chartDescription .play-highlight .highlighted-value {
+        font-size: 30px;
+        font-weight: 200;
+    }
+    .chartDescription .play-highlight .highlighted-label {
+        font-size: 14px;
+        color: #97a0b7;
+        font-weight: 200;
+    }
+    #downloadDiv{
+        display:none;
+    }
+    .downloadBtn {
+        width: 200px;
+        {% comment %} height: 200px; {% endcomment %}
+        vertical-align: middle;
+        {% comment %} font-size: 40px; {% endcomment %}
+        {% comment %} padding-top: 65px; {% endcomment %}
+        background-color: #6293e9;
+    }
+    .downloadBtn:hover {
+        background-color: #3b80f9;
+    }
+    .downloadBtn:active {
+        background-color: #3b80f9;
+    }
+    .downloadBtn:focus {
+        background-color: #3b80f9;
+    }
+    .property {
+        background-color: #fff;
+        margin-left: -15px;
+        display:none;
+    }
+    #chart_ext_div{
+        display:none;        
+    }
+    #chart_ext > svg {
+        width:200px;
+    }
+    #phDiv {
+        display:none;
+        background-color: #fff;
+        font-weight: bold;
+        padding: 10px;
+        float: left;
+    }
+    #phCusDiv{
+        display:none;
+        text-align: right;
+        background-color: #fff;
+        padding: 10px;
+    }
+    .strongest-pka .play-highlight {
+        padding: 10px;
+        border-radius: 5px;
+        transition: background-color .3s;
+    }
+    .play-highlight.acid .highlighted-value {
+        color: #c02727;
+    }
+    .play-highlight.basic .highlighted-value {
+        color: #3537c5;
+    }
+    .play-highlights .play-highlight .highlighted-value {
+        font-size: 30px;
+        font-weight: 200;
+    }
+    .play-highlights .play-highlight .highlighted-label {
+        font-size: 14px;
+        color: #97a0b7;
+        font-weight: 200;
+    }
+    .svg_imgs{
+        width:200px;
+        float:left;
+        padding-right:10px;
+    }
+    .title {
+        display:none;
+        background-color: #fff;
+        padding: 15px;
+        font-weight: bold;
+        font-size: 20px;
+        border-bottom: 1px solid #ccc;
+    }
+    .title_sub {
+        display:none;
+        height: 15px;
+        background-color: #fff;
+    }
+    #svgImg > svg {
+        cursor:pointer;
+    }
+    #chart_ext > div > svg {
+        cursor:pointer;
+    }
+    #modalText {
+        font-size: 14px;
+        font-weight: bold;
+    }
+    #ver {
+        float: right;
+        font-size: 14px;
+    }
+    .btn-info,
+    .btn-info:focus, 
+    .btn-info:link, 
+    .btn-info:visited, 
+    .btn-info:active, 
+    .btn-info:hover {
+        color: #fff;
+        background-color: #1750b8;
+        border-color: #1750b8;
+    }
+    .btn-action {
+        font-size:1.5rem;
+    }
+
+    .modal_left {
+        padding-top:15px;
+    }
+    
+    td > svg {
+        width:200px;
+        height:200px;
+    }
+</style>
+
+{% comment %} <div style="padding-top:30px; ">
+    <legend class="border-bottom mb-4">
+        3D PSA
+    </legend>
+</div> {% endcomment %}
+<div class="both"></div>
+<div class="row">
+    <div class="col-md-7">
+        <div id="chemdrawjs-container" style="left:0; top: 0; width: 100%; height: 400px;"></div>
+    </div>
+    <div class="col-md-5">
+        <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+            <form name="formLayer" id="formLayer">
+                <input type="hidden" name="mol_block" id="mol_block">
+                <input type="hidden" name="psa_name" id="psa_name">
+                <input type="hidden" name="comment" id="comment">
+
+                <table class="table"> 
+                    <tbody>
+                        <tr>
+                            <th width="25%">
+                                Keywords
+                            </th>
+                            <td style="background-color:rgb(255,255,255,0.85);">
+                                <input type="input" id="keyword" name="keyword" style="width: 80%; height:30px;"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            <table class="table"> 
+                <tbody>
+                    <tr>
+                        <th width="25%">
+                            Smiles
+                        </th>
+                        <td style="background-color:rgb(255,255,255,0.85);">
+                            <input type="input" id="smile" name="smile" style="width: 80%;height:30px;"/>
+                            <a type="button" href="javascript:void(0);" class="btn btn-sm btn-info btn-c-w" id="smilesBtn" style="vertical-align: top;">Load</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table" id="rdkitDtlTable"> 
+                <tbody><tr>
+                    <th>
+                        Search Type
+                    </th>
+                    <td style="background-color:rgb(255,255,255,0.85);">
+                        <input type="radio" value="identical" id="search_type_i" name="radio_search_type" style="vertical-align: text-bottom;" {%if radio_search_type == 'identical'%}checked{%endif%}> <label for="search_type_i" class="form-label">Identical</label>
+                    </td>
+                    <td style="background-color:rgb(255,255,255,0.85);">
+                        <input type="radio" value="substructure" id="search_type_sub" name="radio_search_type" style="vertical-align: text-bottom;" {%if radio_search_type == None or radio_search_type == "substructure"%}checked{%endif%}> <label for="search_type_sub" class="form-label">Substructure</label>
+                    </td>
+                    <td style="background-color:rgb(255,255,255,0.85);">
+                        <input type="radio" value="similarity" id="search_type_sim" name="radio_search_type" style="vertical-align: text-bottom;" {%if radio_search_type == "similarity"%}checked{%endif%}> <label for="search_type_sim" class="form-label">Similarity</label>
+                    </td>
+                </tr>
+            </tbody></table>
+
+            <table class="table1" id="cdSimDiv" style="display:none;"> 
+                <tbody>
+                    <tr>
+                        <th style="padding: .75rem;">
+                            Similarity<br> 
+                            Range
+                        </th>
+                        <td style="background-color:rgb(255,255,255,0.85);padding: .75rem;">
+                            <input type="number" step="1" min="0" max="100" style="width:100px" value="{%if request.POST.minSimilarity == None%}0{%else%}{{request.POST.minSimilarity}}{%endif%}" name="minSimilarity"> % ~
+                            <input type="number" step="1" min="0" max="100" style="width:100px" value="{%if request.POST.maxSimilarity == None%}100{%else%}{{request.POST.maxSimilarity}}{%endif%}" name="maxSimilarity"> %
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </form>
+        </div>
+        <div style="text-align:right;width:100%;padding-top:20px;">
+            <table style="display: inline-block;">
+                <tr>
+                    <td><a type="button" href="javascript:void(0);" class="btn btn-sm btn-info btn-c-w btn-action" id="searchBtn" onClick="javascript:search_();">&nbsp;&nbsp;Search&nbsp;&nbsp;</a></td>
+                    <td style="width:30px;"></td>
+                    <td><a type="button" href="javascript:void(0);" class="btn btn-sm btn-info btn-c-w btn-action" id="registerBtn" onClick="javascript:register();">&nbsp;&nbsp;Register&nbsp;&nbsp;</a></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</div>
+<div class="both"></div>
+<div class="row">
+    <div class="col-md-12">
+
+        <table class="table table-striped table-bordered display" id='table1'>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th stype="min-width:200px;">Structure</th>
+                    <th>Status</th>
+                    <th>Result (μM)</th>
+                    <th>Register</th>
+                    <th>Reg Date.</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+        </table>
+        
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        
+    </div>
+</div>
+
+<div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document" style="max-width:1000px;">
+      <div class="modal-content" style="width:900px;max-width:1000px;">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">등록</h4>
+        </div>
+        <div class="modal-body" style="overflow-y: auto;height: 300px;">
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <div class="modal_left">
+                            <label for="tmp_name" style="font-weight: bold;">Name</label>
+                            <input type="text" class="form-control" id="tmp_name" name="tmp_name">
+                        </div>
+                        <div class="modal_left">
+                            <label for="tmp_comment" style="font-weight: bold;">Comment</label>
+                            <textarea class="form-control" id="tmp_comment" name="tmp_comment" style="height:130px;"></textarea>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-info" id="saveBtn" onClick="javascript:registerAction();">등 록</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.2.3/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+
+
+<script>
+    var dataTable;
+
+    $(document).ready(function() {
+
+        //Search Type radio button
+        $("input[name=radio_search_type]").on('click', function(e){
+            if ( $("#search_type_sim").is(":checked") ){
+                $("#cdSimDiv").show("slide", {direction: "up" }, 400);
+            } else {
+                $("#cdSimDiv").hide("slide", {direction: "up" }, 200);
+            }
+        });
+
+        $("#smilesBtn").on('click', e => {
+            chemdrawjs.loadSMILES($("#smile").val(), e => {
+                var originalColor = $(".cdd-canvas-overlay").css("background-color");
+    
+                // $(".cdd-canvas-overlay").css("background-color", "yellow");
+                $(".cdd-canvas-overlay").animate({
+                    backgroundColor: "rgba(255, 255, 0, 0.5)"
+                }, 20 )
+                .delay(300)
+                .animate({
+                    backgroundColor: originalColor
+                }, 500 );
+            });
+        });
+
+
+        {% comment %} dataTable = $('#table1').DataTable({
+            order: [ [4, 'desc'] ],
+            ordering: true,
+            fixedHeader:true,
+            scrollX: true,
+            iDisplayLength: 25,
+            bStateSave: true,
+            search: {
+                'regex': true,
+            },
+        }); {% endcomment %}
+
+
+        dataTable = $('#table1').DataTable({
+            {% comment %} data: dataSet, {% endcomment %}
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '/utilities/deep_solubility/search',
+                type: 'POST',
+                data: function(d, e){
+                    console.log("ajax");
+                    console.log(e);
+                    //d.eventType = eventType;
+                    //d.radio_search_engine = $("input[name=radio-search-engine]:checked").val();
+                    d.radio_search_type = $("input[name=radio_search_type]:checked").val();
+                    d.smile = $("#smile").val();
+                    d.checkbox_subsearch = $("input[name=checkbox-subsearch]:checked").val();
+                    d.minSimilarity = $("input[name=minSimilarity]").val();
+                    d.maxSimilarity = $("input[name=maxSimilarity]").val();
+                    d.mol_block = $("#mol_block").val();
+                    d.keyword = $("#keyword").val();
+
+                    $(".loadingDiv").show();
+                },
+                error: function(e){
+                    $(".loadingDiv").hide();
+                    console.log("error");
+                    console.log(e);
+                    $.notify("장애가 발생했습니다.\n관리자에게 문의 주십시오.", {
+                        className:"error", 
+                        position:"right bottom", 
+                        autoHideDelay:10000 }
+                    );
+                },
+            },
+            order: [[5, 'asc']],
+            ordering: true,
+            fixedHeader:true,
+            scrollX: true,
+            fixedColumns:true,
+            iDisplayLength: 25,
+            {% comment %} bStateSave: true, {% endcomment %}
+            deferRender: true,
+            search:false,
+            columns: [
+                { data: "name" },
+                { data: "svg_img" },
+                { data: "status" },
+                { 
+                    data: "result",
+                    render: function(data) {
+                        if(data != null) return data.toFixed(2);
+                        else return "";
+                    } 
+                },
+                { data: "mem_name" },
+                { data: "date_created" },
+                { 
+                    data: "comment",
+                    rander: function(data) {
+                        console.log('comment::',data);
+                        return data.replace(/(?:\r\n|\r|\n)/g, '<br />');
+                    } 
+                },
+            ],
+            "columnDefs":[
+                {
+                    "targets":[0],
+                    "className":"alCenter"
+                },
+                {
+                    "targets":[1],
+                    "className":"alCenter"
+                },
+                {
+                    "targets":[2],
+                    "className":"alCenter"
+                },
+                {
+                    "targets":[3],
+                    "className":"alRight"
+                },
+                {
+                    "targets":[4],
+                    "className":"alCenter"
+                },
+                {
+                    "targets":[5],
+                    "className":"alCenter"
+                },
+                {
+                    "targets":[6],
+                    "className":"alCenter"
+                },
+            ],
+            drawCallback: function(d){
+                console.log("draw completed!!!");
+                console.log(d);
+                eventType = '';
+                //callCount++;
+                //redrawDataTableColomn(false);
+                $(".loadingDiv").hide();
+                //moduleSearchList = d.json.list_search_ids;
+                //message = d.json.message;
+                
+                
+
+
+            },
+            dom: 'lir<"last_date">tip',
+        });
+
+
+
+
+
+
+        $("#imagemodal").on('hidden.bs.modal', function(e){
+            $("#modalDiv > svg").remove();
+            $("#modalText").text("");
+            $("#label").text("");
+        });
+
+
+        $("#smile").on('blur', (e)=>{
+            if( $("#smile").val() == "" ){
+                chemdrawjs.getSMILES(function(e){
+                    $("#smile").val(e);
+                });
+            } else {
+                chemdrawjs.loadSMILES($("#smile").val(),function(e){
+                });
+            }
+        });
+        $("#smile").on('change', (e)=>{
+            if( $("#smile").val() == "" ){
+                chemdrawjs.getSMILES(function(e){
+                    $("#smile").val(e);
+                });
+            } else {
+                chemdrawjs.loadSMILES($("#smile").val(),function(e){
+                });
+            }
+        });
+
+        $("#applyBtn").on('click', (e)=>{
+            if( $("#smile").val() == "" ){
+                try {
+                    chemdrawjs.getSMILES(function(e){
+                        if( e != "" ) {
+                            callApi(e);
+                        }
+                        $("#smile").val(e);
+                    });
+                } catch( error ){
+                    console.log(error);
+                    if( $("#smile").val() != "" ){
+                        callApi(e);
+                    }
+                }
+            } else {
+                try {
+                    chemdrawjs.loadSMILES($("#smile").val(),function(e){
+                        if ( $("#smile").val() != "" ) {
+                            callApi($("#smile").val());
+                        }
+                    });
+                } catch( error ){
+                    console.log(error);
+                    if( $("#smile").val() != "" ){
+                        callApi($("#smile").val());
+                    }
+                }
+            }
+        });
+
+        $(".loadingDiv").hide();
+    });
+
+    function search_(){
+        chemdrawjs.getMOL(function(e){
+            $("#mol_block").val(e);
+        });
+        dataTable.ajax.reload();
+    }
+
+    function register(){
+        $("#registerModal").modal({show:true, backdrop:false});
+    }
+
+    function registerAction(){
+
+        $("#psa_name").val( $("#tmp_name").val() );
+        $("#comment").val( $("#tmp_comment").val() );
+        chemdrawjs.getMOL(function(e){
+            $("#mol_block").val(e);
+        });
+
+        if( $("#smile").val() == "" ) {
+            alert("분석하고자 하는 구조가 없습니다.\n확인 부탁드립니다.");
+            return;
+        }
+
+        $.ajax({
+            url: 'deep_solubility/register',
+            type: 'POST',
+            data:$("form[name=formLayer]").serialize(),
+            success:function(e){
+                document.location.reload();
+            },
+            error:function(e){
+                $.notify("장애가 발생했습니다.", {
+                    className:"error", 
+                    position:"right bottom", 
+                    autoHideDelay:10000 }
+                );
+            }
+        });
+    }
+
+
+    function s2ab(s) { 
+        var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+        var view = new Uint8Array(buf);  //create uint8array as viewer
+        for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+        return buf;    
+    }
+
+    
+    
+</script>
+<script>
+    var smile = "{{request.POST.smile}}";
+    var chemdrawjsAttached = function (chemdraw) {
+        chemdrawjs = chemdraw;
+        // do something
+        chemdrawjs.setContentChangedHandler((e) => {
+            $("#smile").effect("highlight", {}, 1000);
+            chemdrawjs.getSMILES((e) => {
+                $("#smile").val(e);
+            });
+        });
+
+        if(smile != ""){
+            chemdrawjs.loadSMILES(smile, e => {
+                var originalColor = $(".cdd-canvas-overlay").css("background-color");
+    
+                // $(".cdd-canvas-overlay").css("background-color", "yellow");
+                $(".cdd-canvas-overlay").animate({
+                    backgroundColor: "rgba(255, 255, 0, 0.5)"
+                }, 20 )
+                .delay(300)
+                .animate({
+                    backgroundColor: originalColor
+                }, 500 );
+            });
+            $("#smile").val(smile);
+        }
+    };
+
+    var chemdrawjsFailed = function (error) {
+        alert(error);
+    };
+
+    function clear(){
+        chemdrawjs.clear();
+        // $("#imageDiv svg").remove();
+        // $("#display_smiles").text("");
+    }
+
+    function getSmiles(){
+        var returnVal;
+        chemdrawjs.getSMILES(function(e){
+            {% comment %} $("#display_smiles").text(e); {% endcomment %}
+            returnVal = e;
+        });
+        return returnVal;
+    }
+
+    function loadSmiles(){
+        chemdrawjs.loadSMILES($("#smiles_id").val(),function(e){
+
+        });
+    }
+
+    function getMol(){
+        var returnVal;
+        chemdrawjs.getMOL(function(e){
+            returnVal = e;
+        });
+        return returnVal;
+    }
+
+    function perkinelmerInit() {        
+        /*
+         * ChemDrawJs 기동
+         */
+        perkinelmer.ChemdrawWebManager.attach({
+            id: 'chemdrawjs-container',
+            callback: chemdrawjsAttached,
+            errorCallback: chemdrawjsFailed,
+            //configUrl:'{% static '/js/chemdraw_config.json' %}',
+            license:'<?xml version="1.0" encoding="UTF-8" standalone="no"?><License Version="1.0">  <!--PLEASE DO NOT MODIFY THIS FILE AND BE AWARE THAT THIS FILE CONTAINS CONFIDENTIAL INFORMATION.-->  <Field Name="ID" Value="fe147dc4-172a-4b45-8eb6-dd01855e3bf6"/>  <Field Name="Software" Value="ChemDraw JS"/>  <Field Name="Comment" Value="Generated by PerkinElmer Informatics, Inc."/>  <Signature Value="IGKpv95c5NsjhKb1nJzPEM97UiY="/></License>'
+        });
+        
+    }
+</script>
+{% comment %} <script src="https://chemdrawdirect.perkinelmer.cloud/js/chemdrawweb/chemdrawweb.js" async onLoad="javascript:perkinelmerInit()"></script> {% endcomment %}
+<script src="{% static '/chemdrawweb/chemdrawweb.js' %}" async onLoad="javascript:perkinelmerInit()"></script>
+{% endblock content %}

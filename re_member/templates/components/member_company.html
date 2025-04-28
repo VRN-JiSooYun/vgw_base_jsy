@@ -1,0 +1,63 @@
+<template id="member-company">
+    <div>
+        <div class="remove-btn" v-on:click="removeMemberCompany(index)">X</div>
+        <div class="info-box">
+            <form class="row g-3">
+                <div class="col-6">
+                    <label for="company_name" class="form-label">근무처</label>
+                    <input type="text" class="form-control" v-model="item.company_name">
+                </div>
+                <div class="col-3">
+                    <label for="working_start_date" class="form-label">근무 시작일</label>
+                    <input type="date" class="form-control" v-model="item.working_start_date" placeholder="YYYY-MM-DD">
+                </div>
+                <div class="col-3">
+                    <label for="working_end_date" class="form-label">근무 종료일</label>
+                    <input type="date" class="form-control" v-model="item.working_end_date" placeholder="YYYY-MM-DD">
+                </div>
+                <div class="col-3">
+                    <label for="division" class="form-label">담당부서</label>
+                    <input type="text" class="form-control" v-model="item.division">
+                </div>
+                <div class="col-3">
+                    <label for="position" class="form-label">직급</label>
+                    <input type="text" class="form-control" v-model="item.position">
+                </div>
+                <div class="col-3">
+                    <label for="job" class="form-label">담당업무</label>
+                    <input type="text" class="form-control" v-model="item.job">
+                </div>
+                <div class="col-3">
+                    <label for="annual_income" class="form-label">연봉</label>
+                    <input type="text" class="form-control" v-model="item.annual_income">
+                </div>
+                <div class="col-12">
+                    <label for="resign_memo" class="form-label">퇴사사유</label>
+                    <input type="text" class="form-control" v-model="item.resign_memo">
+                </div>
+            </form>
+        </div>
+
+    </div>
+</template>
+
+
+<script>
+    const memberCompanyComponent = {
+        props: {
+            item: {
+                type: Object,
+            },
+            index: {
+                type: Number,
+            },
+        },
+        methods: {
+            removeMemberCompany(index) {
+                this.$parent.removeMemberCompany(index);
+            },
+        },
+        mounted: function() {},
+        template:'#member-company',
+    }
+</script>

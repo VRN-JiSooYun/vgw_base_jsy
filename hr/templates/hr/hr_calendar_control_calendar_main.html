@@ -1,0 +1,22 @@
+
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+<div class="col-md-12">
+    <form method="POST" action="{% url 'hr-calendar-control' %}"  enctype="multipart/form-data">
+		{% csrf_token %}
+
+      <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+          {% include 'hr/hr_calendar_control_calendar_fullweeks_nav.html' %}
+
+          {{ ls_today.year }} / {{ ls_today.month }}
+
+          {% include 'hr/hr_calendar_control_calendar_fullweeks.html' %}
+
+      </div>
+
+    </form>
+</div>

@@ -1,0 +1,109 @@
+{% load static %}
+<div id="targer_finder_save_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="padding: 10px">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div style="font-size: 15px; font-weight: 600; padding: 5px 5px;">Title</div>
+                        <div><input class="form-control" v-model="title"></div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row" >
+                    <div class="col-md-12">
+                        <div style="font-size: 15px; font-weight: 600; padding: 5px 5px;">Comment</div>
+                        <textarea class="form-control" v-model="comment"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-left: 5px; font-size: 11px; margin-top: 15px; color: red">[[ alertText ]]</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="close">닫기</button>
+                <button type="button" class="btn btn-primary" @click="save">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const target_finder_save_vue = createApp({
+        delimiters: ["[[", "]]"],
+        data () {
+            return {
+                title: "",
+                comment: "",
+                alertText: "",
+            }
+        },
+        methods: {
+            save() {
+                if (this.title == '') {
+                    this.alert("Title 을 입력해 주세요")
+                    return
+                }
+
+                if (this.comment == '') {
+                    this.alert("Comment 을 입력해 주세요")
+                    return
+                }
+
+                var mol = ''
+                if (vue.compoundCode == '') {
+                    mol = getMol()
+                }
+
+                var meddraCodes = []
+                $('#ctcae :selected').each(function() {
+                    meddraCodes.push($(this).val())
+                })
+
+                if (vue.ppList.length == 0 && vue.kpList.length == 0 && vue.spList.length == 0) {
+                    this.alert("Protein을 확인해 주세요.")
+                    return
+                }
+
+                if (meddraCodes.length == 0) {
+                    this.alert("Adverse Effect를 선택해 주세요.")
+                    return
+                }
+
+                var data = {
+                    "title": this.title,
+                    "comment": this.comment,
+                    "project_code": vue.projectCode,
+                    "compound_code": vue.compoundCode,
+                    "mol_block": mol,
+                    "pp": vue.ppList,
+                    "kp_condition_1": vue.kpCondition1,
+                    "kp_condition_2": vue.kpCondition2,
+                    "kp": vue.kpList,
+                    "sp_condition_1": vue.spCondition1,
+                    "sp_condition_2": vue.spCondition2,
+                    "sp_condition_3": vue.spCondition3,
+                    "sp": vue.spList,
+                    "adverse_effect": meddraCodes,
+                }
+
+                axios.post("target-finder/createTargetFinderHistory", {data: data})
+                .then((response) => {
+                    vue.getTargetFinderHistorys()
+                    this.close()
+                })
+            },
+            close() {
+                this.title = ""
+                this.comment = ""
+                $("#targer_finder_save_modal").modal('hide')
+            },
+            alert(text) {
+                this.alertText = text
+                setTimeout(() =>{
+                    this.alertText = ""
+                }, 2000)
+
+            },
+        },
+        mounted: function() {},
+    }).mount('#targer_finder_save_modal')
+</script>

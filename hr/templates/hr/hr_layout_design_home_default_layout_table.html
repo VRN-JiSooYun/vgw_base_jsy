@@ -1,0 +1,167 @@
+
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+    {% for k_q_group, v_list_q_c2g in dict_c2g_selected.items %}
+    
+        {% if k_q_group.check_is_voronoigroup == True %}
+            {{ k_q_group.group_name }}
+        
+            {% for q_c2g in v_list_q_c2g %}
+                {% if q_c2g.group == k_q_group %}
+                    
+                    <table class="table table-hover">
+                        <tr>
+                            <td width=12% >
+                                <button class="btn btn-warning btn-sm">
+                                
+                                    {{q_c2g.company.company_name}}
+                                    {% if q_c2g.company.comment != Null %}
+                                    ({{q_c2g.company.comment}})
+                                    {% endif %}
+                                    <hr>
+                                    {% for k_q_company, v_list_q_m2c in dict_m2c_selected.items %}
+                                    {% if k_q_company == q_c2g.company %}
+                                    {% for v_q_m2c in v_list_q_m2c %}
+                                    {% if v_q_m2c.check_company_leader == True %}
+                                    {{ v_q_m2c.member.member_name}}
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+                                    <hr>
+                                    {% for k_q_company, v_list_q_m2c in dict_m2c_selected.items %}
+                                    {% if k_q_company == q_c2g.company %}
+                                    {% for v_q_m2c in v_list_q_m2c %}
+                                    {% if v_q_m2c.check_company_leader != True %}
+                                    {{ v_q_m2c.member.member_name}}
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+                                </button>
+                                
+                                <br>
+                                {% if q_d2c.company.comment != Null %}
+                                ({{ q_d2c.company.comment }})
+                                {% endif %}
+                            </td>
+                        <tr>
+                        
+
+                        {% for k_q_company, v_list_q_d2c in dict_d2c_selected.items %}
+                        {% if k_q_company == q_c2g.company %}
+                        {% for v_q_d2c in v_list_q_d2c %}
+                        
+                        <tr >
+                            <td rowspan="2">
+                                <button class="btn btn-success btn-sm">
+                                {% if v_q_d2c.team2division != Null %}
+                                    {{v_q_d2c.team2division.division.division_name}}
+                                    <hr>
+                                    {% for k_q_division, v_list_q_m2d in dict_m2d_selected.items %}
+                                    {% if v_q_d2c.team2division.division == k_q_division %}
+                                    {% for v_q_m2d in v_list_q_m2d %}
+                                    {% if v_q_m2d.check_division_leader == True %}
+                                    {{v_q_m2d.member.member_name}}
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+                                    <hr>
+                                    {% for k_q_division, v_list_q_m2d in dict_m2d_selected.items %}
+                                    {% if v_q_d2c.team2division.division == k_q_division %}
+                                    {% for v_q_m2d in v_list_q_m2d %}
+                                    {% if v_q_m2d.check_division_leader != True %}
+                                    {{v_q_m2d.member.member_name}}<br>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+
+                                {% elif v_q_d2c.member2division != Null %}
+                                    {{v_q_d2c.member2division.division.division_name}}
+                                    <hr>
+                                    {% for k_q_division, v_list_q_m2d in dict_m2d_selected.items %}
+                                    {% if v_q_d2c.member2division.division == k_q_division %}
+                                    {% for v_q_m2d in v_list_q_m2d %}
+                                    {% if v_q_m2d.check_division_leader == True %}
+                                    {{v_q_m2d.member.member_name}}
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+                                    <hr>
+                                    {% for k_q_division, v_list_q_m2d in dict_m2d_selected.items %}
+                                    {% if v_q_d2c.member2division.division == k_q_division %}
+                                    {% for v_q_m2d in v_list_q_m2d %}
+                                    {% if v_q_m2d.check_division_leader != True %}
+                                    {{v_q_m2d.member.member_name}}<br>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+
+                                {% endif %}
+                                </button>
+                            </td>   
+                        </tr>
+                    
+
+                                {% for k_q_division, v_list_q_t2d in dict_t2d_selected.items %}
+                                {% if v_q_d2c.team2division.division == k_q_division %}
+                                <tr>
+                                    {% for v_q_t2d in v_list_q_t2d %}
+                                    <td>
+                                        <button class="btn btn-primary btn-sm">
+                                        {{v_q_t2d.member2team.team.team_name}}
+                                        <hr>
+                                        {% for q_m2t in qs_m2t %}
+                                        {% if q_m2t.team == v_q_t2d.member2team.team %}
+                                        {% if q_m2t.member != Null %}
+                                        {% if q_m2t.check_team_leader == True %}
+                                        {{ q_m2t.member.member_name}}<br>
+                                        {% endif %}
+                                        {% endif %}
+                                        {% endif %}
+                                        {% endfor %}
+                                        <hr>
+                                        {% for q_m2t in qs_m2t %}
+                                        {% if q_m2t.team == v_q_t2d.member2team.team %}
+                                        {% if q_m2t.member != Null %}
+                                        {% if q_m2t.check_team_leader != True %}
+                                        {{ q_m2t.member.member_name}}<br>
+                                        {% endif %}
+                                        {% endif %}
+                                        {% endif %}
+                                        {% endfor %}
+                                        </button>
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+
+                        {% endfor %}
+                        {% endif %}
+                        {% endfor %}
+
+                        
+                    </table>
+
+                {% endif %}
+            {% endfor %}
+
+        <br>
+        
+
+        {% endif %}
+
+    {% endfor %} 
+
+</div>

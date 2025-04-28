@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% block content %}
+{% include 'hr/hr_navbar_layout.html' %}
+{% include 'hr/hr_navbar_layout_design.html' %}
+{% include 'hr/hr_layout_design_navbar_division.html' %}
+
+
+
+<div class="row">
+
+
+    <div class="col-md-12">
+        <legend class="border-bottom mb-4">
+                부서 구성하기
+        </legend>
+    </div>
+
+        <div class="col-md-6">
+            <legend class="border-bottom mb-4">
+                Step 3: 부서 선택하기
+            </legend>
+            <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+                <form method="POST" action="{% url 'hr-layout-design-t2d-step1' %}">
+                    {% csrf_token %}
+
+                <table class="table table-hover">
+                    <tr>
+                        <th width=23% >
+                            부서 선택<br>
+                            <button type="submit" name="name-division-select" value="value-division-select" class="btn btn-info btn-sm" >Select</button>
+                        </th>
+
+                        <th>
+                            소속된 팀
+                        </th>
+                        <th>
+                            팀 없이 소속된 멤버<br>
+                            부서 리더 선택
+                            <button type="submit" name="name-division-leader-select" value="value-division-leader-select" class="btn btn-info btn-sm"  >Select</button>
+                        </th>
+                        <th width=5%>
+                             선택 해제<br>
+                            <button type="submit" name="name-division-member-deselect" value="value-division-member-deselect" class="btn btn-danger btn-sm" >Deselect</button>
+                        </th>
+                    </tr>
+
+
+                    {% for q_division in qs_division %}
+                        {% if q_division == q_t2d.division %}
+                            <tr class="table-warning">
+                                <td>
+                                    <input type="radio" name="division-selected" value="{{ q_division.id }}" checked/>
+                                    {{ q_division.division_name }}
+                                    {% if q_division.comment != Null %}
+                                    ({{ q_division.comment }})
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% for k_q_division, v_list_q_t2d in dict_t2d_selected.items %}
+                                    {% if k_q_division == q_division %}
+                                    {% for v_q_t2d in v_list_q_t2d %}
+                                    {% if v_q_t2d.member2team.team != Null %}
+                                    <ul>
+                                    <li>
+                                    <input type="checkbox" name="division-deselected" value="{{v_q_t2d.id}}" />
+                                    <button class="btn btn-outline-info btn-sm">{{ v_q_t2d.member2team.team.team_name }}</button>
+                                    </li>
+                                    </ul>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+                                </td>
+
+                                <td colspan="2">
+                                    {% for k_q_division, v_list_q_m2d in dict_m2d_selected.items %}
+                                    {% if k_q_division == q_division %}
+                                    {% for v_q_m2d in v_list_q_m2d %}
+                                    {% if v_q_m2d != Null %}
+                                    {% if v_q_m2d.check_division_leader == True %}
+                                    <ul>
+                                    <li>
+                                    <input type="checkbox" name="member-deselected" value="{{v_q_m2d.id}}"/>
+                                    <button class="btn btn-outline-info btn-sm">(리더) {{ v_q_m2d.member.member_name }}</button>
+                                    </li>
+                                    </ul>
+                                    {% endif %}
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+                                    <br>
+                                    {% for k_q_division, v_list_q_m2d in dict_m2d_selected.items %}
+                                    {% if k_q_division == q_division %}
+                                    {% for v_q_m2d in v_list_q_m2d %}
+                                    {% if v_q_m2d != Null %}
+                                    {% if v_q_m2d.check_division_leader != True %}
+
+                                    <ul>
+                                    <li>
+                                    <input type="checkbox" name="member-deselected" value="{{v_q_m2d.id}}"/>
+                                    <button class="btn btn-outline-info btn-sm">{{ v_q_m2d.member.member_name }}</button>
+                                    </li>
+                                    </ul>
+                                    {% endif %}
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for q_division in qs_division %}
+                        {% if q_division == q_t2d.division %}
+                        {% else %}
+                            <tr>
+
+                                <td>
+                                    <input type="radio" name="division-selected" value="{{ q_division.id }}" />
+                                    {{ q_division.division_name }}
+                                    {% if q_division.comment != Null %}
+                                    ({{ q_division.comment }})
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% for k_q_division, v_list_q_t2d in dict_t2d_selected.items %}
+                                    {% if k_q_division == q_division %}
+                                    {% for v_q_t2d in v_list_q_t2d %}
+                                    {% if v_q_t2d.member2team.team != Null %}
+                                    <ul>
+                                    <li>
+                                    <input type="checkbox" name="division-deselected" value="{{v_q_t2d.id}}"  disabled="disabled"/>
+                                    <button class="btn btn-outline-info btn-sm">{{ v_q_t2d.member2team.team.team_name }}</button>
+                                    </li>
+                                    </ul>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+                                </td>
+
+                                <td colspan="2">
+                                    {% for k_q_division, v_list_q_m2d in dict_m2d_selected.items %}
+                                    {% if k_q_division == q_division %}
+                                    {% for v_q_m2d in v_list_q_m2d %}
+                                    {% if v_q_m2d != Null %}
+                                    {% if v_q_m2d.check_division_leader == True %}
+                                    <ul>
+                                    <li>
+                                    <input type="checkbox" name="member-deselected" value="{{v_q_m2d.id}}" disabled="disabled"/>
+                                    <button class="btn btn-outline-info btn-sm">(리더) {{ v_q_m2d.member.member_name }}</button>
+                                    </li>
+                                    </ul>
+                                    {% endif %}
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+                                    <br>
+                                    {% for k_q_division, v_list_q_m2d in dict_m2d_selected.items %}
+                                    {% if k_q_division == q_division %}
+                                    {% for v_q_m2d in v_list_q_m2d %}
+                                    {% if v_q_m2d != Null %}
+                                    {% if v_q_m2d.check_division_leader != True %}
+                                    <ul>
+                                    <li>
+                                    <input type="checkbox" name="member-deselected" value="{{v_q_m2d.id}}" disabled="disabled"/>
+                                    <button class="btn btn-outline-info btn-sm">{{ v_q_m2d.member.member_name }}</button>
+                                    </li>
+                                    </ul>
+                                    {% endif %}
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+
+            <legend class="border-bottom mb-4">
+                Step 4-1: 팀 선택하기
+                <h6>
+                    <a href="{% url 'hr-layout-design-m2d-step1' %}">부서에 팀 없이 멤버 구성하기 </a>
+                </h6>
+            </legend>
+
+            <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+                <form method="POST" action="{% url 'hr-layout-design-t2d-step2' q_t2d.id %}">
+                    {% csrf_token %}
+                <table class="table table-hover">
+                    <tr>
+                        <th>
+                            팀 이름
+                        </th>
+                        <th>
+                            {{form.search_keyword|bootstrap}}
+                        </th>
+                        <th>
+                            멤버 이름
+                        </th>
+                        <th>
+                            {{form.check_team_search_duplication|bootstrap}}
+                        </th>
+                        <th>
+                            <button type="submit" name="button-select"  value="true" class="btn btn-info btn-sm" >Select</button>
+                            <button type="submit" name="button-reset" value="true" class="btn btn-dark btn-sm" >Reset</button>
+                        </th>
+
+                    </tr>
+
+
+                    {% for q_team in qs_team %}
+                    <tr>
+                        <td>
+                            {{ q_team.team_name}}
+                            {% if q_team.comment != Null %}
+                            ({{ q_team.comment }})
+                            {% endif %}
+
+                        </td>
+                        <td>
+                            <input type="checkbox" name="team-selected" value="{{q_team.id}}" />
+                        </td>
+                        <td>
+                            {% for q_m2t in qs_m2t %}
+                                {% if q_m2t.team == q_team %}
+                                <button class="btn btn-outline-info btn-sm">{{ q_m2t.member.member_name }}</button>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </table>
+                </form>
+
+            </div>
+        </div>
+
+</div>
+
+{% endblock content %}

@@ -1,0 +1,489 @@
+{% load static %}
+
+<div id="working_approval_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">결재 승인 정보</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- 작성자 정보 -->
+                <div class="row" style="padding: 20px px 10px 0px; border-bottom: 0.5px solid #e2e4e7;">
+                    <div style="margin-top:20px; margin-left: 10px;">
+                        <h6>작성자 정보</h6>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">이름</div>
+                    <div class="col" style="padding: 15px;" v-html="member.member_name"></div>
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">부서</div>
+                    <div class="col" style="padding: 15px;" v-html="member.group_name"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">이메일</div>
+                    <div class="col" style="padding: 15px;" v-html="member.member_email"></div>
+                </div>
+                <div v-if="working.working_off_form_type != cdDtlNo('WORKING_OFF_TYPE_ADD') & formType == 'working_off' & !isDone" class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">전체일수</div>
+                    <div class="col" style="padding: 15px;">[[ member.working_off_days + member.working_off_etc_days ]]</div>
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">사용일수</div>
+                    <div class="col" style="padding: 15px;">[[ member.working_off_use_days ]] (결재중: [[ working.working_off_form_use_num ]])</div>
+                    <div class="col-2" style="padding: 10px; background: #f7f6f9;">승인 후 잔여일수</div>
+                    <div class="col" style="padding: 15px;">[[ member.working_off_remain_days - working.working_off_form_use_num]]</div>
+                </div>
+                <div v-if="working.working_off_form_type != cdDtlNo('WORKING_OFF_TYPE_ADD') & formType == 'working_off' & !isDone" class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">연차 사용 기간</div>
+                    <div class="col" style="padding: 15px;">[[ workingOffDate(member.working_off_start_date) ]]</div>
+                </div>
+                <div v-if="working.working_off_form_type == cdDtlNo('WORKING_OFF_TYPE_ADD') & formType == 'working_off' & !isDone" class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">대체일수</div>
+                    <div class="col" style="padding: 15px;">[[ member.working_off_add_days ]]</div>
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">대체사용일수</div>
+                    <div class="col" style="padding: 15px;">[[ member.working_off_add_use_days ]] (결재중: [[ working.working_off_form_use_num ]])</div>
+                    <div class="col-2" style="padding: 10px; background: #f7f6f9;">승인 후 대체잔여일수</div>
+                    <div class="col" style="padding: 15px;">[[ member.working_off_add_remain_days - working.working_off_form_use_num]]</div>
+                </div>                
+
+                <!-- 휴가 작성 내용 -->
+                <div v-if="formType == 'working_off'">
+                    <div class="row" style="padding: 20px px 10px 0px; border-bottom: 0.5px solid #e2e4e7;">
+                        <div style="margin-top:20px; margin-left: 10px;">
+                            <h6>내용</h6>
+                        </div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">제목</div>
+                        <div class="col" style="padding: 15px;" v-html="working.working_off_form_title"></div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">구분</div>
+                        <div class="col" style="padding: 15px;" v-html="cdDtlNm(working.working_off_form_type)"></div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴가 일</div>
+                        <div class="col" style="padding: 15px;" v-html="workingOffFormDate(working.working_off_form_start_date, working.working_off_form_end_date)"></div>
+                    </div>
+                    <div v-if="workingOffs.length > 0" class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴가기간</div>
+                        <div class="col" style="padding-top:5px">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">기간</th>
+                                        <th scope="col">시간 타입</th>
+                                        <th scope="col">시간</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="workingOff in workingOffs">
+                                        <td v-html="workingOff.working_off_date"></td>
+                                        <td v-html="cdDtlNm(workingOff.working_off_time)"></td>
+                                        <td v-html="time(workingOff.working_off_start_datetime, workingOff.working_off_end_datetime)"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">요청 사유</div>
+                        <div class="col" style="padding: 15px;" v-html="working.reason"></div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">첨부파일</div>
+                        <div class="col" style="padding: 15px;">
+                            <div class="row" v-for="approvalUploadFile in approvalUploadFiles">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" style="margin: 5px 0px 5px 10px" @click="downloadFile(approvalUploadFile.upload_file_id)" v-html="approvalUploadFile.upload_file_name"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 휴일 근무 작성 내용 -->
+                <div v-if="formType == 'working_weekend'">
+                    <div class="row" style="padding: 20px px 10px 0px; border-bottom: 0.5px solid #e2e4e7;">
+                        <div style="margin-top:20px; margin-left: 10px;">
+                            <h6>내용</h6>
+                        </div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">제목</div>
+                        <div class="col" style="padding: 15px;" v-html="working.working_weekend_form_title"></div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일 근무일</div>
+                        <div class="col" style="padding: 15px;" v-html="working.working_weekend_date"></div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일 근무 시간</div>
+                        <div class="col" style="padding: 15px;" v-html="workingWeekendTime(working.working_weekend_start_datetime, working.working_weekend_end_datetime, working.working_weekend_time)"></div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일 근무 사유</div>
+                        <div class="col" style="padding: 15px;" v-html="working.reason"></div>
+                    </div>
+                </div>
+                <!-- 휴일 근무 일지 작성 내용 -->
+                <div v-if="formType == 'working_weekend_note'">
+                    <div class="row" style="padding: 20px px 10px 0px; border-bottom: 0.5px solid #e2e4e7;">
+                        <div style="margin-top:20px; margin-left: 10px;">
+                            <h6>내용</h6>
+                        </div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">제목</div>
+                        <div class="col" style="padding: 15px;" v-html="working.working_weekend_note_form_title"></div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일 근무일</div>
+                        <div class="col" style="padding: 15px;" v-html="working.working_weekend_date"></div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일 근무 시간</div>
+                        <div class="col" style="padding: 15px;" v-html="workingWeekendNoteTime(working.working_weekend_start_datetime, working.working_weekend_end_datetime)"></div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일 휴게 시간</div>
+                        <div class="col" style="padding: 15px;" v-html="freeTime(working.working_weekend_start_datetime, working.working_weekend_end_datetime, working.working_weekend_free_time)"></div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">총근무시간</div>
+                        <div class="col" style="padding: 15px;" v-html="totalTime(working.working_weekend_start_datetime, working.working_weekend_end_datetime, working.working_weekend_free_time)"></div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">프로젝트 명</div>
+                        <div class="col" style="padding: 15px;" v-html="working.working_project_name"></div>
+                    </div>
+                    <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                        <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일 근무 내용</div>
+                        <div class="col" style="padding: 15px;" v-html="working.working_note"></div>
+                    </div>
+                </div>
+
+                <!-- 공통 -->
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">결재자</div>
+                    <div class="col" style="padding-top:5px">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">결재순서</th>
+                                    <th scope="col">결재자</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="approvalMember in approvalMembers">
+                                    <td v-html="approvalMember.step"></td>
+                                    <td v-html="approvalMember.member_name + ' (' + approvalMember.member_email + ')'"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">참조자</div>
+                    <div class="col" style="padding-top:5px" v-html="approvalRefMembers"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">수신자</div>
+                    <div class="col" style="padding-top:5px" v-html="approvalRecvMembers"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">작성일</div>
+                    <div class="col" style="padding: 15px;" v-html="date(formDatetime)"></div>
+                </div>
+
+                <!-- 결재 내역 -->
+                <div class="row" style="padding: 20px px 10px 0px; ">
+                    <div style="margin-top:10px; margin-left: 20px;">
+                        <h6>결재 내역</h6>
+                    </div>
+                </div>
+                <div class="row" style="padding: 10px 0px">
+                    <div class="col">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">상태</th>
+                                    <th scope="col">결재자</th>
+                                    <th scope="col">부서</th>
+                                    <th scope="col">결재일</th>
+                                    <th scope="col">내용</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="approvalHistory in approvalHistorys">
+                                    <td v-html="cdDtlNm(approvalHistory.approval_state)"></td>
+                                    <td v-html="approvalHistory.res_member_name"></td>
+                                    <td v-html="approvalHistory.group_name"></td>
+                                    <td v-html="date(approvalHistory.approval_date)"></td>
+                                    <td v-html="approvalHistory.comment" style="width:200px"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div v-if="!isDone" class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">커멘트</div>
+                    <div class="col" style="padding: 15px;">
+                        <textarea class="form-control" rows="4" cols="70" v-model="comment"></textarea>
+                    </div>
+                </div>
+                <div id="layer_alert" class="toast toast-danger" role="layer_alert" aria-live="assertive" data-delay="1500" aria-atomic="true" style="position:absolute; left:25%; background-color:#f8d7da; z-index:999">
+                    <div class="toast-body" v-html="alertText"></div>
+                </div>
+            </div>
+            <div v-if="!isDone" class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="close">취소</button>
+                <button type="button" class="btn btn-danger" @click="reject">반려</button>
+                <button type="button" class="btn btn-primary" @click="ok">승인</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const working_approval_vue = createApp({
+        delimiters: ["[[", "]]"],
+        data () {
+            return {
+                isDone: true,
+                workingApprovalType: "",
+                formId: "",
+                approvalId: "",
+                member: {},
+                formType: "",
+                formDatetime: "",
+                working: "",
+                workingOffs: [],
+                approvalUploadFiles: [],
+                approvalHistorys: [],
+                approvalMembers: [],
+                approvalRefMembers: "",
+                approvalRecvMembers: "",
+                comment: "",
+                alertText: "",
+            }
+        },
+        methods: {
+            getWorkingApproval(formId, approvalId, formType, isDone) {
+                this.isDone = isDone
+                this.formId = formId
+                this.approvalId = approvalId
+                this.formType = formType
+
+
+                if (this.formType == 'working_off') {
+                    axios.get("/re-working/getWorkingOffForm/" + formId)
+                    .then((response) => {
+                        var data = response.data
+                        this.working = data.workingOffForm
+                        this.workingOffs = data.workingOffs
+                        this.formDatetime = this.working.working_off_form_datetime
+
+                        axios.get("/re-member/getMember/" + this.working.member_id)
+                        .then((response) => {
+                            this.member = response.data
+                        })
+
+                    })
+                } else if (this.formType == 'working_weekend') {
+                    axios.get("/re-working/getWorkingWeekendForm/" + formId)
+                    .then((response) => {
+                        var data = response.data
+                        this.working = data.workingWeekendForm
+                        this.formDatetime = this.working.working_weekend_form_datetime
+
+                        axios.get("/re-member/getMember/" + this.working.member_id)
+                        .then((response) => {
+                            this.member = response.data
+                        })
+                    })
+                } else if (this.formType == 'working_weekend_note') {
+                    axios.get("/re-working/getWorkingWeekendNoteForm/" + formId)
+                    .then((response) => {
+                        var data = response.data
+                        this.working = data.workingWeekendNoteForm
+                        this.formDatetime = this.working.working_weekend_note_form_datetime
+
+                        axios.get("/re-member/getMember/" + this.working.member_id)
+                        .then((response) => {
+                            this.member = response.data
+                        })
+                    })
+                }
+
+                axios.get("/re-working/getApprovalUploadFiles/" + approvalId)
+                .then((response) => {
+                    this.approvalUploadFiles = response.data
+                })
+
+                axios.get("/re-working/getApprovalHistory/" + approvalId)
+                .then((response) => {
+                    this.approvalHistorys = response.data.approvalHistorys
+                })
+
+                axios.get("/re-working/getApprovalMembers/" + approvalId)
+                .then((response) => {
+                    this.approvalMembers = response.data.approvalMembers
+                })
+
+                axios.get("/re-working/getApprovalEtcMembers/" + approvalId)
+                .then((response) => {
+                    var approvalEtcMembers = response.data.approvalEtcMembers
+
+                    var approvalRefMemberArr = approvalEtcMembers.filter(approvalEtcMember => approvalEtcMember.approval_etc_member_type == code_vue.getCdDtlNoByAlias("APPROVAL_ETC_MEMBER_TYPE_REF"))
+                    var approvalRefMemberStr = ""
+                    for (approvalRefMember of approvalRefMemberArr) {
+                        approvalRefMemberStr += approvalRefMemberStr == "" ? approvalRefMember.member_name + " (" + approvalRefMember.member_email + ")" : "," + approvalRefMember.member_name + " (" + approvalRefMember.member_email + ")"
+                    }
+                    this.approvalRefMembers = approvalRefMemberStr
+
+                    var approvalRecvMemberArr = approvalEtcMembers.filter(approvalEtcMember => approvalEtcMember.approval_etc_member_type == code_vue.getCdDtlNoByAlias("APPROVAL_ETC_MEMBER_TYPE_RECV"))
+                    var approvalRecvMemberStr = ""
+                    for (approvalRecvMember of approvalRecvMemberArr) {
+                        approvalRecvMemberStr += approvalRecvMemberStr == "" ? approvalRecvMember.member_name + " (" + approvalRecvMember.member_email + ")" : "," + approvalRecvMember.member_name + " (" + approvalRecvMember.member_email + ")"
+                    }
+                    this.approvalRecvMembers = approvalRecvMemberStr
+                })
+            },
+            cdDtlNm(cdDtlNo) {
+                return code_vue.getCodeDtl(cdDtlNo).cd_dtl_nm
+            },
+            cdDtlNo(alias) {
+                return code_vue.getCdDtlNoByAlias(alias)
+            },     
+            date(datetime) {
+                if (typeof datetime != 'undefined') {
+                    return moment(datetime).format('YYYY-MM-DD HH:mm:ss')
+                }
+                return ""
+            },
+            workingOffDate(workingOffStartDate) {
+                if (workingOffStartDate != undefined && workingOffStartDate != "") {
+                    return workingOffStartDate + " ~ " + moment(workingOffStartDate).add(1, 'years').add(-1, 'days').format("YYYY-MM-DD")
+                }
+
+                return ""
+            },
+            workingOffFormDate(startDate, endDate) {
+                return startDate + " ~ " + endDate
+            },
+            workingWeekendTime(startTime, endTime, workingTime) {
+                var startTime = moment(startTime)
+                var endTime = moment(endTime)
+
+                var timeArr = ["0"]
+                if (workingTime != undefined) {
+                    timeArr = workingTime.split(":")
+                }
+                return startTime.format('HH:mm') + " 부터 " +  endTime.format('HH:mm') + " 동안 " + Number(timeArr[0]) + "시간 근무"
+            },
+            workingWeekendNoteTime(startTime, endTime) {
+                var startTime = moment(startTime)
+                var endTime = moment(endTime)
+
+                var durationTime = endTime.diff(startTime, 'minutes')
+                return startTime.format('HH:mm') + " 부터 " +  endTime.format('HH:mm') + " / " + parseInt(durationTime / 60) + " 시간 " + (durationTime % 60) + "분 근무"
+            },
+            time(startTime, endTime) {
+                return moment(startTime).format('HH:mm') + " ~ " +  moment(endTime).format('HH:mm')
+            },
+            freeTime(startTime, endTime, freeTime) {
+                if (typeof freeTime != "undefined" && freeTime != '') {
+                    var freeTimeArr = freeTime.split(":")
+                    //var datetime = moment(endTime).subtract(freeTimeArr[0], 'h').subtract(freeTimeArr[1], 'm')
+                    //var durationTime = datetime.diff(startTime, 'minutes')
+                    return freeTimeArr[0] + "시간 " +  freeTimeArr[1] + "분"
+                }
+                return ""
+            },
+            totalTime(startTime, endTime, freeTime) {
+                var startTime = moment(startTime)
+                var endTime = moment(endTime)
+                var durationTime = endTime.diff(startTime, 'minutes')
+
+                if (typeof freeTime != "undefined" && freeTime != '') {
+                    var freeTimeArr = freeTime.split(":")
+
+                    var datetime = moment(endTime).subtract(freeTimeArr[0], 'h').subtract(freeTimeArr[1], 'm')
+                    var durationTime = datetime.diff(startTime, 'minutes')
+
+                    return parseInt(durationTime / 60) + " 시간 " + (durationTime % 60) + "분 근무"
+                }
+                return parseInt(durationTime / 60) + " 시간 " + (durationTime % 60) + "분 근무"
+            },
+            downloadFile(uploadFileId) {
+                window.location.href = "/re-working/downloadFile/" + uploadFileId
+            },
+            ok() {
+                var data = {
+                    "comment": this.comment
+                }
+                var url = ""
+                if (this.formType == 'working_off') {
+                    url = "/re-working/updateWorkingOffOk/"
+                } else if (this.formType == 'working_weekend') {
+                    url = "/re-working/updateWorkingWeekendOk/"
+                } else if (this.formType == 'working_weekend_note') {
+                    url = "/re-working/updateWorkingWeekendNoteOk/"
+                }
+                axios.post(url + this.formId, {data: data})
+                .then((response) => {
+                    if (response.data[0]) {
+                        // send mail
+                        if (this.working.working_off_form_type != this.cdDtlNo('WORKING_OFF_TYPE_ADD')){
+                            axios.post("/re-working/sendMailWorkingOk/" + this.formType + "/" + response.data[1])
+                        }
+
+                        approval_count_vue.getCount()
+                        vue.getApprovals()
+                        this.close()
+                    } else {
+                        this.alert(response.data[1])
+                    }
+
+                })
+            },
+            reject() {
+                var data = {
+                    "comment": this.comment
+                }
+                var url = ""
+                if (this.formType == 'working_off') {
+                    url = "/re-working/updateWorkingOffReject/"
+                } else if (this.formType == 'working_weekend') {
+                    url = "/re-working/updateWorkingWeekendReject/"
+                } else if (this.formType == 'working_weekend_note') {
+                    url = "/re-working/updateWorkingWeekendNoteReject/"
+                }
+                axios.post(url + this.formId, {data: data})
+                .then((response) => {
+                    if (response.data[0]) {
+                        // send mail
+                        axios.post("/re-working/sendMailWorkingReject/" + this.formType + "/" + response.data[1])
+
+                        vue.getApprovals()
+                        this.close()
+                    } else {
+                        this.alert(response.data[1])
+                    }
+                })
+            },
+            close() {
+                $("#working_approval_modal").modal('hide')
+                this.comment = ""
+            },
+            alert(text) {
+                this.alertText = text
+                $('#layer_alert').toast('show')
+            }
+        },
+        mounted: function() {
+            var self = this
+            $('#working_approval_modal').on('hidden.bs.modal', function (e) {
+                self.close()
+            })
+        },
+    }).mount('#working_approval_modal')
+</script>

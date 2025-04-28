@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'home/navbar/re_navbar.html' %}
+
+
+<div id="working_off_promote_admin" class="row" style="padding: 1%; background-color: #f9f9f9;">
+    <div class="col-md-18" style="position: relative;">
+        <div style="flex: auto; margin: 3vh auto; width: 97vw; min-height: 53vh; padding: 2%; border-radius:25px; background-color: #ffffff">
+
+            <div class="row" style="padding-bottom: 1vh;">
+                <div class="col-1">
+                    <select class="form-control" v-model="searchYear" @change="getWorkingOffPromotes">
+                        <option value=""></option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                        <option value="2029">2029</option>
+                        <option value="2030">2030</option>
+                        <option value="2031">2031</option>
+                        <option value="2032">2032</option>
+                        <option value="2033">2033</option>
+                        <option value="2034">2034</option>
+                    </select>
+                </div>
+                <div class="col-8" style="display: flex">
+                    1차 촉진&nbsp;&nbsp;&nbsp;&nbsp;<input class="form-control" id="first_promote_month_datePicker" style="width: 200px" v-model="firstPromoteMonth" autocomplete="off">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    2차 촉진&nbsp;&nbsp;&nbsp;&nbsp;<input class="form-control" id="second_promote_month_datePicker" style="width: 200px" v-model="secondPromoteMonth" autocomplete="off">
+                </div>
+                <div class="col-3" style="text-align:end">
+                    <button type="button" class="btn btn-outline-success" @click="download">다운로드</button>
+                </div>
+            </div>
+
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">번호</th>
+                        <th scope="col">사번</th>
+                        <th scope="col">이름</th>
+                        <th scope="col">부서</th>
+                        <th scope="col">입사일</th>
+                        <th scope="col">근속연차</th>
+                        <th scope="col">1차연차촉진일</th>
+                        <th scope="col">제출여부</th>
+                        <th scope="col">2차연차촉진일</th>
+                        <th scope="col">제출여부</th>
+                        <th scope="col">서류</th>
+                        <th scope="col">기능</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in workingOffPromotes">
+                        <td scope="row">[[ num(index) ]]</td>
+                        <td>[[ item.member_company_id ]]</td>
+                        <td>[[ item.member_name ]]</td>
+                        <td>[[ item.group_name ]]</td>
+                        <td>[[ date(item.join_date) ]]</td>
+                        <td>[[ workingYear(item.join_date) ]]</td>
+                        <td>[[ item.first_promote_date ]]</td>
+                        <td>[[ workingOffPromoteStatus(item.first_promote_status) ]]</td>
+                        <td>[[ item.second_promote_date ]]</td>
+                        <td>[[ workingOffPromoteStatus(item.second_promote_status) ]]</td>
+                        <td>
+                            <button v-show="showBtn(item.first_promote_status)" type="button" class="btn btn-outline-success btn-sm" @click="showWorkingOffPromotePlan(item, item.working_off_promote_id, 1, item.member_id, item.first_promote_date, item.first_promote_submit_datetime)">1차서류</button>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <button v-show="showBtn(item.second_promote_status)" type="button" class="btn btn-outline-success btn-sm" @click="showWorkingOffPromotePlan(item, item.working_off_promote_id, 2, item.member_id, item.second_promote_date, item.second_promote_submit_datetime)">2차서류</button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-primary btn-sm" @click="showWorkingOffPromote(item)">수정</button>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <button type="button" class="btn btn-outline-info btn-sm" @click="resend(item.member_id)">재발송</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% include "./layer/working_off_promote_admin_layer.html" %}
+{% include "./layer/working_off_promote_plan_admin_layer.html" %}
+{% include "./layer/confirm_layer.html" %}
+
+<script src="{% static '/js/jquery-ui.monthpicker.js' %}"></script>
+<script>
+    const vue = createApp({
+        delimiters: ['[[', ']]'],
+        data () {
+            return {
+                searchYear: "",
+                firstPromoteMonth: "",
+                secondPromoteMonth: "",
+                searchMonth: "",
+                workingOffPromoteNum: 0,
+                workingOffPromotes: [],
+                memberId: 0,
+            }
+        },
+        methods: {
+            getWorkingOffPromotes() {
+                if (this.searchYear != "") {
+                    this.firstPromoteMonth = ""
+                    this.secondPromoteMonth = ""
+                    this.workingOffPromoteNum = 0
+                }
+
+                axios.get("/re-working-admin/getWorkingOffPromotes?searchYear=" + this.searchYear + "&searchMonth=" + this.searchMonth + "&workingOffPromoteNum=" + this.workingOffPromoteNum)
+                .then((response) => {
+                    this.workingOffPromotes = response.data
+                })
+            },
+            num(index) {
+                return index + 1
+            },
+            date(date) {
+                return moment(date).format('YYYY-MM-DD')
+            },
+            workingYear(joinDate) {
+                return Math.floor(Math.abs(moment.duration(moment(joinDate).diff(moment.now())).asYears())) + "년차"
+            },
+            workingOffPromoteStatus(status) {
+                if (status == "") {
+                    return
+                }
+                return code_vue.getCodeDtl(status).cd_dtl_nm
+            },
+            showBtn(status) {
+                if (status == code_vue.getCdDtlNoByAlias('WORKING_OFF_PROMOTE_STATUS_DONE')) {
+                    return true
+                }
+                return false
+            },
+            showWorkingOffPromotePlan(workingOffPromote, workingOffPromoteId, workingOffPromoteNum, memberId, workingOffPromoteDate, workingOffPromoteSubmitDatetime) {
+                working_off_promote_plan_admin_vue.workingOffPromote = workingOffPromote
+                working_off_promote_plan_admin_vue.getWorkingOffPromotePlans(workingOffPromoteId, workingOffPromoteNum, memberId, workingOffPromoteDate, workingOffPromoteSubmitDatetime)
+                $("#working_off_promote_plan_admin_modal").modal('show')
+            },
+            showWorkingOffPromote(workingOffPromote) {
+                working_off_promote_admin_vue.getWorkingOffPromote(workingOffPromote)
+                $("#working_off_promote_admin_modal").modal('show')
+            },
+            search(workingOffPromoteNum) {
+                if (workingOffPromoteNum == 1) {
+                    this.searchMonth = this.firstPromoteMonth
+                } else if (workingOffPromoteNum == 2) {
+                    this.searchMonth = this.secondPromoteMonth
+                }
+                this.workingOffPromoteNum = workingOffPromoteNum
+                this.searchYear = ""
+                this.getWorkingOffPromotes()
+            },
+            resend(memberId) {
+                confirm_vue.title = ""
+                confirm_vue.message = "연차촉진을 위한 알림 메일을 재발송 하시겠습니까?"
+                this.memberId = memberId
+                $("#confirm_modal").modal('show')
+            },
+            confirmOk() {
+                var data = {
+                    memberId: this.memberId
+                }
+                axios.post("/re-working-admin/resendWorkingOffPromote", {data: data})
+                .then((response) => {
+                    $("#working_off_promote_admin_modal").modal('hide')
+                })
+            },
+            download() {
+                window.location.href = "/re-working-admin/workingOffPromoteDownload?searchYear=" + this.searchYear
+            }
+        },
+        mounted: function() {
+            this.searchYear = moment().year()
+            var self = this
+            $('#first_promote_month_datePicker').monthpicker({
+                dateFormat: 'yy-mm',
+                prevText: '이전 달',
+                nextText: '다음 달',
+                monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                yearSuffix: '년',
+                showOtherMonths: true,
+                showMonthAfterYear: true,
+                selectOtherMonths: true,
+                changeYear: false,
+                changeMonth: true,
+                onSelect:function(selectedDate, datePicker) {
+                    self.firstPromoteMonth = selectedDate
+                    self.secondPromoteMonth = ""
+                    self.search(1)
+                }
+            });
+
+            $('#second_promote_month_datePicker').monthpicker({
+                dateFormat: 'yy-mm',
+                prevText: '이전 달',
+                nextText: '다음 달',
+                monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                yearSuffix: '년',
+                showOtherMonths: true,
+                showMonthAfterYear: true,
+                selectOtherMonths: true,
+                changeYear: true,
+                changeMonth: true,
+                onSelect:function(selectedDate, datePicker) {
+                    self.secondPromoteMonth = selectedDate
+                    self.firstPromoteMonth = ""
+                    self.search(2)
+                }
+            });
+
+            this.getWorkingOffPromotes()
+        }
+    }).mount('#working_off_promote_admin')
+</script>
+{% endblock content %}

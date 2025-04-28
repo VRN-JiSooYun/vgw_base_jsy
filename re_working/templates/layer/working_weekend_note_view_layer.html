@@ -1,0 +1,244 @@
+<div id="working_weekend_note_view_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">휴일 결재 상세 정보</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div style="margin-top:20px; margin-left: 10px;">
+                        <h6>휴일 근무 신청 내용</h6>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일 근무 제목</div>
+                    <div class="col" style="padding: 15px;" v-html="workingWeekendNoteForm.working_weekend_note_form_title"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일 근무일</div>
+                    <div class="col" style="padding: 15px;" v-html="workingWeekendNoteForm.working_weekend_date"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일 근무 시간</div>
+                    <div class="col" style="padding: 15px;" v-html="time(workingWeekendNoteForm.working_weekend_start_datetime, workingWeekendNoteForm.working_weekend_end_datetime)"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일 휴게 시간</div>
+                    <div class="col" style="padding: 15px;" v-html="freeTime(workingWeekendNoteForm.working_weekend_free_time)"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">총근무 시간</div>
+                    <div class="col" style="padding: 15px;" v-html="totalTime(workingWeekendNoteForm)"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">프로젝트 명</div>
+                    <div class="col" style="padding: 15px;" v-html="workingWeekendNoteForm.working_project_name"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴일근무 내용</div>
+                    <div class="col" style="padding: 15px;" v-html="workingWeekendNoteForm.working_note"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">결재자</div>
+                    <div class="col" style="padding-top:5px">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">결재순서</th>
+                                    <th scope="col">결재자</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="approvalMember in approvalMembers">
+                                    <td v-html="approvalMember.step"></td>
+                                    <td v-html="approvalMember.member_name + ' (' + approvalMember.member_email + ')'"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">참조자</div>
+                    <div class="col" style="padding-top:5px" v-html="approvalRefMembers"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">수신자</div>
+                    <div class="col" style="padding-top:5px" v-html="approvalRecvMembers"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">작성일</div>
+                    <div class="col" style="padding: 15px;" v-html="date(workingWeekendNoteForm.working_weekend_note_form_datetime)"></div>
+                </div>
+                <!-- 결재 내역 -->
+                <div class="row" style="padding: 20px 0px 10px 0px;">
+                    <div style="margin-top:10px; margin-left: 20px;">
+                        <h6>결재 내역</h6>
+                    </div>
+                </div>
+                <div class="row" style="padding: 0px 0px 10px 0px;">
+                    <div class="col">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">결재일</th>
+                                    <th scope="col">결재자</th>
+                                    <th scope="col">결재상태</th>
+                                    <th scope="col">내용</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="approvalHistory in approvalHistorys">
+                                    <td v-html="date(approvalHistory.approval_date)"></td>
+                                    <td v-html="approvalHistory.res_member_name"></td>
+                                    <td v-html="cdDtlNm(approvalHistory.approval_state)"></td>
+                                    <td v-html="approvalHistory.comment" style="width:200px"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div v-if="workingWeekendNoteForm.working_weekend_note_form_state == cdDtlNo('APPROVAL_REQUEST')" class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">커멘트</div>
+                    <div class="col" style="padding: 15px;">
+                        <textarea class="form-control" rows="4" cols="30" placeholder="휴일 근무 일지 요청 취소 시 커멘트를 남겨주세요"  v-model="comment"></textarea>
+                    </div>
+                </div>
+                <div id="working_weekend_note_view_layer_alert" class="toast toast-danger" role="working_weekend_note_view_layer_alert" aria-live="assertive" data-delay="1500" aria-atomic="true" style="position:absolute; left:25%; background-color:#f8d7da; z-index:999">
+                    <div class="toast-body" v-html="alertText"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="close">취소</button>
+                <button v-if="workingWeekendNoteForm.working_weekend_note_form_state == cdDtlNo('APPROVAL_REQUEST')" type="button" class="btn btn-danger" @click="cancel">요청 취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const working_weekend_note_view_vue = createApp({
+        data () {
+            return {
+                workingWeekendNoteFormId: 0,
+                workingWeekendNoteForm: {},
+                approvalHistorys: [],
+                approvalMembers: [],
+                approvalRefMembers: "",
+                approvalRecvMembers: "",
+                comment:"",
+                alertText: "",
+            }
+        },
+        methods: {
+            getWorkingWeekendNoteView(workingWeekendNoteFormId) {
+                this.workingWeekendNoteFormId = workingWeekendNoteFormId
+                axios.get("/re-working/getWorkingWeekendNoteView/" + workingWeekendNoteFormId)
+                .then((response) => {
+                    var data = response.data
+                    this.workingWeekendNoteForm = data.workingWeekendNoteForm
+                    this.approvalHistorys = data.approvalHistorys
+
+
+                    axios.get("/re-working/getApprovalMembers/" + this.workingWeekendNoteForm.approval_id)
+                    .then((response) => {
+                        this.approvalMembers = response.data.approvalMembers
+                    })
+
+                    axios.get("/re-working/getApprovalEtcMembers/" + this.workingWeekendNoteForm.approval_id)
+                    .then((response) => {
+                        var approvalEtcMembers = response.data.approvalEtcMembers
+
+                        var approvalRefMemberArr = approvalEtcMembers.filter(approvalEtcMember => approvalEtcMember.approval_etc_member_type == code_vue.getCdDtlNoByAlias("APPROVAL_ETC_MEMBER_TYPE_REF"))
+                        var approvalRefMemberStr = ""
+                        for (approvalRefMember of approvalRefMemberArr) {
+                            approvalRefMemberStr += approvalRefMemberStr == "" ? approvalRefMember.member_name + " (" + approvalRefMember.member_email + ")" : "," + approvalRefMember.member_name + " (" + approvalRefMember.member_email + ")"
+                        }
+                        this.approvalRefMembers = approvalRefMemberStr
+
+                        var approvalRecvMemberArr = approvalEtcMembers.filter(approvalEtcMember => approvalEtcMember.approval_etc_member_type == code_vue.getCdDtlNoByAlias("APPROVAL_ETC_MEMBER_TYPE_RECV"))
+                        var approvalRecvMemberStr = ""
+                        for (approvalRecvMember of approvalRecvMemberArr) {
+                            approvalRecvMemberStr += approvalRecvMemberStr == "" ? approvalRecvMember.member_name + " (" + approvalRecvMember.member_email + ")" : "," + approvalRecvMember.member_name + " (" + approvalRecvMember.member_email + ")"
+                        }
+                        this.approvalRecvMembers = approvalRecvMemberStr
+                    })
+                })
+                .catch((e) => {
+                    console.log('Error! : ' + e)
+                })
+            },
+            cdDtlNm(cdDtlNo) {
+                return code_vue.getCodeDtl(cdDtlNo).cd_dtl_nm
+            },
+            cdDtlNo(alias) {
+                return code_vue.getCdDtlNoByAlias(alias)
+            },
+            date(datetime) {
+                if (typeof datetime != 'undefined') {
+                    return moment(datetime).format('YYYY-MM-DD HH:mm:ss')
+                }
+                return ""
+            },
+            time(startTime, endTime) {
+                var datetime = moment(endTime)
+                var durationTime = datetime.diff(moment(startTime), 'minutes')
+
+                return moment(startTime).format('HH:mm') + " ~ " +  moment(endTime).format('HH:mm') + " (" + parseInt(durationTime / 60) + " 시간 " + (durationTime % 60) + "분" + ")"
+            },
+            freeTime(workingWeekendNoteFormFreeTime) {
+                if (typeof workingWeekendNoteFormFreeTime != 'undefined') {
+                    var arr = workingWeekendNoteFormFreeTime.split(":")
+                    return arr[0] + "시간 " +  arr[1] + "분"
+                }
+            },
+            totalTime(workingWeekendNoteForm) {
+                var workingWeekendStartDatetime = moment(workingWeekendNoteForm.working_weekend_start_datetime)
+                var workingWeekendEndDatetime = moment(workingWeekendNoteForm.working_weekend_end_datetime)
+
+                if (typeof workingWeekendNoteForm.working_weekend_note_form_free_time != 'undefined') {
+                    var arr = workingWeekendNoteForm.working_weekend_note_form_free_time.split(":")
+                    workingWeekendEndDatetime.subtract(arr[0], 'h')
+                    workingWeekendEndDatetime.subtract(arr[1], 'm')
+                }
+                var durationTime = workingWeekendEndDatetime.diff(workingWeekendStartDatetime, 'minutes')
+                return parseInt(durationTime / 60)  + " 시간 " + (durationTime % 60) + "분 근무"
+            },
+            approvalMember() {
+                return this.approvalMembers.map(approvalMember => approvalMember.member_name).join(', ')
+            },
+            cancel() {
+                var data = {
+                    "comment": this.comment
+                }
+                axios.post("/re-working/updateWorkingWeekendNoteCancel/" + this.workingWeekendNoteFormId, {data: data})
+                .then((response) => {
+                    if (response.data[0]) {
+                        // send mail
+                        axios.post("/re-working/sendMailWorkingCancel/working_weekend_note/" + response.data[1])
+
+                        $("#working_weekend_note_view_modal").modal('hide')
+                        working_weekend_note_vue.getWorkingWeekendNoteForms()
+                        this.comment = ""
+                    } else {
+                        this.alert(response.data[1])
+                    }
+                })
+            },
+            close() {
+                $("#working_weekend_note_view_modal").modal('hide')
+            },
+            alert(text) {
+                this.alertText = text
+                $('#working_weekend_note_view_layer_alert').toast('show')
+            },
+        },
+        mounted: function() {
+            var self = this
+            $('#working_weekend_note_view_modal').on('hidden.bs.modal', function (e) {
+                self.close()
+            })
+        },
+    }).mount('#working_weekend_note_view_modal')
+</script>

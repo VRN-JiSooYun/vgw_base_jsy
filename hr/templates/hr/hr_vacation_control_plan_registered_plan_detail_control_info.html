@@ -1,0 +1,121 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<tr
+{% if where_am_i == 'hr' %}
+
+	{% if q_vacation_plan.check_hr_vc_plan_request_from_hr_activated == True or q_vacation_plan.check_hr_xxx_document_plan_request_to_hr_activated == True %}
+		style="background-color:rgba(255, 0, 255, 0.15)"
+	{% else %}
+		{% if q_vacation_plan == q_mysettings_hr.vacation_plan or q_vacation_plan.id in q_mysettings_hr.list_vacation_plan_id_selected %}
+			style="background-color:rgba(255, 255, 0, 0.15);"
+		{% else %}
+			{% if q_vacation_plan.id in q_mysettings_hr.list_vacation_plan_id_searched  %}
+				style="background-color:rgba(0, 255, 255, 0.15);"
+			{% else %}
+			{% endif %}
+		{% endif %}
+	{% endif %}
+
+{% elif where_am_i == 'my' %}
+
+	{% if q_vacation_plan.check_hr_vc_plan_request_from_hr_activated == True or q_vacation_plan.check_hr_xxx_document_plan_request_to_hr_activated == True %}
+		style="background-color:rgba(255, 0, 255, 0.15)"
+	{% else %}
+		{% if q_vacation_plan == q_mysettings_my.vacation_plan or q_vacation_plan == q_mysettings_my.vacation_plan_approval %}
+			style="background-color:rgba(255, 255, 0, 0.15);"
+		{% else %}
+			{% if q_vacation_plan.id in q_mysettings_my.list_vacation_plan_id_searched  %}
+				style="background-color:rgba(0, 255, 255, 0.15);"
+			{% else %}
+			{% endif %}
+		{% endif %}
+	{% endif %}
+
+{% endif %}
+>
+	<td>
+	</td>
+
+	<td colspan="12">
+		<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+			<!--
+				휴가 계획서 신청 내용
+			-->
+			<legend>
+				<strong>
+					휴가사용현황
+				</strong>
+			</legend>
+			<table class="table">
+				<tr>
+					<th>입사일</th>
+					<th>미사용 만료<br>이월된 직전년차<br>연차개수</th>
+					<th>이번년차<br>받은연차개수</th>
+					<th>신청중인<br>연차개수</th>
+					<th>사용된<br>연차개수</th>
+					<th>미사용만료<br>연차개수</th>
+					<th>미사용만료<br>이월된<br>이번년차 연차개수</th>
+					<th>사용가능<br>연차개수</th>
+					<th>연차외<br>휴가개수</th>
+					<th>근무년차</th>
+				</tr>
+
+				<tr>
+					<td>
+						{% if q_vacation_plan.vacation_control.owner.profile.date_joined != Null %}
+							{{ q_vacation_plan.vacation_control.owner.profile.date_joined|date:"Y-m-d" }}
+						{% else %}
+							<button type="submit" name="button-hr-vacation-control-activate-form-profile-date-joined" value="{{ q_vacation_plan.vacation_control.owner.profile.id }}" class="btn btn-warning btn-sm" >
+								N/A
+							</button>
+						{% endif %}
+					</td>
+					<td>
+						{{ q_vacation_plan.vacation_control.vc_count_revived_prev_unused_expired_total }}
+					</td>
+					<td>
+						{{ q_vacation_plan.vacation_control.vc_count_issued_total }}
+					</td>
+					<td>
+						{{ q_vacation_plan.vacation_control.vc_count_underapproval_total }}
+					</td>
+					<td>
+						{{ q_vacation_plan.vacation_control.vc_count_used_total }}
+					</td>
+					<td>
+						{{ q_vacation_plan.vacation_control.vc_count_unused_expired_total }}
+					</td>
+					<td>
+						{{ q_vacation_plan.vacation_control.vc_count_revived_unused_expired_total }}
+					</td>
+					<td>
+						{{ q_vacation_plan.vacation_control.vc_count_available_total }}
+					</td>
+					<td>
+						{{ q_vacation_plan.vacation_control.list_vc_issued_additionally|length }}
+					</td>
+					<td>
+						{% if q_vacation_plan.vacation_control.status_working_year == 1 %}
+							<a type="button" href="#" class="btn btn-warning btn-sm" >
+								{{ q_vacation_plan.vacation_control.status_working_year }} 년차 ({{ q_vacation_plan.vacation_control.status_working_month_first_year }}) / {{ q_vacation_plan.vacation_control.owner.profile.status_working_year }} 년차
+							</a>
+						{% elif q_vacation_plan.vacation_control.status_working_year == 2 %}
+							<a type="button" href="#" class="btn btn-success btn-sm" >
+								{{ q_vacation_plan.vacation_control.status_working_year }} 년차 / {{ q_vacation_plan.vacation_control.owner.profile.status_working_year }} 년차
+							</a>
+						{% elif q_vacation_plan.vacation_control.status_working_year > 2 %}
+							{{ q_vacation_plan.vacation_control.status_working_year }} 년차 / {{ q_vacation_plan.vacation_control.owner.profile.status_working_year }} 년차
+						{% else %}
+							오류
+						{% endif %}
+					</td>
+				</tr>
+			</table>
+		</div>
+	</td>
+
+</tr>

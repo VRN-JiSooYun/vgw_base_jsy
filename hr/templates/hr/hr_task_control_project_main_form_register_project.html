@@ -1,0 +1,60 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+
+<form method="POST" action="{% url 'hr-task-control' %}"  enctype="multipart/form-data">
+	{% csrf_token %}
+
+	<div class="content-section">
+		<fieldset class="form-group">
+			<legend class="border-bottom mb-4">프로젝트 정보 등록</legend>
+			<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+				<fieldset class="form-group">
+					<table class="table">
+						<tr>
+							<td>
+								프로젝트 이름<br>
+								<input type="text" name="text-hr-task-control-project-name" class="form-control" required>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								프로젝트 개발형태<br>
+
+								<select class="form-control" name="select-hr-task-control-project-status" required>
+									{% if q_mysettings_hr.project_simple != Null %}
+										{% for ITEM in LIST_PROJECT_SIMPLE_STATUS %}
+											{% if q_mysettings_hr.project_simple.status_project == ITEM.0 %}
+												<option value="{{ ITEM.0 }}" selected>{{ ITEM.1 }}</option>
+											{% endif %}
+										{% endfor %}
+									{% endif %}
+
+									{% for ITEM in LIST_PROJECT_SIMPLE_STATUS %}
+										{% if q_mysettings_hr.project_simple.status_project != ITEM.0 %}
+											<option value="{{ ITEM.0 }}">{{ ITEM.1 }}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								{{ form_hr_task_project_date_start_register|bootstrap }}
+							</td>
+						</tr>
+					</table>
+
+					<div class="text-right">
+						<button type="submit" name="button-hr-task-control-register-project-simple" value="true" class="btn btn-info">Register</button>
+						<button type="submit" name="button-hr-task-control-cancel-action-project-simple" value="true" class="btn btn-dark btn-sm">Cancel</button>
+					</div>
+				</fieldset>
+			</div>
+		</fieldset>
+	</div>
+</form>
+

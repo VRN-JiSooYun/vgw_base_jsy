@@ -1,0 +1,165 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<tr
+{% if where_am_i == 'hr' %}
+
+	{% if q_document_issued.vacation_plan.check_hr_vc_plan_request_from_hr_activated == True or q_document_issued.vacation_plan.check_hr_xxx_document_plan_request_to_hr_activated == True %}
+		style="background-color:rgba(255, 0, 255, 0.15)"
+	{% else %}
+		{% if q_document_issued == q_mysettings_xxx.document_issued or q_document_issued.id in q_mysettings_xxx.list_document_issued_id_selected_for_vacation %}
+			style="background-color:rgba(255, 255, 0, 0.15);"
+		{% else %}
+			{% if q_document_issued.id in q_mysettings_xxx.list_document_issued_id_searched_for_vacation  %}
+				style="background-color:rgba(0, 255, 255, 0.15);"
+			{% else %}
+			{% endif %}
+		{% endif %}
+	{% endif %}
+
+{% elif where_am_i == 'my' %}
+
+	{% if q_document_issued.vacation_plan.check_hr_vc_plan_request_from_hr_activated == True or q_document_issued.vacation_plan.check_hr_xxx_document_plan_request_to_hr_activated == True %}
+		style="background-color:rgba(255, 0, 255, 0.15)"
+	{% else %}
+		{% if q_document_issued == q_mysettings_my.document_issued  %}
+			style="background-color:rgba(255, 255, 0, 0.15);"
+		{% else %}
+			{% if q_document_issued.id in q_mysettings_my.list_document_issued_id_searched_for_vacation  %}
+				style="background-color:rgba(0, 255, 255, 0.15);"
+			{% else %}
+			{% endif %}
+		{% endif %}
+	{% endif %}
+
+{% endif %}
+>
+
+
+<!--
+휴가 계획서 신청 내용
+-->
+
+	<th style="background-color:rgba(255, 255, 255, 0.85)">
+		<input type="checkbox" name="checkbox-hr-vacation-control-select-vacation-control" value="all"
+		{% if 'all' in q_mysettings_xxx.list_document_issued_id_selected_for_vacation %}
+			checked
+		{% endif %}
+		>
+		<button type="submit" name="button-vc-control-plan-registered-owner-name-select" value="{{ q_document_issued.id }}" class="btn btn-link btn-sm">
+			{{ q_document_issued.owner.profile.name_korean }}
+		</button>
+	</th>
+	<th>
+		종류
+	</th>
+	<td style="background-color:rgba(255, 255, 255, 0.85)">
+		{% for ITEM in LIST_VACATION_TYPES %}
+			{% if q_document_issued.vacation_plan.vacation_type == ITEM.0 %}
+				{{ ITEM.1 }}
+			{% endif %}
+		{% endfor %}
+	</td>
+	<th>
+		상태
+	</th>
+	<td style="background-color:rgba(255, 255, 255, 0.85)">
+		<strong>
+			<span>
+				{% if q_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.0.0 %}
+					<a type="button" href="#" class="btn btn-light btn-sm" >
+						{{ STATUS_HR_DOCUMENT_APPROVAL_PROCESS.0.1 }}
+					</a>
+				{% elif q_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.1.0 %}
+					<a type="button" href="#" class="btn btn-info btn-sm" >
+						{{ STATUS_HR_DOCUMENT_APPROVAL_PROCESS.1.1 }}
+					</a>
+				{% elif q_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.2.0 %}
+					<a type="button" href="#" class="btn btn-warning btn-sm" >
+						{{ STATUS_HR_DOCUMENT_APPROVAL_PROCESS.2.1 }}
+					</a>
+				{% elif q_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.3.0 %}
+					<a type="button" href="#" class="btn btn-primary btn-sm" >
+						{{ STATUS_HR_DOCUMENT_APPROVAL_PROCESS.0.1 }}
+					</a>
+				{% elif q_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.4.0 %}
+					<a type="button" href="#" class="btn btn-success btn-sm" >
+						{{ STATUS_HR_DOCUMENT_APPROVAL_PROCESS.4.1 }}
+					</a>
+				{% elif q_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.5.0 %}
+					<a type="button" href="#" class="btn btn-danger btn-sm" >
+						{{ STATUS_HR_DOCUMENT_APPROVAL_PROCESS.5.1 }}
+					</a>
+				{% elif q_document_issued.hrapproval.status_document_approval_process == STATUS_HR_DOCUMENT_APPROVAL_PROCESS.6.0 %}
+					<a type="button" href="#" class="btn btn-secondary btn-sm" >
+						{{ STATUS_HR_DOCUMENT_APPROVAL_PROCESS.6.1 }}
+					</a>
+				{% endif %}
+				</span>
+			</strong>
+		</td>
+		<td style="background-color:rgba(255, 255, 255, 0.85)">
+				{% if q_document_issued.vacation_plan.datetime_start < ls_now %}
+					<span class="badge badge-warning">사용후</span>
+				{% else %}
+					<span class="badge badge-primary">사용전</span>
+				{% endif %}
+				{% if q_document_issued.vacation_plan.check_hr_vc_plan_request_to_hr_process_dismissed == True %}
+					{% if q_document_issued.vacation_plan.check_discard == False %}
+						<span class="badge badge-danger">정정됨</span>
+					{% else %}
+						<span class="badge badge-danger">취소됨</span>
+					{% endif %}
+				{% endif %}
+		</strong>
+	<td>
+
+	<th>
+		일자
+	</th>
+	<td style="background-color:rgba(255, 255, 255, 0.85)">
+		{% if q_document_issued.vacation_plan.datetime_start == q_document_issued.vacation_plan.datetime_end %}
+			{{ q_document_issued.vacation_plan.datetime_start|date:"Y-m-d" }} 당일
+			{% if q_document_issued.vacation_type == LIST_VACATION_TYPES.0.0 %}
+				{% if q_document_issued.vacation_plan.vacation_regular_type_start == LIST_VACATION_REGULAR_TYPES.0.0 %}
+					{{ LIST_VACATION_REGULAR_TYPES.0.1}}
+				{% elif q_document_issued.vacation_plan.vacation_regular_type_start == LIST_VACATION_REGULAR_TYPES.1.0 %}
+					{{ LIST_VACATION_REGULAR_TYPES.1.1}}
+				{% elif q_document_issued.vacation_plan.vacation_regular_type_start == LIST_VACATION_REGULAR_TYPES.2.0 %}
+					{{ LIST_VACATION_REGULAR_TYPES.2.1}}
+				{% endif %}
+			{% endif %}
+		{% else %}
+			{{ q_document_issued.vacation_plan.datetime_start|date:"Y-m-d" }} 부터 {{ q_document_issued.vacation_plan.datetime_end|date:"Y-m-d" }} 까지
+		{% endif %}
+	</td>
+	<th>
+		Credit
+	</th>
+	<td style="background-color:rgba(255, 255, 255, 0.85)">
+		{{ q_document_issued.vacation_plan.credit_used_total }}
+	</td>
+	<th>
+		사유
+	</th>
+	<td style="background-color:rgba(255, 255, 255, 0.85)">
+		{{ q_document_issued.vacation_plan.reason }}
+	</td>
+	<td style="background-color:rgba(255, 255, 255, 0.85)">
+		{% if q_document_issued.hrdocfile.file != Null and q_document_issued.hrdocfile.file != '' %}
+			<a href="{{ q_document_issued.vacation_plan.hrdocfile.file.url }}" download>첨부파일</a>
+		{% else %}
+
+		{% endif %}
+	</td>
+	<td style="background-color:rgba(255, 255, 255, 0.85)">
+
+		<button type="submit" name="button-hr-vacation-control-document-info-modal-view-open" value="{{ q_document_issued.id }}" class="btn btn-link btn-sm" >
+			상세내용
+		</button>
+	</td>
+</tr>
+

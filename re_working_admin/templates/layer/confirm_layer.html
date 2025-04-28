@@ -1,0 +1,40 @@
+<div id="confirm_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" v-html="title"></h5>
+            </div>
+            <div class="modal-body" v-html="message"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="close">취소</button>
+                <button type="button" class="btn btn-primary" @click="save">확인</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const confirm_vue = createApp({
+        data () {
+            return {
+                title: "",
+                message: "",
+            }
+        },
+        methods: {
+            close() {
+                $("#confirm_modal").modal("hide")
+            },
+            save() {
+                vue.confirmOk()
+                $("#confirm_modal").modal("hide")
+            }
+        },
+        mounted: function() {
+            var self = this
+            $('#confirm_modal').on('hidden.bs.modal', function (e) {
+                self.close()
+            })
+        },
+    }).mount('#confirm_modal')
+</script>

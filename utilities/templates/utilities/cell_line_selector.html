@@ -1,0 +1,2253 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load floatFormatter %}
+{% load isnan %}
+{% load filters %}
+{% load my_filter %}
+{% load getItem %}
+{% block content %}
+
+{% include 'utilities/navbar.html' %}
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.3/css/fixedHeader.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.1.0/css/fixedColumns.dataTables.min.css">
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<style>
+    .admin-td {
+        border-left: 1px lightgray solid;
+    }
+
+    .column-checkbox-div > div {
+        float:left; background-color: white; border:1px solid; padding:6px; cursor: pointer; 
+    }
+    .column-checkbox-div > div > label {
+        cursor: pointer; 
+    }
+    .col-in {
+        /*padding-left: 0px;
+        padding-right: 0px;*/
+    }
+    .btn-c-w {
+        color:#fff;
+    }
+
+    .form-label {
+        display:inline;
+        vertical-align: text-bottom;
+    }
+    .dataTable td {
+        vertical-align: middle;
+    }
+    table.dataTable {
+        background: #fff;
+    }
+    .bold {
+        font-weight:bold;
+    }
+    .title0 {
+        font-weight: bold;
+        font-size: 20px;
+        padding: 5px 0px 0px 0px;
+    }
+    .title1 {
+        font-weight: bold;
+        font-size: 16px;
+        padding: 5px 0px 5px 0px;
+    }
+    .title2 {
+        font-size: 14px;
+        padding: 0px 0px 5px 0px;
+    }
+    .small {
+        font-size:60%;
+    }
+    
+    .fs-wrap {
+        display:block;
+        width:100%;
+    }
+    
+    .fs-label-wrap {
+        height: calc(1.5em + 1.1rem + 2px);
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.25rem;
+    }
+    .font-red {
+        color:#ff0000;
+    }
+    .font-green {
+        color:#17a2b8;
+    }
+    .date_search {
+        width:150px;
+        display:inline-block;
+    }
+    
+    .row_b_1 {
+        border-bottom: 1px dotted #ababab;
+    }
+    .row_t_p_1 {
+        padding-top: 10px;
+    }
+    
+    .modal-dialog {
+        max-width: 500px;
+    }
+    .modal-content {
+        width: 650px;
+    }
+    
+    .result_reg_form {
+        width: 100%;
+        border: 1px solid #aaa;
+    }
+    
+    .result_reg_form th {
+        border: 1px solid #aaa;
+        background-color:#eee;
+    }
+    .result_reg_form td {
+        border: 1px solid #aaa;
+    }
+    .table_title {
+        font-size:16px;
+        font-weight:bold;
+    }
+    .table_sub_title {
+        height:50px;
+        background-color: #dadada !important;
+    }
+    {% comment %} #result_table th, #result_table td { white-space: nowrap; } {% endcomment %}
+    table.dataTable thead tr>.dtfc-fixed-left, table.dataTable thead tr>.dtfc-fixed-right {
+        background-color: black;
+    }
+    div.dtfc-left-top-blocker, div.dtfc-right-top-blocker {
+        background-color: initial;
+    }
+    {% comment %} .dtfc-fixed-left {
+        color:#fff;
+    } {% endcomment %}
+    
+    .top_line {
+        border-top: 1px dotted #000;
+        padding-top: 10px;
+    }
+
+    .table th {
+        white-space:nowrap;
+    }
+    
+    .table td, .table th {
+        vertical-align:bottom;
+    }
+
+    .fs-dropdown {
+        width:50%;
+    }
+
+    .table.dataTable {
+        margin-left:0px;
+    }
+    
+    .searchHisI {
+        font-size:25px;
+    }
+
+    .searchHisTable td {
+        /* height:200px; */
+        background-color:rgb(255,255,255,0.85);
+        border:1px solid #ccc;
+    }
+
+    #searchHisDiv {
+        /*display: none;*/
+    }
+
+
+    /* select button */
+    .fs-buttons {
+        padding: 0;
+        text-align: center;
+    }
+    
+    .fs-buttons > div {
+        display: inline-block;
+        text-align: center;
+        width: 50%;
+        border-right: 1px solid #eee;
+    }
+    
+    .fs-buttons > div:last-child {
+        border-right: none;
+        width: calc(50% - 1px);
+    }
+    
+    .fs-button {
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+        display: block;
+        padding: 6px 8px;
+        text-align: center;
+        border: none;
+        background: none;
+        outline: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .last_date {
+        right: 0px;
+        position: absolute;
+        top: 40px;
+    }
+
+    .fixedHeader-floating {
+        table-layout: auto !important;;
+    }
+
+    .btn-info-p {
+        color:#fff;
+        background-color: #387cf7;
+        border-color: #387cf7;
+    }
+    .filter_key_column {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+    .filter_type_column {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+    .filter_value_column {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        width: 140px;
+    }
+    .filter_condition_column {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+    .filter_table {
+        white-space:nowrap;
+    }
+
+    .filter_table input {
+        vertical-align: middle;
+    }
+
+    .dtl_label {
+        /*position:relative;
+        bottom: -8px;*/
+    }
+
+    #ext_search_div {
+        z-index: 2;
+        text-align: center;
+        margin: -1px auto;
+    }
+    #ext_search_span {
+        border-right: 1px solid #c1c1c1;
+        border-left: 1px solid #c1c1c1;
+        border-bottom: 1px solid #c1c1c1;
+        display: inline-block;
+        width: 100px;
+        background-color: #ebeff5;
+        cursor:pointer;
+    }
+    .search_text {
+        width:450px;
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+    .filter-projects-condition {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+    .filter_table {
+        background: #fff;
+    }
+    .filter_table td, .filter_table th {
+        border: 1px solid #575757;
+        padding: 5px;
+        padding-bottom: 0px;
+        vertical-align: middle;
+    }
+    
+    .filter_table input {
+        vertical-align: middle;
+    }
+
+    .smile_input_st {
+        width: 80%;
+        height: calc(1.3em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+    .dt-buttons {
+        padding-bottom:10px;
+    }
+    .paging_simple_numbers {
+        padding-top:10px;
+    }
+</style>
+<style>
+    /* Safari */
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+<style>
+    .wrapper {
+        overflow-x:scroll;
+        width:100%;
+    }
+    table {
+        table-layout: fixed; 
+        width:100%;
+        border-collapse: collapse;
+        font-size: 15px;
+    }
+    td,th {
+        text-align: center;
+        vertical-align:middle;
+        width:50px;
+        padding: 5px;
+        background-color: white;
+        overflow-wrap: break-word; white-space: normal;
+    }
+    
+    .th {
+        cursor: pointer;
+    }
+
+    .fix {
+        position:sticky;
+        background: white;
+        border-right:1px gray solid;
+        left:0;
+        width:220px;
+        /* width:80px; */
+        /* text-overflow: ellipsis; */
+        overflow-wrap: break-word;
+        overflow:hidden;
+        white-space:normal;
+        padding: 20px 0px;
+    }
+
+    .fix2 {
+        position:sticky;
+        background: white;
+        /* width:80px; */
+        width:50px;
+
+        border-right:2px gray solid;
+
+        /* left:220px; */
+        left:80px;
+        text-overflow: ellipsis;
+        overflow:hidden;
+        white-space:nowrap;
+    }
+
+    th:not(.regTable *),th.fix,th.fix2 {
+        background-color: black;
+        /* background-color: lightblue; */
+        color:white;
+        /* position: relative; */
+    }
+
+    thead:not(.regTable *) {
+        position: sticky; top:0px;
+        z-index: 5;
+    }
+
+    ::placeholder {
+        color: lightgray;
+        opacity: 1; /* Firefox */
+    }
+</style>
+<style>
+    .dropdown-content .gene-set-div {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+    .dropdown:hover .dropbtn {background-color: #ddd;}
+    
+    .dropdown-content .gene-set-div:hover {background-color: #ddd;}
+
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button {
+        opacity: 1;
+    }
+
+    .upload-text-file:hover {
+        /* background-color: #c1c1c1; */
+        background-color: rgb(53, 255, 53);
+    }
+</style>
+<style>
+    .container {
+      display: inline-block;
+      cursor: pointer;
+    }
+    
+    .bar1, .bar2, .bar3 {
+      width: 20px;
+      height: 3px;
+      background-color: white;
+      margin: 6px -7px;
+      transition: 0.4s;
+    }
+    
+    .change .bar1 {
+      transform: translate(0, 9px) rotate(-45deg);
+    }
+    
+    .change .bar2 {opacity: 0;}
+    
+    .change .bar3 {
+      transform: translate(0, -9px) rotate(45deg);
+    }
+
+    .sidenav {
+        height: 100%;
+        width: 0;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: #111;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 60px;
+        overflow-y: auto;
+    }
+
+    .sidenav a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 18px;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+    }
+
+    .sidenav a:hover {
+        color: #f1f1f1;
+    }
+
+    .sidenav .closebtn {
+        position: absolute;
+        top: 0;
+        right: 15px;
+        font-size: 30px;
+        /* margin-left: 50px; */
+    }
+
+    @media screen and (max-height: 450px) {
+        .sidenav {padding-top: 15px;}
+        .sidenav a {font-size: 18px;}
+    }
+</style>
+<style>
+    .message-container {
+        border: 2px solid #dedede;
+        background-color: #f1f1f1;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 5px 5px;
+    }
+
+    .darker {
+        border-color: #ccc;
+        background-color: #ddd;
+    }
+
+    .message-container::after {
+        content: "";
+        clear: both;
+        display: table;
+    }
+
+    .message-container .profile {
+        float: left;
+        max-width: 50px;
+        width: 50px;
+        height:50px;
+        text-align: center;
+        align-content: center;
+        margin-right: 20px;
+        border-radius: 50%;
+        font-size:18px;
+        font-weight: bold;
+        background-color: #17a2b8;
+        color:white;
+        border: none;
+    }
+
+    .message-container .profile.right {
+        float: right;
+        background-color: salmon;
+        margin-left: 20px;
+        margin-right:0;
+    }
+
+    .tooltiptext {
+        position: absolute; z-index: 5; padding:12px; margin-top:8px; margin-left:20px;
+        visibility: hidden; background-color: lightgray; border:ridge; width:350px;
+    }
+
+    .gene-set-info:hover  .tooltiptext {
+        visibility: visible;
+    }
+</style>
+<style>
+    table {
+        /* width: 100%; */
+        /* border-collapse: collapse; */
+    }
+    th, td {
+        /* border: 1px solid black; */
+        /* padding: 8px; */
+        /* text-align: left; */
+        position: relative;
+    }
+    th {
+        cursor: pointer;
+    }
+    .arrow {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        /* margin-left: 5px; */
+        /* vertical-align: middle; */
+        position: absolute;
+        right:0px;
+    }
+    .arrow.up {
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-bottom: 5px solid gray;
+        top:22px;
+    }
+    .arrow.down {
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid gray;
+        bottom: 22px;
+    }
+    .active {
+        border-color: blue !important;
+    }
+</style>
+<style>
+    .slidecontainer {
+        width: 100%;
+    }
+    
+    .slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 25px;
+        background: #d3d3d3;
+        outline: none;
+        opacity: 0.7;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+    }
+    
+    .slider:hover {
+        opacity: 1;
+    }
+    
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        background: #04AA6D;
+        cursor: pointer;
+    }
+    
+    .slider::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
+        background: #04AA6D;
+        cursor: pointer;
+    }
+</style>
+
+<form name="searchForm" id="searchForm">
+    {% csrf_token %}
+    <div style="padding-bottom:10px; width:100%; margin-top:-15px;">
+        <legend class="" style="float:left;">&nbsp;</legend>
+        <!-- <button class="btn btn-md btn-danger" onclick="$('#cell_mutation_example-modal').modal('show'); $('.modal-backdrop').css('display', 'none');" style="float:right; margin-top:10px; margin-right:30px;">검색 예제</button> -->
+        <!-- <a class="download-excel btn btn-md btn-info" style="float:right; margin-top:10px; margin-right:30px; color:white;">검색결과 다운로드</a> -->
+        {% if request.user.email == 'jaeheon12@voronoi.io' or request.user.email == 'hjc@voronoi.io' %}
+        <button class="btn btn-md btn-primary" onclick="$('#cell-line-selector-upload-modal').modal('show'); $('.modal-backdrop').css('display', 'none'); return false;" style="float:right; margin-right:30px;">Upload</button>
+        {% endif %}
+        <div style="float:right; margin-top:18px; margin-right:30px;">
+            <select class="chatgpt-option" name="cell/biomarker" style="background-color: white; font-size: 16px; border: 1px #ddd solid; padding: 2px 3px;">
+                <option value="CELL">Cell</option>
+                <option value="BIOMARKER">Biomarker</option>
+            </select>
+            <input type="text" class="chatgpt-keyword" name="chatgpt-keyword" value="" oninput="$(this).val($(this).val().toUpperCase());" style="font-size: 16px;">
+            <button class="chatgpt-btn btn btn-md btn-info" style="padding: 2px 10px; margin-top: -7px;">ChatGPT 검색</button>
+        </div>
+        <script>
+            $('.chatgpt-option').on('change', e => {
+                if (current_data == null) return;
+
+                var dep_or_eff =  ''; 
+
+                if ('Both' in current_data) dep_or_eff = 'Both';
+                else {
+                    if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() == '') dep_or_eff = 'Dependency';
+                    else if ($('select[name=dependency]').val() == '' && $('select[name=effect]').val() != '') dep_or_eff = 'Effect';
+                }
+
+                if ($(e.target).val() == 'CELL') $('.chatgpt-keyword').val(cell_data['Cell name'][0]);
+                else $('.chatgpt-keyword').val(current_data[ dep_or_eff ].marker_data['Feature'][0].split('_')[0]);
+            });
+        </script>
+        <div style="float:right; margin-top:15px; margin-right:30px;">
+            <div>
+                <input type="search" class="depmap-search-input search-on-other-input" style="width:60px; border: 1px solid;"> depmap.org에서 [<a href="#" onclick="window.open('https://depmap.org/portal/gene/' + $('.depmap-search-input').val() + '?tab=overview', '_blank'); return false;">검색</a>]<br>
+                <input type="search" class="cosmic-search-input search-on-other-input" style="width:60px; border: 1px solid;"> cosmic.uk에서 [<a href="#" onclick="window.open('https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=' + $('.cosmic-search-input').val(), '_blank'); return false;">검색</a>]
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div style="padding-top: 5px; position: relative;">
+                <label style="font-size:17px;">Protein:</label> <input type="text" class="main-search-keyword" name="main-search-keyword" onkeydown="if (event.key == 'Enter') {$('.dropbtn').trigger('click'); return false;}" oninput="$(this).val($(this).val().toUpperCase()); $('.search-on-other-input').val($(this).val());" placeholder="MET" value="" style="font-size: 16px;">
+                <button class="dropbtn" onclick="filterGenesByKeyword(); $('.selected-gene-list-div').css('display', 'none'); $('.selected-gene-name').html(''); $('.selected-gene-list').html(''); return false;" style="background-color: white; font-size: 16px; border: 1px #ddd solid; background-color: #9e2a1a; color: white; border-radius: 5px;">
+                    Gene Set 선택
+                </button>
+                <span class="total-selected-gene-num" style="font-weight: bold;"></span>
+                <!-- <span class="display-selected-gene-sets-btn" style="font-size:12px; position:relative; color:#387cf7; cursor:pointer;"> -->
+                <div class="display-selected-gene-sets-div" style="position: absolute; width:fit-content; left:0px; right:0px; background-color:whitesmoke; padding:15px; padding-left:0px; color:black; border: ridge; box-shadow: 0px 8px 16px 0px rgba(59, 44, 44, 0.2); cursor:default; display:none; z-index: 25;">
+                </div>
+                <div class="dropdown" onclick="" style="position: absolute; z-index: 10; display: none; min-width:620px; pointer-events: none;">
+                    <div class="dropdown-left" style="pointer-events: all;">
+                        <div class="dropdown-content" onclick=""  style="border: ridge; background-color: #f1f1f1; min-width: 400px; box-shadow: 0px 8px 16px 0px rgba(59, 44, 44, 0.2); z-index: 30;">
+                            <button class="btn btn-sm btn-primary" onclick="callOnChange(); $('.dropdown').css('display', 'none'); return false;" style="float:right; margin-top:12px; margin-right:10px;">선택 완료</button>
+                            <div style="clear:both;"></div>
+                            <!-- <hr> -->
+                            <br>
+                            <div class="gene-set-div" style="font-size:16px;">
+                                <!-- <input type="checkbox" class="check-all" name="check_all"> <label>Depmap all (<span class="set-count" category="all"></span>{{ total_num_sets }})</label> -->
+                                <input type="checkbox" class="check-all" name="check_all"> <label>Depmap all (24Q4) (24380)</label>
+                                <span class="selected-genes-per-category" category="all" style="font-size:12px;"></span>
+                            </div>
+                            {% for gene in gene_normal_structure %}
+                            <div class="gene-set-div" style="min-width:400px;">
+                                <label style="padding:5px; font-size:16px;">{{ gene.category }} (<span class="set-count" category="{{ gene.category }}"></span>{{ gene.count }})</label>
+                                <button class="btn btn-sm btn-link" onclick="$('.gene-set-tree.{{ gene.category }}').parent().css('display', ''); $('.selected-gene-list-div').css('height', $('.dropdown-left').height()); return false;" style="padding:0px; font-size:12px;">펼치기</button>
+                                <button class="btn btn-sm btn-link" onclick="$('.gene-set-tree.{{ gene.category }}').parent().css('display', 'none'); $('.selected-gene-list-div').css('height', $('.dropdown-left').height()); return false;" style="padding:0px; font-size:12px;">닫기</button>
+                                <span class="selected-genes-per-category" category="{{ gene.category }}"></span>
+                                <!-- <span class="gene-set-info" style="float:right; margin-top:10px; font-size:18x;">
+                                    <a category="{{ gene.category }}" href="" target="_blank">이동</a>
+                                    <div class="tooltiptext" category="{{ gene.category }}">
+                                    </div>
+                                </span> -->
+                                <div class="gene-set-tree-div" style="width:800px; height:350px; overflow-y: scroll; border: lightgray 1px solid; border-radius: 4px; margin-left:10px; margin-right:10px; background-color: white; display: none;">
+                                    <div class="gene-set-tree {{ gene.category }}"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% for gene in gene_tree_structure %}
+                            <div class="gene-set-div" style="min-width:400px;">
+                                <label style="padding:5px; font-size:16px;">{{ gene.category }} (<span class="set-count" category="{{ gene.category }}"></span>{{ gene.count }})</label>
+                                <button class="btn btn-sm btn-link" onclick="$('.gene-set-tree.{{ gene.category }}').parent().css('display', ''); $('.selected-gene-list-div').css('height', $('.dropdown-left').height()); return false;" style="padding:0px; font-size:12px;">펼치기</button>
+                                <button class="btn btn-sm btn-link" onclick="$('.gene-set-tree.{{ gene.category }}').parent().css('display', 'none'); $('.selected-gene-list-div').css('height', $('.dropdown-left').height()); return false;" style="padding:0px; font-size:12px;">닫기</button>
+                                <span class="selected-genes-per-category" category="{{ gene.category }}"></span>
+                                <div class="gene-set-tree-div" style="width:800px; height:350px; overflow-y: scroll; border: lightgray 1px solid; border-radius: 4px; margin-left:10px; margin-right:10px; background-color: white; display: none;">
+                                    <div class="gene-set-tree {{ gene.category }}"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <br>
+                        </div>
+                    </div>
+                    <div class="selected-gene-list-div" style="position:absolute; display:none; max-width:200px; background-color: #f1f1f1; box-shadow: 4px 8px 8px 0px rgba(59, 44, 44, 0.2); border: ridge; pointer-events: all;">
+                        <div class="selected-gene-name" style="padding: 10px; overflow-wrap: break-word; font-weight: bold; font-size:12px;"></div>
+                        <div class="selected-gene-list" style="max-height: 80%; max-width:80%; overflow-y: scroll; background-color: white; margin:0 auto;"></div>
+                    </div>
+                </div>
+                <br>
+                <select class="select-effect-toggle" name="effect" onchange="if ($(this).val() != '') $('.mapping-method-td[method=effect],td[method=effect]').css('display', ''); else  $('.mapping-method-td[method=effect],td[method=effect]').css('display', 'none'); if ($(this).val() != '' && $('.select-dependency-toggle').val() != '') {$('.toggle-method-btn').css('display', ''); $('.toggle-section34-div').css('display', '');} else {$('.toggle-method-btn').css('display', 'none'); $('.toggle-section34-div').css('display', 'none');}" style="background-color: white; font-size: 16px; border: 1px #ddd solid; padding: 2px 3px;">
+                    <option value="Effect">Effect On</option>
+                    <option value="" selected>Effect Off</option>
+                </select>
+                <select class="select-dependency-toggle" name="dependency" onchange="if ($(this).val() != '') $('.mapping-method-td[method=dependency],td[method=dependency]').css('display', ''); else $('.mapping-method-td[method=dependency],td[method=dependency]').css('display', 'none');  if ($(this).val() != '' && $('.select-effect-toggle').val() != '') {$('.toggle-method-btn').css('display', ''); $('.toggle-section34-div').css('display', '');} else {$('.toggle-method-btn').css('display', 'none'); $('.toggle-section34-div').css('display', 'none');}" style="background-color: white; font-size: 16px; border: 1px #ddd solid; padding: 2px 3px;">
+                    <option value="Dependency" selected>Dependency On</option>
+                    <option value="">Dependency Off</option>
+                </select>
+                <button class="search-btn btn btn-md btn-success" actionType="SEARCH" style="padding: 2px 10px; margin-top: -7px;">검색</button>
+                <button class="toggle-method-btn" value="Effect" style="border: 1px solid; background-color: #ebeff5; font-size:12px; display:none;" aria-pressed="false">Effect 표시</button>
+                <button class="toggle-method-btn" value="Dependency" style="border: 1px solid; background-color: #c1c1c1; font-size:12px; display:none;" aria-pressed="true">Dependency 표시</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<hr>
+<style>
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        background-color: white;
+        border: 1px solid #ccc;
+        width: 50px;
+        z-index: 1000;
+    }
+    .dropdown-menu div {
+        padding: 5px;
+        cursor: pointer;
+    }
+    .dropdown-menu div:hover {
+        background-color: #f0f0f0;
+    }
+</style>
+<div style="min-width:1400px; width:100%; max-height: 100%;">
+    <div style="margin: 0 auto; width:100%;">
+        <div style="float:left; width:30%; min-width:350px;">
+            <div id="histogram" style="width: 100%; height: 35%; min-height:350px; padding: 0; margin: 0 auto; background-color: white; border:ridge;"></div>
+            <div style="width:100%; text-align: center; margin: 12px auto;">
+                <span>(Percentile) </span>
+                <b>Left</b> <input class="left_num" name="left_num" style="width:45px;"/>
+                <div class="dropdown-menu" for="left_num">
+                    <div for="left_num">10</div>
+                    <div for="left_num">20</div>
+                    <div for="left_num">30</div>
+                    <div for="left_num">40</div>
+                    <div for="left_num">50</div>
+                </div>
+                <input class="right_num" name="right_num" style="width:45px;"/> <b>Right</b>
+                <div class="dropdown-menu" for="right_num">
+                    <div for="right_num">50</div>
+                    <div for="right_num">60</div>
+                    <div for="right_num">70</div>
+                    <div for="right_num">80</div>
+                    <div for="right_num">90</div>
+                </div>
+                <script>
+                    $('.left_num,.right_num').on('focus', e => {
+                        var left_right = $(e.target).attr('name');
+                        
+                        var offset = $(e.target).offset();
+                        $('.dropdown-menu[for=' + left_right + ']').css({
+                            top: offset.top - $('.navbar ').height(),
+                            left: offset.left
+                        }).show();
+                    });
+
+                    $('.left_num,.right_num').on('blur', e => {
+                        var left_right = $(e.target).attr('name');
+
+                        setTimeout(function() {
+                            $('.dropdown-menu[for=' + left_right + ']').hide();
+                        }, 200); // Delay to allow click event on dropdown
+                    });
+
+                    $('.dropdown-menu').on('click', 'div', e => {
+                        var left_right = $(e.target).attr('for');
+                        $('.' + left_right).val($(e.target).text());
+                        $('.dropdown-menu[for=' + left_right + ']').hide();
+
+                        drawPercentile(left_right == 'left_num' ? $(e.target).text() : null, left_right == 'right_num' ? $(e.target).text() : null);
+                    });
+                </script>
+                <button class="change-percentile-btn btn btn-md btn-primary" actionType="CHANGE-PERCENTILE" style="padding: 2px 10px; margin-top: -7px;">재학습</button>
+            </div>
+            <div style="width:100%; height:35%; min-height:350px; height: 35%; border: 1px solid #ccc; position: relative; background-color: white; border:ridge;">
+                <div class="slidecontainer" style="position: absolute; top:5px; left:5px; z-index: 5; width:fit-content;">
+                    <span style="font-size: 12px;">투명도</span>
+                    <input type="range" class="scatter-marker-opacity-input" min="0" max="100" value="100" oninput="scatter_data_group0.marker.opacity= $(this).val()/100; scatter_data_group1.marker.opacity= $(this).val()/100; Plotly.react('myDiv', [scatter_data_group0, scatter_data_group1], scatter_layout, {responsive: true});" style="width:100px;">
+                </div>
+                <div id="myDiv" style="width:100%; height:350px; min-height:350px; max-height:350px;"></div>
+            </div>
+            
+            <div style="width:100%; text-align: center; margin-top:10px;">
+                <div style="display:inline-block;">
+                    X: <input type="text" class="second-feature" value="" style="width:200px;"><br>
+                    Y: <input type="text" class="first-feature" value="" style="width:200px;">
+                </div>
+                <div style="display:inline-block;">
+                    <button class="change-feature-btn btn btn-md btn-info" style="padding: 10px 10px; margin-top:-25px;">적용</button>
+                </div>
+            </div>
+        </div>
+        <div style="float:left; width:30%; min-width:350px; margin-left:20px;">
+            <div style="height:35%; width:100%; max-height:350px; min-height:350px; border: 1px solid #ccc; overflow-y: scroll; background-color: white; border:ridge;">
+                <table style="height:100%;">
+                    <thead>
+                        <tr>
+                            <th column="no" style="max-width:30px; background-color: black; color:white;">No
+                                <span class="arrow up"></span>
+                                <span class="arrow down"></span>
+                            </th>
+                            <th column="Cell name" style="background-color: black; color:white;">Cell&nbsp;
+                                <span class="arrow up"></span>
+                                <span class="arrow down"></span>
+                            </th>
+                            <th column="Lineage" style="background-color: black; color:white;">Lineage
+                                <span class="arrow up"></span>
+                                <span class="arrow down"></span>
+                            </th>
+                            <th column="Relevance" style="background-color: black; color:white; font-size:12px;">Relevance&nbsp;&nbsp;
+                                <span class="arrow up"></span>
+                                <span class="arrow down"></span>
+                            </th>
+                            <th column="Gene Effect" class="mapping-method-td" method="effect" style="background-color: black; color:white; display:none;">Gene<br><span style="font-size:12px;">Effect</span>
+                                <span class="arrow up"></span>
+                                <span class="arrow down"></span>
+                            </th>
+                            <th column="Gene Dependency" class="mapping-method-td" method="dependency" style="background-color: black; color:white;">Gene<br><span style="font-size:10px;">Dependency</span>
+                                <span class="arrow up"></span>
+                                <span class="arrow down"></span>
+                            </th>
+                            <th column="total_score" style="background-color: black; color:white;">Total<br>score
+                                <span class="arrow up"></span>
+                                <span class="arrow down"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="cell-info-tbody"></tbody>
+                </table>
+            </div>
+            <div style="margin: 5px 0px; height:40px; max-height:40px;">
+                <div class="toggle-section34-div" style="float:left; margin-top:10px; margin-left:0px; width:fit-content; display:none;">
+                    <input type="radio" class="toggle-section34" name="toggle-section34" id="section34-merged" value="merged" checked> <label for="section34-merged" style="font-weight: bold;">Merged</label> &nbsp;
+                    <input type="radio" class="toggle-section34" name="toggle-section34" id="section34-one-side" value="one-side"> <label for="section34-one-side"><span style="font-weight: bold;">선택된 Method</span> <span class="dep_or_eff_span" value="dependency">(Dependency)</span></label>
+                </div>
+                <div style="float:right; margin-bottom:-10px;">
+                    <div class="section3-check-effect-div"><input type="checkbox" class="section3-check-effect" id="section3-check-effect"> <label for="section3-check-effect">Effect 값이 없는 cell 제외</label></div>
+                    <div class="section3-check-dependecy-div"><input type="checkbox" class="section3-check-dependency" id="section3-check-dependency"> <label for="section3-check-dependency">Dependency 값이 없는 cell 제외</label></div>
+                </div>
+                <script>
+                    $('.section3-check-effect,.section3-check-dependency').on('change', e => {
+                        if (current_data == null) return;
+
+                        $('.loadingDiv').show();
+
+                        if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() != '') {
+                            if ($('.toggle-section34:checked').val() == 'merged') displaySection34(current_data.Both, 'Both');
+                            else displaySection34(current_data[ $('.toggle-method-btn[aria-pressed=true]').attr('value') ], $('.toggle-method-btn[aria-pressed=true]').attr('value'));
+                        }
+                        else {
+                            if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() == '') displaySection34(current_data.Dependency, 'Dependency');
+                            else if ($('select[name=dependency]').val() == '' && $('select[name=effect]').val() != '') displaySection34(current_data.Effect, 'Effect');
+                        }
+
+                        $('.loadingDiv').hide();
+                    });
+                </script>
+            </div>
+            <div style="clear:both;"></div>
+            <div style="width:100%; height:35%; min-height:350px; border: 1px solid #ccc; position: relative; background-color: white; border:ridge;">
+                <button class="prev" style="position: absolute; top:5px; left:5px; border: none; background-color: rgba(75, 192, 192, 0.2); display:none;">Previous</button>
+                <button class="next" style="position: absolute; top:5px; left:65px; border: none; background-color: rgba(75, 192, 192, 0.2); display:none;">Next</button>
+                <div id="popupMenu">
+                    <p>Option 1</p>
+                    <p>Option 2</p>
+                    <p>Option 3</p>
+                </div>
+                <canvas id="chart" style="width:100%; height:350px; min-height:350px; max-height:350px;"></canvas>
+            </div>
+            <div style="margin: 5px 0px; font-size:14px;">
+                <label for="search">Biomarker:</label>
+                <input type="search" class="biomarker-search-keyword" onkeydown="if (event.key == 'Enter') {$('.biomarker-search-btn').trigger('click'); return false;}" style="width:170px; border: 1px solid;" placeholder="">
+                <button class="biomarker-search-btn" style="background-color: none; border:none;">🔍</button>
+                <button class="download-excel-btn btn btn-md btn-warning" style="border: 1px lightgray solid; padding: 5px 30px;">엑셀 다운로드</button>
+            </div>
+        </div>
+        <div style="float:left; width:30%; min-width:350px; margin-left:20px;">
+            <div style="position: relative; height:750px; width:100%; border: 1px solid #ccc; background-color: white;">
+                <div class="gpt-thread-title" style="height:50px; width:100%; text-align: center; font-size: 16px; border-bottom-style:ridge; align-content: center; padding-left:50px; padding-right:15px; text-overflow: ellipsis; white-space: nowrap; overflow:hidden;">ChatGPT (GPT-4.1)</div>
+                <div class="message-list" style="height:600px; width:100%; overflow-y: auto; background-color: whitesmoke;">
+                </div>
+                <div style="height:100px; width:100%; border-top-style:ridge;">
+                    <div style="float:left; width:90%; height:100px; align-content: center; align-items: center; text-align: center;">
+                        <textarea class="user-message" name="user-message" placeholder="추가 질문 입력" style="width:96%; height:85%; resize: none;"></textarea>
+                    </div>
+                    <div style="float:right; width:10%; height:100px; align-content: center;">
+                        <button class="send-message-btn btn btn-md btn-link" style="font-size:25px; margin-left:-10px;">📩</button>
+                    </div>
+                </div>
+                <div class="container" onclick="document.getElementById('mySidenav').style.width = '250px';" style="position: absolute; top:7px; left:7px; width:35px; height:35px; background-color: black; border-radius: 25%;">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                </div>
+                <div id="mySidenav" class="sidenav">
+                    <a href="javascript:void(0)" class="closebtn" onclick="document.getElementById('mySidenav').style.width = '0';">&times;</a>
+                    <div class="gpt-thread-list">
+                        {% for thread in thread_list %}
+                        <a href="#" class="thread-btn" thread_id="{{ thread.id }}">{{thread.title}}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="clear:both;"></div>
+
+{% include 'utilities/cell_line_selector_modal.html' %}
+
+<script section="1" content="histogram">
+    var histogram_layout = null;
+    var hist_maxY = null;
+    var hist_trace = null;
+    var bin_arrange = [];
+    var total_count = 0;
+
+    var Bin_Left = null;
+    var Bin_Right = null;
+    var Count = null;
+
+    // Function to calculate cumulative sum of an array
+    function cumsum(arr) {
+        return arr.reduce((acc, val, i) => {
+            acc.push((acc[i - 1] || 0) + val);
+            return acc;
+        }, []);
+    }
+
+    function getPercentile(percentile) {
+        // Step 1: Compute the total count
+        const total = Count.reduce((a, b) => a + b, 0);
+
+        // Step 2: Set the percentile and calculate the target count
+        // const percentile = 15; // Example: 15th percentile
+        const target = (percentile / 100) * total;
+
+        // Step 3: Compute cumulative counts and find the bin index k
+        const cumulative_count = cumsum(Count);
+        const k = cumulative_count.findIndex(c => c >= target);
+
+        // Step 4: Calculate the fraction within the bin
+        let fraction;
+        if (k === 0) {
+            fraction = target / Count[0];
+        } else {
+            fraction = (target - cumulative_count[k - 1]) / Count[k];
+        }
+
+        // Step 5: Calculate the score
+        const score = Bin_Left[k] + fraction * (Bin_Right[k] - Bin_Left[k]);
+
+        // Step 6: Output the result
+        // console.log(`The ${percentile}th percentile corresponds to a score of ${score.toFixed(6)}`);
+
+        return score.toFixed(6);
+    }
+
+    function calculatePercentile(input) {
+        var threhold = total_count * (input / 100);
+        var percentile = bin_arrange[ Math.floor( threhold ) ].toFixed(2);
+
+        return percentile;
+    }
+
+    function histogram(data, left, right) {
+        // Prepare arrays to hold the x-values (bin centers), y-values (counts), and widths
+        var x = [];
+        var y = [];
+        var widths = [];
+
+        Bin_Left = data.Bin_Left;
+        Bin_Right = data.Bin_Right;
+        Count = data.Count;
+
+        // Set widthFactor to 1 to use original bin widths
+        var widthFactor = 1;
+
+        total_count = 0;
+
+        // Calculate the bin centers and adjusted widths
+        for (var i = 0; i < data.Count.length; i++) {
+            var binLeft = data.Bin_Left[i];
+            var binRight = data.Bin_Right[i];
+            var count = data.Count[i];
+            var center = (binLeft + binRight) / 2;
+            var binWidth = Math.abs(binRight - binLeft);
+            var width = binWidth * widthFactor;
+
+            x.push(center);
+            y.push(count);
+            widths.push(width);
+
+            total_count += count;
+        }
+
+        bin_arrange = [];
+        for (let value = data.Bin_Left[0]; value < data.Bin_Right[ data.Bin_Right.length - 1 ]; value += parseFloat((1/total_count).toFixed(8))) bin_arrange.push(value);
+
+        // var left_percentile = calculatePercentile(left);
+        // var right_percentile = calculatePercentile(right);
+
+        var left_percentile = getPercentile(left);
+        var right_percentile = getPercentile(right);
+
+        hist_maxY = Math.max(...y);
+
+        hist_trace = {
+            x: x,
+            y: y,
+            width: widths,
+            type: 'bar',
+            marker: {
+                color: 'rgba(55,128,191,0.7)',
+                line: {
+                    color: 'rgba(55,128,191,1.0)',
+                    width: 1
+                }
+            }
+        };
+
+        // Define the layout of the chart, including vertical lines in 'shapes'
+        histogram_layout = {
+            title: '',
+            xaxis: {
+                title: 'Value',
+                range: [data.Bin_Left[0], data.Bin_Right[ data.Bin_Right.length - 1 ]],
+                showgrid: true,
+                zeroline: true
+            },
+            yaxis: {
+                title: 'Count',
+                showline: true
+            },
+            bargap: 0,       // Keep bars touching (no extra gap)
+            bargroupgap: 0,
+            margin: { l: 40, r: 20, t: 20, b: 40, pad: 0 },
+            shapes: [
+                { type: 'line', x0: left_percentile, x1: left_percentile, y0: 0, y1: hist_maxY, xref: 'x', yref: 'y', line: { color: 'blue', width: 4 } },
+                { type: 'line', x0: right_percentile, x1: right_percentile, y0: 0, y1: hist_maxY, xref: 'x', yref: 'y', line: { color: 'red', width: 4 } },
+                { type: 'line', x0: left_percentile, x1: left_percentile, y0: 0, y1: hist_maxY, xref: 'x', yref: 'y', line: { color: 'blue', width: 2, dash: 'dash' } },
+                { type: 'line', x0: right_percentile, x1: right_percentile, y0: 0, y1: hist_maxY, xref: 'x', yref: 'y', line: { color: 'red', width: 2, dash: 'dash' } }
+            ],
+            annotations: [
+                { x: left_percentile, y: hist_maxY + 30, xref: 'x', yref: 'y', text: left, showarrow: false, font: { color: 'blue', size: 12 }, align: 'center' },
+                { x: right_percentile, y: hist_maxY + 30, xref: 'x', yref: 'y', text: right, showarrow: false, font: { color: 'red', size: 12 }, align: 'center' },
+                { x: left_percentile, y: hist_maxY + 30, xref: 'x', yref: 'y', text: left, showarrow: false, font: { color: 'blue', size: 12 }, align: 'center' },
+                { x: right_percentile, y: hist_maxY + 30, xref: 'x', yref: 'y', text: right, showarrow: false, font: { color: 'red', size: 12 }, align: 'center' }
+            ]
+        };
+
+        $('#histogram').html('');
+        Plotly.newPlot('histogram', [hist_trace], histogram_layout, {responsive: true, });
+    }
+
+    function drawPercentile(left, right) {
+        var dep_or_eff = '';
+
+        if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() != '') dep_or_eff = $('.toggle-method-btn[aria-pressed=true]').attr('value');
+        else {
+            if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() == '') dep_or_eff = 'Dependency';
+            else if ($('select[name=dependency]').val() == '' && $('select[name=effect]').val() != '') dep_or_eff = 'Effect';
+        }
+        
+        if (left != null) {
+            var left_percentile = 0;
+            if (left == '') left_percentile = getPercentile( current_data[ dep_or_eff ].left ); // left_percentile = calculatePercentile( current_data[ dep_or_eff ].left );
+            else left_percentile = getPercentile( parseFloat( left ) ); // left_percentile = calculatePercentile( parseFloat( left ) );
+
+            histogram_layout.shapes[2].x0 = left_percentile;
+            histogram_layout.shapes[2].x1 = left_percentile;
+            // histogram_layout.shapes[2].text = left_percentile;
+            histogram_layout.shapes[2].text = left == '' ? current_data[ dep_or_eff ].left : left;
+
+            histogram_layout.annotations[2].x = left_percentile;
+            // histogram_layout.annotations[2].text = left_percentile;
+            histogram_layout.annotations[2].text = left == '' ? current_data[ dep_or_eff ].left : left;
+        }
+
+        if (right != null) {
+            var right_percentile = 0;
+            if (right == '') right_percentile = getPercentile( current_data[ dep_or_eff ].right ); // right_percentile = calculatePercentile( current_data[ dep_or_eff ].right );
+            else right_percentile = getPercentile( parseFloat( right ) ); // right_percentile = calculatePercentile( parseFloat( right ) );
+
+            histogram_layout.shapes[3].x0 = right_percentile;
+            histogram_layout.shapes[3].x1 = right_percentile;
+            // histogram_layout.shapes[3].text = right_percentile;
+            histogram_layout.shapes[3].text = right == '' ? current_data[ dep_or_eff ].right : right;
+
+            histogram_layout.annotations[3].x = right_percentile;
+            // histogram_layout.annotations[3].text = right_percentile;
+            histogram_layout.annotations[3].text = right == '' ? current_data[ dep_or_eff ].right : right;
+        }
+
+        Plotly.react('histogram', [hist_trace], histogram_layout, {responsive: true});
+    }
+
+    $('.left_num').on('input', e => {
+        drawPercentile($(e.target).val(), null);
+    });
+
+    $('.right_num').on('input', e => {
+        drawPercentile(null, $(e.target).val());
+    });
+
+</script>
+<script section="2" content="scatter">
+    var scatter_layout = null;
+    var scatter_data_group0 = null;
+    var scatter_data_group1 = null;
+
+    function scatter(first_feature, group0_cell_name, group0_first_feature, group0_second_feature, second_feature, group1_cell_name, group1_first_feature, group1_second_feature, minX, maxX, minY, maxY, img) {
+        const totalWidth = 1980;
+        const totalHeight = 1500;
+        const padding = 30;
+        const actualImageWidth = totalWidth - 2 * padding;
+        const actualImageHeight = totalHeight - 2 * padding;
+
+        // 새로운 minX와 maxX 계산
+        minX = minX - (padding / actualImageWidth) * (maxX - minX);
+        maxX = maxX + (padding / actualImageWidth) * (maxX - minX);
+
+        minY = minY - (padding / actualImageHeight) * (maxY - minY);
+        maxY = maxY + (padding / actualImageHeight) * (maxY - minY);
+
+        var group0_text = [];
+        for (var i = 0; i < group0_cell_name.length; i++) group0_text.push(`${group0_cell_name[i]}<br>(${ group0_first_feature[i] +','+ group0_second_feature[i] })`);
+
+        scatter_data_group0 = {
+            x: group0_first_feature,
+            y: group0_second_feature,
+            text: group0_text,
+            mode: 'markers',
+            type: 'scatter',
+            name: 'Low',
+            marker: { size: 10, color: 'blue', opacity: $('.scatter-marker-opacity-input').val() / 100, line: { color: 'black', width: 1 } },
+            hoverinfo: 'text'
+        };
+
+        var group1_text = [];
+        for (var i = 0; i < group1_cell_name.length; i++) group1_text.push(`${group1_cell_name[i]}<br>(${ group1_first_feature[i] +','+ group1_second_feature[i] })`);
+
+        scatter_data_group1 = {
+            x: group1_first_feature,
+            y: group1_second_feature,
+            text: group1_text,
+            mode: 'markers',
+            type: 'scatter',
+            name: 'High',
+            marker: { size: 10, color: 'red', opacity: $('.scatter-marker-opacity-input').val() / 100, line: { color: 'black', width: 1 }},
+            hoverinfo: 'text'
+        };
+
+        scatter_layout = {
+            xaxis: {
+                range: [minX, maxX],
+                title: second_feature,
+                // scaleanchor: 'y',
+                // scaleratio: 1,
+                showline: false, // 축 라인 숨김
+                zeroline: false, // 0선 숨김
+                showgrid: false, // 그리드 숨김
+                // ticks: '', // 눈금 표시 제거
+                // showticklabels: false // 눈금 레이블 숨김
+                // fixedrange: true
+                // minallowed: -1,
+                // maxallowed: 1,
+            },
+            yaxis: {
+                range: [minY, maxY],
+                title: first_feature,
+                // y축 방향을 반전하려면 다음 줄의 주석을 해제하세요.
+                // autorange: 'reversed',
+                showline: false,
+                zeroline: false,
+                showgrid: false,
+                // ticks: '',
+                // showticklabels: false
+                // fixedrange: true
+            },
+            legend: {
+                x: 0.01, // 범례의 x 위치 (0 ~ 1 사이의 비율)
+                y: 0.99, // 범례의 y 위치 (0 ~ 1 사이의 비율)
+                xanchor: 'left',  // 범례의 x 기준점 ('left', 'center', 'right')
+                yanchor: 'top',   // 범례의 y 기준점 ('top', 'middle', 'bottom')
+                bgcolor: 'rgba(255, 255, 255, 0.7)', // 범례 배경색 (투명도 포함)
+                bordercolor: 'rgba(0, 0, 0, 1)', // 범례 테두리 색상
+                borderwidth: 0.5        // 범례 테두리 두께
+            },
+            images: [{
+                source: 'data:image/png;base64,' + img,
+                xref: 'x',
+                yref: 'y',
+                x: minX,
+                y: maxY,
+                sizex: maxX - minX,
+                sizey: maxY - minY,
+                sizing: 'stretch',
+                layer: 'below',
+                opacity: 1
+            }],
+            hovermode: 'closest',
+            showlegend: true,
+            dragmode: 'pan', // 기본 드래그 모드를 팬으로 설정
+            margin: { l: 40, r: 20, t: 20, b: 40, pad: 0 }
+        };
+
+        $('#myDiv').html('');
+        Plotly.newPlot('myDiv', [scatter_data_group1, scatter_data_group0], scatter_layout, {responsive: true, });
+    }
+</script>
+<script section="3" content="cell-data">
+    function displayCellData(cell_data, method) {
+        $('.cell-info-tbody').html('');
+        var str = '';
+
+        for (var i = 0; i < cell_data['Cell name'].length; i++) {
+
+            if ('Gene Effect' in cell_data && $('.section3-check-effect').is(":checked") && !cell_data['Gene Effect'][i]) continue;
+            if ('Gene Dependency' in cell_data && $('.section3-check-dependency').is(":checked") && !cell_data['Gene Dependency'][i]) continue;
+
+            str += `
+                <tr>
+                    <td column="no">${cell_data['no'][i]}</td>
+                    <td column="cell_name" style="position:relative;">
+                        <a href="#" onclick="$('.cell-name-td[cell=${ cell_data['Cell name'][i] }]').css('visibility', 'visible'); return false;">${cell_data['Cell name'][i]}</a>
+                        <div class="cell-name-td" cell="${cell_data['Cell name'][i]}" style="position:absolute; width: 200px; height: 85px; top:5px; left: 95px; z-index:4; background-color:azure; border: ridge; box-shadow: 5px 5px 5px gray; visibility: hidden;">
+                            <div style="font-weight:bold; background-color: lightgray;">
+                                ${cell_data['Cell name'][i]}
+                                <div style="float:right; cursor:pointer; margin-right:5px;" onclick="$('.cell-name-td[cell=${ cell_data['Cell name'][i] }]').css('visibility', 'hidden'); return false;">X</div>
+                            </div>
+                            <div style="margin-top:5px;">DepMap 상세 페이지 [<a href="https://depmap.org/portal/cell_line/${cell_names_map[ cell_data['Cell name'][i] ]}?tab=overview" target="_blank">이동</a>]</div>
+                            <div style="margin-top:5px;">Cell Mutation 페이지 [<a href="/utilities/cell-mutation?cell_name=${ cell_data['Cell name'][i] }&gene=${current_target}" target="_blank">이동</a>]</div>
+                        </div>
+                    </td>
+                    <td column="lineage">${ cell_data['Lineage'][i] }</td>
+                    <td column="relevance">${ cell_data['Relevance'][i] }</td>
+                    ${ method == 'Effect' || method == 'Both' ? `<td column="gene_effect" method="effect">${ cell_data['Gene Effect'][i] ? cell_data['Gene Effect'][i] : '' }</td>` : ''}
+                    ${ method == 'Dependency' || method == 'Both' ? `<td column="gene_dependency" method="dependency">${ cell_data['Gene Dependency'][i] ? cell_data['Gene Dependency'][i] : '' }</td>` : ''}
+                    <td column="total_score">${ cell_data['total_score'][i] }</td>
+                </tr>
+            `;
+        };
+
+        $('.cell-info-tbody').html(str);
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    #popupMenu {
+        display: none;
+        position: absolute;
+        background-color: white;
+        border: 1px solid #ccc;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .biomarker-coordinate-btn:hover {
+        background-color: #17a2b8;
+    }
+</style>
+<script section="4" content="bar-chart">
+    var myChart = null;
+    var marker_list = null;
+    var current_marker_data = null;
+    function barChart(marker_data, marker_max) {
+        console.log('barChart::marker_data:',marker_data);
+        if (myChart != null) {
+            myChart.destroy();
+        }
+        $('.next,.prev').css('display', '');
+
+        current_marker_data = marker_data;
+        var data = marker_data.Importance;
+        marker_list = marker_data.Feature;
+        var barnumber = 10;
+        var page = 1;
+        var lastPageNum = Math.ceil(data.length / barnumber);
+        var chartData = data.slice((page - 1) * barnumber, page * barnumber);
+        var colorData = marker_data.Color == null? 'rgba(75, 192, 192, 0.2)' : marker_data.Color.slice((page - 1) * barnumber, page * barnumber);
+        var featureData = marker_data.Feature.slice((page - 1) * barnumber, page * barnumber);
+        for (var i = 0; i < featureData.length; i++) featureData[i] = featureData[i] + ' (' + ((page - 1) * barnumber + (i + 1)) + ')';
+
+        var ctx = document.getElementById('chart').getContext('2d');
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: featureData,
+                datasets: [{
+                    label: 'Biomarker - Importance',
+                    data: chartData,
+                    // backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    // borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: colorData,
+                    borderColor: colorData,
+                    barPercentage: 1,
+                    hoverBackgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    hoverBorderColor: 'rgba(75, 192, 192, 1)'
+                }]
+            },
+            options: {
+                indexAxis: 'y', // 이 옵션을 추가하여 가로 막대 차트로 변환
+                scales: {
+                    x: { // x축이 가로 막대 차트의 수직 축이 됩니다
+                        beginAtZero: true,
+                        max: marker_max
+                    },
+                    y: {
+                        beginAtZero: true,
+                        stacked: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    layout: {
+                        padding: {
+                            left: 20,
+                            right: 20
+                        }
+                    }
+                },
+                onClick: function(e, elem) {
+                    if (elem.length > 0) {
+                        var idx = elem[0].index;
+                        if (this.data.datasets[0].backgroundColor[idx] == 'lightgray') return;
+                        var label = this.data.labels[idx];
+                        var value = this.data.datasets[0].data[idx];
+                        showPopupMenu(e, label, value);
+                    }
+                },
+                onHover: function(event, elements) {
+                    const chartElement = document.getElementById('chart');
+                    if (elements.length > 0) chartElement.style.cursor = 'pointer';
+                    else chartElement.style.cursor = 'default';
+                }
+            }
+        });
+
+        function showPopupMenu(event, label, value) {
+            var popupMenu = document.getElementById('popupMenu');
+            popupMenu.style.display = 'block';
+            popupMenu.style.left = event.clientX + 'px';
+            popupMenu.style.top = event.clientY + 'px';
+            popupMenu.innerHTML = `
+                <p><b>${label}</b>: ${value}</p>
+                <hr>
+                <p class="biomarker-coordinate-btn" onclick="$('.second-feature').val('${label}'); $('.second-feature').stop(true, true).animate({ backgroundColor: 'yellow' }, 500, function() { $('.second-feature').animate({ backgroundColor: 'white' }, 3000); });" style="cursor:pointer;">Biomarker을 X에 입력</p>
+                <p class="biomarker-coordinate-btn" onclick="$('.first-feature').val('${label}'); $('.first-feature').stop(true, true).animate({ backgroundColor: 'yellow' }, 500, function() { $('.first-feature').animate({ backgroundColor: 'white' }, 3000); });" style="cursor:pointer;">Biomarker을 Y에 입력</p>
+            `;
+        }   
+
+        document.addEventListener('click', function(event) {
+            var popupMenu = document.getElementById('popupMenu');
+            if (!popupMenu.contains(event.target)) {
+                popupMenu.style.display = 'none';
+            }
+        });
+
+        $('.next').on('click', e => {
+            if (page < lastPageNum) page++;
+            updateChart();
+        })
+
+        $('.prev').on('click', e => {
+            if (page > 1) page--;
+            updateChart();
+        });
+
+        function updateChart() {
+            // var colorData = current_marker_data.Color == null? 'rgba(75, 192, 192, 0.2)' : current_marker_data.Color.slice((page - 1) * barnumber, page * barnumber);
+            var backgroundColors = new Array(chartData.length).fill('rgba(75, 192, 192, 0.2)'); // 기본 색상
+            var borderColors = new Array(chartData.length).fill('rgba(75, 192, 192, 0.2)'); // 기본 테두리 색상
+
+            console.log('page - 1:', page - 1, ', barnumber:', barnumber, ', (page - 1) * barnumber:', (page - 1) * barnumber);
+            chartData = data.slice((page - 1) * barnumber, page * barnumber);
+            featureData = current_marker_data.Feature.slice((page - 1) * barnumber, page * barnumber);
+            console.log('featureData:', featureData);
+            for (var i = 0; i < featureData.length; i++) featureData[i] = featureData[i] + ' (' + ((page - 1) * barnumber + (i + 1)) + ')';
+
+            myChart.data.datasets[0].data = chartData;
+            myChart.data.labels = featureData;
+            myChart.data.datasets[0].backgroundColor = backgroundColors;
+            myChart.data.datasets[0].borderColor = borderColors;
+            myChart.update();
+        }
+    }
+
+    $('.biomarker-search-btn').on('click', e => {
+        e.preventDefault();
+        var keyword = $('.biomarker-search-keyword').val().toLowerCase(); // 소문자로 변환
+        var index = marker_list.findIndex(function(item) {
+            // marker_list의 각 item을 소문자로 변환하여 비교
+            console.log(item);
+            return typeof item === 'string' && item.toLowerCase() === keyword;
+        });
+
+        console.log('index:', index);
+
+        if (index !== -1) {
+            var barnumber = 10;
+            page = Math.floor(index / barnumber) + 1; // 페이지 번호 계산
+            var chartData = current_marker_data.Importance.slice((page - 1) * barnumber, page * barnumber);
+            var featureData = current_marker_data.Feature.slice((page - 1) * barnumber, page * barnumber);
+            var colorData = null;
+
+            if (current_marker_data.Color == null) {
+                // [Effect On] or [Dependency On] 둘 중 하나만 검색
+                colorData = [];
+                for (var i = 0; i < barnumber; i++) colorData.push('rgba(75, 192, 192, 0.2)');
+            }
+            else {
+                // Effect On + Dependency On 검색
+                colorData = current_marker_data.Color.slice((page - 1) * barnumber, page * barnumber);
+            }
+
+            // 특정 마커의 색상을 빨간색으로 설정하기 위한 색상 배열 생성
+            // var backgroundColors = new Array(chartData.length).fill('rgba(75, 192, 192, 0.2)'); // 기본 색상
+            // var borderColors = new Array(chartData.length).fill('rgba(75, 192, 192, 0.2)'); // 기본 테두리 색상
+
+            // 페이지 내의 인덱스를 찾습니다.
+            var localIndex = index % barnumber;
+            console.log('localIndex:', localIndex, ', chartData.length:', chartData.length);
+
+            // 해당 인덱스의 마커 색상을 빨간색으로 변경
+            if (localIndex < chartData.length) {
+                console.log("// 해당 인덱스의 마커 색상을 빨간색으로 변경");
+                colorData[localIndex] = 'red';
+                colorData[localIndex] = 'red';
+            }
+
+            for (var i = 0; i < featureData.length; i++) {
+                featureData[i] = featureData[i] + ' (' + ((page - 1) * barnumber + (i + 1)) + ')';
+            }
+
+            console.log('colorData:', colorData);
+
+            myChart.data.datasets[0].data = chartData;
+            myChart.data.labels = featureData;
+            myChart.data.datasets[0].backgroundColor = colorData;
+            myChart.data.datasets[0].borderColor = colorData;
+            myChart.update();
+        } else {
+            alert('Biomarker not found.');
+        }
+
+        // if (current_data) $.ajax({
+        //     type: 'POST',
+        //     url : '/utilities/cell-line-selector',
+        //     dataType: 'json',
+        //     data: 'actionType=ADD-TRACKING-DATA&action_type=SEARCH-BIOMARKER&track_data=' + JSON.stringify(current_target),
+        //     success: function(data) {
+        //         console.log(data);
+        //     }
+        // });
+    });
+
+
+</script>
+
+<script>
+    $(document).on('click', e => {
+        if($(e.target).hasClass('dropbtn') && $('.dropdown').css('display') == 'block') $('.dropdown').css('display', 'none');
+        else if ($(e.target).hasClass('dropbtn') && $('.dropdown').css('display') == 'none') { if ($('.main-search-keyword').val().trim() == '') { alert('원하시는 Protein을 입력해주세요.'); return;}}
+        else if (!($(e.target).hasClass('dropbtn') || $(e.target).hasClass('dropdown') || $(e.target).parents('.dropdown').length) && $('.dropdown').css('display') == 'block') $('.dropdown').css('display', 'none');
+
+        if ($(e.target).hasClass('display-selected-gene-list-btn') && $('.display-selected-gene-sets-div').css('display') == '') { $('.display-selected-gene-sets-div').css('display', 'none'); callOnChange(); }
+        else if ($(e.target).hasClass('display-selected-gene-list-btn') && $('.display-selected-gene-sets-div').css('display') == 'none') $('.display-selected-gene-sets-div').css('display', '');
+        else if (!$(e.target).hasClass('display-selected-gene-sets-div') || $(e.target).parents('.display-selected-gene-sets-div').length) { $('.display-selected-gene-sets-div').css('display', 'none'); }
+
+        $('.selected-gene-list-div').css('height', $('.dropdown-left').height());
+    });
+
+    var resizeTimer;
+
+    $(window).on('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            var dep_or_eff =  ''; 
+
+            if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() != '') dep_or_eff = $('.toggle-method-btn[aria-pressed=true]').attr('value');
+            else {
+                if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() == '') dep_or_eff = 'Dependency';
+                else if ($('select[name=dependency]').val() == '' && $('select[name=effect]').val() != '') dep_or_eff = 'Effect';
+            }
+            
+            console.log('Resize event completed::dep_or_eff:', dep_or_eff);
+            if (current_data != null) {
+                if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() != '') displaySection12(current_data[ $('.toggle-method-btn[aria-pressed=true]').attr('value') ]);
+                else displaySection12(current_data[ dep_or_eff ]);
+            }
+        }, 500);
+    });
+
+    $(document).on('click', '.display-selected-gene-list-btn', e => {
+        // e.preventDefault();
+        var x = $(e.target).offset().left;
+
+        $('.display-selected-gene-sets-div').css('left', x + 'px');
+
+        // if ($('.display-selected-gene-sets-div').css('display') == 'none') $('.display-selected-gene-sets-div').css('display', '');
+        // else $('.display-selected-gene-sets-div').css('display', 'none');
+    });
+
+    $( '.gene-set-tree-div' ).on( 'mousewheel DOMMouseScroll', function ( e ) {
+        var e0 = e.originalEvent,
+            delta = e0.wheelDelta || -e0.detail;
+
+        this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+        e.preventDefault();
+    });
+
+    $( '.message-list' ).on( 'mousewheel DOMMouseScroll', function ( e ) {
+        if ($( '.message-list' ).html().trim().length) {
+            var e0 = e.originalEvent,
+                delta = e0.wheelDelta || -e0.detail;
+
+            this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+            e.preventDefault();
+        }
+    });
+
+    function getCellDataRows(cell_data) {
+        const keys = Object.keys(cell_data);
+        const rowCount = cell_data[keys[0]].length;
+
+
+        let rows = [];
+
+        for (let i = 0; i < rowCount; i++) {
+            let row = {};
+            for (const key of keys) {
+                row[key] = cell_data[key][i];
+            }
+            rows.push(row);
+        }
+        return rows;
+    }
+
+    function sortRows(rows, sortKey, ascending) {
+        return rows.slice().sort(function(a, b) {
+        let A = a[sortKey], B = b[sortKey];
+
+            // null 값은 항상 뒤로 정렬  
+            if (A == null && B == null) return 0;
+            if (A == null) return 1;
+            if (B == null) return -1;
+
+            // 숫자/문자 구분
+            if (typeof A === "number" && typeof B === "number") {
+                return ascending ? A - B : B - A;
+            } else {
+                A = String(A);
+                B = String(B);
+                if (A < B) return ascending ? -1 : 1;
+                if (A > B) return ascending ? 1 : -1;
+                return 0;
+            }
+        });
+    }
+
+    function rowsToCellData(rows) {
+        if (rows.length === 0) return {};
+
+        const keys = Object.keys(rows[0]);
+        let newCellData = {};
+        for (const key of keys) {
+            newCellData[key] = rows.map(row => row[key]);
+        }
+        return newCellData;
+    }
+
+</script>
+<script>
+    let current_target = '';
+    let current_genes = null;
+    let current_searched_title = '';
+    let current_data = null;
+    let current_sort_key = null;
+    let current_sort_ascending = null;
+    var cell_data = null;
+
+    $('.toggle-method-btn').on('click', e => {
+        e.preventDefault();
+
+        $('.toggle-method-btn').css('background-color', '#ebeff5');
+        $('.toggle-method-btn').attr('aria-pressed', false);
+
+        $(e.target).css('background-color', '#c1c1c1');
+        $(e.target).attr('aria-pressed', true);
+
+        var dep_or_eff = $('.toggle-method-btn[aria-pressed=true]').attr('value');
+
+        $('.dep_or_eff_span').html('(' + dep_or_eff + ')');
+        $('.dep_or_eff_span').attr('value', dep_or_eff);
+
+        console.log('.toggle-method-btn:', dep_or_eff);
+
+        if (current_data != null) {
+            if ($.isEmptyObject(current_data[ dep_or_eff ] )) {
+                alert('현재 ' + dep_or_eff + ' 데이터는 없습니다.\n' + dep_or_eff + ' 데이터를 포함하여 다시 검색해주세요.');
+                return;
+            }
+        }
+
+        displaySection12(current_data[ dep_or_eff ]);
+
+        if ($('.toggle-section34:checked').val() == 'one-side') displaySection34(current_data[ dep_or_eff ], dep_or_eff);
+        else displaySection34(current_data[ 'Both' ], 'Both');
+
+        // if (current_data) $.ajax({
+        //     type: 'POST',
+        //     url : '/utilities/cell-line-selector',
+        //     dataType: 'json',
+        //     data: 'actionType=ADD-TRACKING-DATA&action_type=TOGGLE-METHOD&track_data=' + JSON.stringify(current_target),
+        //     success: function(data) {
+        //         console.log(data);
+        //     }
+        // });
+    });
+
+    $('.toggle-section34').on('change', e => {
+        console.log('.toggle-section34');
+        if (current_data == null || 'Both' in current_data == false) return;
+
+        $('.loadingDiv').show();
+
+        var val = $('.toggle-section34:checked').val();
+
+        if (val == 'merged') displaySection34(current_data.Both, 'Both');
+        else {
+            if ($('.toggle-method-btn[aria-pressed=true]').attr('value') == 'Effect') displaySection34(current_data.Effect, 'Effect');
+            else displaySection34(current_data.Dependency, 'Dependency');
+        }
+
+        $('.loadingDiv').hide();
+    });
+
+    $('.search-btn,.change-percentile-btn').on('click', e => {
+        e.preventDefault();
+
+        if ($('.main-search-keyword').val().trim() == '') { alert('타겟을 입력해주세요.'); return;}
+        if ($('select[name=dependency]').val() == '' && $('select[name=effect]').val() == '') { alert('method를 한가지 이상 On으로 선택해주세요.'); return;}
+        if ($(e.target).hasClass('change-percentile-btn') && parseFloat($('.left_num').val()) > parseFloat($('.right_num').val())) { alert('Left값이 Right보다 작아야 합니다.'); return;}
+        if ($(e.target).hasClass('change-percentile-btn') && parseFloat($('.left_num').val()) < 0) { alert('Left값이 0 보다 커야합니다.'); return;}
+        if ($(e.target).hasClass('change-percentile-btn') && parseFloat($('.right_num').val()) >= 100) { alert('Right값이 100 보다 작아야합니다.'); return;}
+        if ($(e.target).hasClass('change-percentile-btn') && isNaN($('.left_num').val())) { alert('Input must be number'); return;}
+        if ($(e.target).hasClass('change-percentile-btn') && isNaN($('.right_num').val())) { alert('Input must be number'); return;}
+
+        if ('check_gene_set') {
+            let list_to_req = [];
+
+            $.each(trees, (struct, value) => {
+                $.each(trees[ struct ], (cat, val) => {
+                    // console.log(struct, cat, val.values);
+                    if (val.tree.values.length > 0) {
+                        checked_list = [];
+
+                        $.each(val.tree.selectedNodes, (i, v) => {
+                            if (v.attributes.level != 0 && v.status == SELECTED) {
+
+                                checked_list.push({'value': v.id, 'parent': v.attributes.parent});
+
+                            }
+                        })
+
+                        list_to_req.push({'structure': struct, 'category': cat, 'checked_list': checked_list});
+
+                    }
+                });
+            });
+
+            if (list_to_req.length == 0 && !$('.check-all').prop('checked')) {
+                alert('Gene set을 선택해주세요.');
+                return;
+            }
+        }
+
+        $('.loadingDiv').show();
+
+        $.ajax({
+            type: 'POST',
+            url : '/utilities/cell-line-selector',
+            dataType: 'json',
+            data: 'actionType=CHECK-PRESAVED-DATA&action_type=' + ($(e.target).hasClass('search-btn') ? 'SEARCH' : 'CHANGE-PERCENTILE') + '&' + $('#searchForm').serialize() + '&left_num=' + $('.left_num').val() + '&right_num=' + $('.right_num').val() + '&list_to_req=' + JSON.stringify(prevReqList),
+            success: function(data) {
+
+                if (data[2] != '') {
+                    if (!confirm(data[2])) { $('.loadingDiv').hide(); return;}
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url : '/utilities/cell-line-selector',
+                    dataType: 'json',
+                    data: 'actionType=' + $(e.target).attr('actionType') + '&' + $('#searchForm').serialize() + '&left_num=' + $('.left_num').val() + '&right_num=' + $('.right_num').val() + '&list_to_req=' + JSON.stringify(prevReqList),
+                    success: function(data) {
+                        console.log(data);
+
+                        if (data[0]) {
+                            if ('Dependency' in data[2].data && 'cell_data' in data[2].data.Dependency) {
+                                data[2].data.Dependency.cell_data['no'] = [];
+                                for (var i = 1; i <= data[2].data.Dependency.cell_data['Cell name'].length; i++) data[2].data.Dependency.cell_data['no'].push(i);
+                            }
+
+                            if ('Effect' in data[2].data && 'cell_data' in data[2].data.Effect) {
+                                data[2].data.Effect.cell_data['no'] = [];
+                                for (var i = 1; i <= data[2].data.Effect.cell_data['Cell name'].length; i++) data[2].data.Effect.cell_data['no'].push(i);
+                            }
+
+                            if ('Both' in data[2].data && 'cell_data' in data[2].data.Both) {
+                                data[2].data.Both.cell_data['no'] = [];
+                                for (var i = 1; i <= data[2].data.Both.cell_data['Cell name'].length; i++) data[2].data.Both.cell_data['no'].push(i);
+                            }
+
+                            current_target = $('.main-search-keyword').val();
+                            current_genes = prevReqList;
+                            current_data = data[2].data;
+
+                            if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() != '') {
+                                displaySection12(data[2].data[ $('.toggle-method-btn[aria-pressed=true]').attr('value') ]);
+
+                                if ($('.toggle-section34:checked').val() == 'merged') displaySection34(data[2].data.Both, 'Both');
+                                else displaySection34(data[2].data[ $('.toggle-method-btn[aria-pressed=true]').attr('value') ], $('.toggle-method-btn[aria-pressed=true]').attr('value'));
+                            }
+                            else {
+                                if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() == '') {
+                                    displaySection12(data[2].data.Dependency);
+                                    displaySection34(data[2].data.Dependency, 'Dependency');
+                                }
+                                else if ($('select[name=dependency]').val() == '' && $('select[name=effect]').val() != '') {
+                                    displaySection12(data[2].data.Effect);
+                                    displaySection34(data[2].data.Effect, 'Effect');
+                                }
+                            }
+
+
+                            if ($(e.target).hasClass('search-btn')) {
+                                $('.message-list,.gpt-thread-title').html('ChatGPT (GPT-4.1)');
+                                $('.biomarker-search-keyword').val('');
+                            }
+
+                            var titles = [];
+                            if (data[2].data.Dependency.ask_data) titles.push(data[2].data.Dependency.title);
+                            if (data[2].data.Effect.ask_data) titles.push(data[2].data.Effect.title);
+
+                            if (titles.length > 0) $.ajax({
+                                type: 'POST',
+                                url : '/utilities/cell-line-selector',
+                                dataType: 'json',
+                                data: 'actionType=PRESAVE-RESULT&is_best_combo=' + ($(e.target).attr('actionType') == 'SEARCH' ? 'TRUE' : 'FALSE') + '&' + $('#searchForm').serialize() + '&left_num=' + $('.left_num').val() + '&right_num=' + $('.right_num').val() + '&titles=' + JSON.stringify(titles),
+                                success: function(data) {
+                                    console.log(data);
+                                }
+                            });
+                            
+                        }
+                        else alert(data[2]);
+                            
+                        $('.loadingDiv').hide();
+                    },
+                    error: function(request,status,error) {
+                        console.log("code:", request.status, "message:", request.responseText, ", error:", error);
+                        
+                        console.log('request.responseText.inculdes(", NaN"):', request.responseText.includes(", NaN"));
+                        if (!request.responseText.includes(", NaN")) {alert("오류가 발생했습니다.\n관리자에게 문의 부탁드립니다."); $('.loadingDiv').hide(); return;}
+
+                        data = JSON.parse(request.responseText.replaceAll("[NaN", "[null").replaceAll(", NaN", ", null"));
+                        console.log(data);
+
+                        if ('Dependency' in data[2].data && 'cell_data' in data[2].data.Dependency) {
+                            data[2].data.Dependency.cell_data['no'] = [];
+                            for (var i = 1; i <= data[2].data.Dependency.cell_data['Cell name'].length; i++) data[2].data.Dependency.cell_data['no'].push(i);
+                        }
+
+                        if ('Effect' in data[2].data && 'cell_data' in data[2].data.Effect) {
+                            data[2].data.Effect.cell_data['no'] = [];
+                            for (var i = 1; i <= data[2].data.Effect.cell_data['Cell name'].length; i++) data[2].data.Effect.cell_data['no'].push(i);
+                        }
+
+                        if ('Both' in data[2].data && 'cell_data' in data[2].data.Both) {
+                            data[2].data.Both.cell_data['no'] = [];
+                            for (var i = 1; i <= data[2].data.Both.cell_data['Cell name'].length; i++) data[2].data.Both.cell_data['no'].push(i);
+                        }
+
+                        current_genes = prevReqList;
+                        current_data = data[2].data;
+
+                        if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() != '') {
+                            displaySection12(data[2].data[ $('.toggle-method-btn[aria-pressed=true]').attr('value') ]);
+
+                            if ($('.toggle-section34:checked').val() == 'merged') displaySection34(data[2].data.Both, 'Both');
+                            else displaySection34(data[2].data[ $('.toggle-method-btn[aria-pressed=true]').attr('value') ], $('.toggle-method-btn[aria-pressed=true]').attr('value'));
+                        }
+                        else {
+                            if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() == '') {
+                                displaySection12(data[2].data.Dependency);
+                                displaySection34(data[2].data.Dependency, 'Dependency');
+                            }
+                            else if ($('select[name=dependency]').val() == '' && $('select[name=effect]').val() != '') {
+                                displaySection12(data[2].data.Effect);
+                                displaySection34(data[2].data.Effect, 'Effect');
+                            }
+                        }
+
+                        if ($(e.target).hasClass('search-btn')) {
+                            $('.message-list,.gpt-thread-title').html('ChatGPT (GPT-4.1)');
+                            $('.biomarker-search-keyword').val('');
+                        }
+
+
+                        var titles = [];
+                        if (data[2].data.Dependency.ask_data) titles.push(data[2].data.Dependency.title);
+                        if (data[2].data.Effect.ask_data) titles.push(data[2].data.Effect.title);
+
+                        if (titles.length > 0) $.ajax({
+                            type: 'POST',
+                            url : '/utilities/cell-line-selector',
+                            dataType: 'json',
+                            data: 'actionType=PRESAVE-RESULT&is_best_combo=' + ($(e.target).attr('actionType') == 'SEARCH' ? 'TRUE' : 'FALSE') + '&' + $('#searchForm').serialize() + '&left_num=' + $('.left_num').val() + '&right_num=' + $('.right_num').val() + '&titles=' + JSON.stringify(titles),
+                            success: function(data) {
+                                console.log(data);
+                            }
+                        });
+
+                        $('.loadingDiv').hide();
+                    }
+                });
+            }
+        });
+    });
+
+    function displaySection12(data) {
+        current_searched_title = data.title;
+
+        histogram(data.histogram_data, data.left, data.right);
+
+        $('.left_num').val(data.left);
+        $('.right_num').val(data.right);
+        $('.first-feature').val(data.first_feature);
+        $('.second-feature').val(data.second_feature);
+
+        scatter(
+            data.first_feature, data.group0_cell_name, data.group0_first_feature, data.group0_second_feature,
+            data.second_feature, data.group1_cell_name, data.group1_first_feature, data.group1_second_feature,
+            data.minX, data.maxX, data.minY, data.maxY, data.img
+        );
+    }
+
+    function displaySection34(data, method) {
+        console.log('displaySection34::method:',method);
+        console.log('displaySection34::data.marker_data:',data.marker_data);
+        console.log('displaySection34::data:',data);
+
+        if (method == 'Effect' || method == 'Both') $('.mapping-method-td[method="effect"]').css('display', '');
+        else $('.mapping-method-td[method="effect"]').css('display', 'none');
+
+        if (method == 'Dependency' || method == 'Both') $('.mapping-method-td[method="dependency"]').css('display', '');
+        else $('.mapping-method-td[method="dependency"]').css('display', 'none');
+        
+        //==============================================================================================================
+        //==============================================================================================================
+        // section4
+        //==============================================================================================================
+        //==============================================================================================================
+        $('.first-feature').val(data.marker_data.Feature[0]);
+        $('.second-feature').val(data.marker_data.Feature[1]);
+    
+        barChart(data.marker_data, data.marker_max);
+
+        $('.biomarker-search-keyword').autocomplete({
+            source: data.marker_data.Feature
+        });
+
+        //==============================================================================================================
+        //==============================================================================================================
+        // section3
+        //==============================================================================================================
+        //==============================================================================================================
+        cell_data = data.cell_data;
+
+        if (current_sort_key == null) {
+            displayCellData(cell_data, method);
+        }
+        else {
+            const rows = getCellDataRows(cell_data);
+            const sortedRows = sortRows(rows, current_sort_key, current_sort_ascending);
+            const sortedCellData = rowsToCellData(sortedRows);
+            displayCellData(sortedCellData, method);
+        }        
+
+        if ($('.chatgpt-option').val() == 'CELL') $('.chatgpt-keyword').val(cell_data['Cell name'][0]);
+        else $('.chatgpt-keyword').val(data.marker_data['Feature'][0].split('_')[0]);
+    }
+
+    $('th').on('click', e => {
+        var column = $(e.target).attr('column');
+        var rows = $('.cell-info-tbody tr').get();
+        var ascending = $(e.target).data('ascending') || false;
+        current_sort_key = column;
+        current_sort_ascending = ascending;
+
+        console.log('column:', column);
+
+        //===========================================================================================================================
+        //===========================================================================================================================
+        if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() != '') {
+            if ($('.toggle-section34:checked').val() == 'merged') displaySection34(current_data.Both, 'Both');
+            else displaySection34(current_data[ $('.toggle-method-btn[aria-pressed=true]').attr('value') ], $('.toggle-method-btn[aria-pressed=true]').attr('value'));
+        }
+        else {
+            if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() == '') {
+                displaySection34(current_data.Dependency, 'Dependency');
+            }
+            else if ($('select[name=dependency]').val() == '' && $('select[name=effect]').val() != '') {
+                displaySection34(current_data.Effect, 'Effect');
+            }
+        }
+        //===========================================================================================================================
+        //===========================================================================================================================
+
+        // Reset all arrows
+        $('.arrow').removeClass('active');
+
+        // Set the active arrow
+        if (ascending) {
+            $(e.target).find('.arrow.up').addClass('active');
+        } else {
+            $(e.target).find('.arrow.down').addClass('active');
+        }
+
+        // Toggle the sorting order
+        $(e.target).data('ascending', !ascending);
+    });
+
+    $('.change-feature-btn').click(e => {
+        e.preventDefault();
+
+        if ($('.first-feature').val() == $('.second-feature').val()) { alert('X와 Y의 Biomarker가 달라야 합니다.'); return; }
+        if ($('.first-feature').val().trim() == '') { alert('X의 Biomarker를 입력해주세요.'); return; }
+        if ($('.second-feature').val().trim() == '') { alert('Y의 Biomarker를 입력해주세요.'); return; }
+
+        $('.loadingDiv').show();
+
+        $.ajax({
+            type: 'POST',
+            url : '/utilities/cell-line-selector',
+            dataType: 'json',
+            data: 'actionType=CHANGE-FEATURE&current_searched_title=' + current_searched_title + '&first_feature=' + $('.first-feature').val().split(' (')[0] + '&second_feature=' + $('.second-feature').val().split(' (')[0] + '&' + $('#searchForm').serialize() + '&left_num=' + $('.left_num').val() + '&right_num=' + $('.right_num').val() + '&list_to_req=' + JSON.stringify(prevReqList),
+            success: function(data) {
+                console.log(data);
+
+                if (data[0]) {
+                    scatter(
+                        data[2].result.data.first_feature,
+                        data[2].result.data.group0_cell_name,
+                        data[2].result.data.group0_first_feature, 
+                        data[2].result.data.group0_second_feature,
+                        data[2].result.data.second_feature,
+                        data[2].result.data.group1_cell_name,
+                        data[2].result.data.group1_first_feature,
+                        data[2].result.data.group1_second_feature,
+                        data[2].result.data.minX,
+                        data[2].result.data.maxX,
+                        data[2].result.data.minY,
+                        data[2].result.data.maxY,
+                        data[2].result.data.img
+                    );
+
+                    current_data[ data[2].result.data.dep_or_eff ].first_feature = data[2].result.data.first_feature;
+                    current_data[ data[2].result.data.dep_or_eff ].group0_cell_name = data[2].result.data.group0_cell_name;
+                    current_data[ data[2].result.data.dep_or_eff ].group0_first_feature = data[2].result.data.group0_first_feature;
+                    current_data[ data[2].result.data.dep_or_eff ].group0_second_feature = data[2].result.data.group0_second_feature;
+
+                    current_data[ data[2].result.data.dep_or_eff ].second_feature = data[2].result.data.second_feature;
+                    current_data[ data[2].result.data.dep_or_eff ].group1_cell_name = data[2].result.data.group1_cell_name;
+                    current_data[ data[2].result.data.dep_or_eff ].group1_first_feature = data[2].result.data.group1_first_feature;
+                    current_data[ data[2].result.data.dep_or_eff ].group1_second_feature = data[2].result.data.group1_second_feature;
+
+                    current_data[ data[2].result.data.dep_or_eff ].minX = data[2].result.data.minX;
+                    current_data[ data[2].result.data.dep_or_eff ].maxX = data[2].result.data.maxX;
+                    current_data[ data[2].result.data.dep_or_eff ].minY = data[2].result.data.minY;
+                    current_data[ data[2].result.data.dep_or_eff ].maxY = data[2].result.data.maxY;
+
+                    current_data[ data[2].result.data.dep_or_eff ].img = data[2].result.data.img;
+                }
+                else alert(data[2]);
+                    
+                $('.loadingDiv').hide();
+            },
+            error: function(request,status,error) {
+                console.log('request:', request);
+                console.log('status:', status);
+                console.log('error:', error);
+                alert("오류가 발생했습니다.\n관리자에게 문의 부탁드립니다");
+            }
+        });
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    $('.chatgpt-btn').click(e => {
+        e.preventDefault();
+        $('.loadingDiv').show();
+
+        $('.message-list').html(`
+            <div class="message-container">
+                <div class="profile">Me</div>
+                <p>GPT야, Protein '${$('.main-search-keyword').val()}'과 ${$('.chatgpt-option').val()} '${$('.chatgpt-keyword').val()}'과 같이 초록에 등장하는 논문을 검색해줘.</p>
+            </div>
+        `);
+
+        $.ajax({
+            type: 'POST',
+            url : '/utilities/cell-line-selector',
+            dataType: 'json',
+            data: 'actionType=GPT&state=NEW&operation=GPT-' + $('.chatgpt-option').val() + '&type=' + $('.chatgpt-option').val() + '&main-search-keyword=' + $('.main-search-keyword').val() + '&chatgpt-keyword=' + $('.chatgpt-keyword').val(),
+            success: function(data) {
+                console.log(data);
+
+                if (data[0]) {
+                    $('.message-list').append(`
+                        <div class="message-container darker">
+                            <div class="profile right">GPT</div>
+                            <p>${ marked.parse(data[2].result).replaceAll('<a', '<a target="_blank"') }</p>
+                        </div>
+                    `);
+
+                    $('.send-message-btn').attr('thread_id', data[2].thread_id);
+                    $('.gpt-thread-title').html('ChatGPT (GPT-4.1)');
+                    $('.message-list').scrollTop(0);
+                    $('.gpt-thread-list').prepend(`<a href="#" class="thread-btn" thread_id="${data[2].thread_id}" style="background-color:whitesmoke; border-left: black 3px solid; border-right: black 3px solid; color:black;">${data[2].title}</a>`);
+
+                    const text = data[2].title;
+                    let index = 0;
+
+                    function typeWriter() {
+                        if (index < text.length) {
+                            $('.gpt-thread-title').append(text[index]);
+                            index++;
+                        } else {
+                            clearInterval(typingInterval);
+                        }
+                    }
+
+                    const typingInterval = setInterval(typeWriter, 40);
+                }
+                else alert(data[2]);
+                    
+                $('.loadingDiv').hide();
+            }
+        });
+    });
+
+    $(document).on('click', '.thread-btn', e => {
+        e.preventDefault();
+        $('.loadingDiv').show();
+
+        $.ajax({
+            type: 'POST',
+            url : '/utilities/cell-line-selector',
+            dataType: 'json',
+            data: 'actionType=GET-GPT-MESSAGES&thread_id=' + $(e.target).attr('thread_id'),
+            success: function(data) {
+                console.log(data);
+
+                if (data[0]) {
+                    $('.thread-btn').css('background-color', 'black');
+                    $('.thread-btn').css('color', 'white');
+
+                    var str = '';
+
+                    $.each(data[2].message_list, (i,v) => {
+                        // str += v.role + ' : ' + v.content;
+                        str += `
+                            <div class="message-container ${v.role == 'assistant' ? 'darker' : ''}">
+                                <div class="profile ${v.role == 'assistant' ? 'right' : ''}" >${v.role == 'assistant' ? 'GPT' : 'Me'}</div>
+                                <p>${ marked.parse(v.content).replaceAll('<a', '<a target="_blank"') }</p>
+                            </div>
+                        `;
+                    });
+
+                    $('.message-list').html(str);
+                    $('.message-list').scrollTop($('.message-list')[0].scrollHeight);
+                    $('.send-message-btn').attr('thread_id', $(e.target).attr('thread_id'));
+                    $('.gpt-thread-title').html(data[2].thread_title);
+
+                    $('.thread-btn[thread_id=' + $(e.target).attr('thread_id') + ']').css('background-color', 'whitesmoke');
+                    $('.thread-btn[thread_id=' + $(e.target).attr('thread_id') + ']').css('color', 'black');
+                    $('.thread-btn[thread_id=' + $(e.target).attr('thread_id') + ']').css('border-right', 'black 3px solid');
+                    $('.thread-btn[thread_id=' + $(e.target).attr('thread_id') + ']').css('border-left', 'black 3px solid');
+                    
+                }
+                else alert(data[2]);
+                    
+                $('.loadingDiv').hide();
+            }
+        });
+    });
+
+    $('.send-message-btn').click(e => {
+        e.preventDefault();
+
+        if ($(e.target).attr('thread_id') == null) { alert('ChatGPT 검색을 먼저해주세요.'); return; }
+        if (!$('.user-message').val().trim().length) { alert('내용을 입력해주세요.'); return; }
+
+        $('.loadingDiv').show();
+
+        $.ajax({
+            type: 'POST',
+            url : '/utilities/cell-line-selector',
+            dataType: 'json',
+            data: 'actionType=GPT&state=ONGOING&main-search-keyword=' + $('.main-search-keyword').val() + '&operation=GPT-' + $('.chatgpt-option').val() + '&thread_id=' + $(e.target).attr('thread_id') + '&content=' + encodeURIComponent($('.user-message').val()),
+            success: function(data) {
+                console.log(data);
+
+                if (data[0]) {
+                    $('.message-list').append(`
+                        <div class="message-container">
+                            <div class="profile" >Me</div>
+                            <p>${ $('.user-message').val() }</p>
+                        </div>
+                        <div class="message-container darker">
+                            <div class="profile right" >GPT</div>
+                            <p>${ marked.parse(data[2].result).replaceAll('<a', '<a target="_blank"') }</p>
+                        </div>
+                    `);
+                    $('.message-list').scrollTop($('.message-list')[0].scrollHeight);
+                    $('.user-message').val('');
+                }
+                else alert(data[2]);
+                    
+                $('.loadingDiv').hide();
+            }
+        });
+    });
+
+    $('.download-excel-btn').click(function(e){
+        e.preventDefault();
+
+        if (current_data == null) {alert('현재 검색결과가 없습니다.'); return;}
+
+        var dep_or_eff =  ''; 
+
+        if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() != '') dep_or_eff = $('.toggle-method-btn[aria-pressed=true]').attr('value');
+        else {
+            if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() == '') dep_or_eff = 'Dependency';
+            else if ($('select[name=dependency]').val() == '' && $('select[name=effect]').val() != '') dep_or_eff = 'Effect';
+        }
+
+        var data_to_send = null;
+        if ($('select[name=dependency]').val() != '' && $('select[name=effect]').val() != '') data_to_send = current_data[ 'Both' ];
+        else data_to_send = current_data[ dep_or_eff ];
+
+        console.log('data_to_send:', data_to_send);
+
+        $('.loadingDiv').show();
+
+        $.ajax({
+            url: '/utilities/cell-line-selector/download-excel',
+            method: 'POST',
+            // data: 'actionType=DOWNLOAD-EXCEL&target_gene=' + current_target + '&dependency=' + $('select[name=dependency]').val() + '&effect=' + $('select[name=effect]').val() + '&data=' + JSON.stringify(data_to_send) + '&genes=' + JSON.stringify(current_genes),
+            data: 'actionType=DOWNLOAD-EXCEL&dependency=' + (current_data.Dependency.title == null ? '' : current_data.Dependency.title) + '&effect=' + (current_data.Effect.title == null ? '' : current_data.Effect.title),
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function(data) {
+                // 엑셀 파일을 브라우저에서 다운로드
+                var a = document.createElement('a');
+                var url = window.URL.createObjectURL(data);
+                a.href = url;
+                a.download = 'cell_line_selector_data.xlsx';
+                document.body.append(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+
+                $('.loadingDiv').hide();
+            },
+            error: function(xhr, status, error) {
+                $('.loadingDiv').hide();
+                alert('Failed to download Excel file:' + error);
+            }
+        });
+    });
+</script>
+{% endblock content %}

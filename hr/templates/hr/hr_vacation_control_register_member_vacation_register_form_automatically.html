@@ -1,0 +1,52 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<form method="POST" action="{% url 'hr-vacation-control' %}"  enctype="multipart/form-data">
+	{% csrf_token %}
+
+	<div class="content-section">
+		<fieldset class="form-group">
+			<legend class="border-bottom mb-4">체크박스로 선택된 멤버 연차 자동등록</legend>
+			<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+				<fieldset class="form-group">
+					<legend class="border-bottom mb-4">
+						자동으로 등록하기
+						(현재 {{ q_mysettings_hr.list_vacation_control_id_selected|length }}명 선택됨)
+					</legend>
+					<small>
+						<ul>
+							<li>
+								휴가관리 리스트에 멤버가 없으면 initiate를 눌러 신규등록된 멤버의 휴가관리 쿼리를 생성한다.
+							</li>
+						</ul>
+					</small>
+					<button type="submit" name="button-hr-vacation-control-initiate-auto" value="true" class="btn btn-dark">Initiate</button>
+
+					<hr>
+
+					<small>
+						<ul>
+							<li>
+								체크박스 되어 있는 멤버만 자동으로 등록됨
+							</li>
+							<li>
+								index란의 이름 옆 체크박스를 체크하면 모두 선택됨.
+							</li>
+							<li>
+								체크박스 체크한 뒤 파란색 Select 버튼을 눌러야 선택됨.
+							</li>
+							<li>
+								개별 멤버 수동 휴가 수정/등록을 위해서는 멤버의 이름을 클릭해야 함
+							</li>
+						</ul>
+					</small>
+
+					<button type="submit" name="button-hr-vacation-control-register-auto" value="true" class="btn btn-info">Register</button>
+				</fieldset>
+			</div>
+		</fieldset>
+	</div>
+</form>

@@ -1,0 +1,159 @@
+{% load static %}
+{% load split %}
+{% load authMenu %}
+<style>
+  .table thead th {
+      text-align:center;
+      vertical-align: middle;      
+      position: sticky;
+      top: -10px;
+      background-color: gray;
+      color: #f9f9f9;
+      border-left: 0.1rem solid;
+  }
+
+  .table tbody td {
+    text-align:center;
+  }
+
+  .beta {
+    font-style: italic;
+    font-weight: bold;
+    color: #ff6060;
+  }
+
+  .modal {
+    z-index: 99999 !important;
+  }
+  
+  .tab-content {
+      width: 100%;
+      margin-top: 10px;
+  }
+  .col {
+    width: 99%;
+  }
+
+  .ui-front {
+    z-index: 99999;
+  }
+</style>
+<!--
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.css"/>
+-->
+
+{% with request.path|split:"/" as urlPath %}
+  {% if 're-working' == urlPath.1 or 're-todo' == urlPath.1 or 'member-card-view' == urlPath.2 %}
+    {% if "myhome"|authMenu:request %}
+      {% include 'home/navbar/re_home_navbar.html' %}
+    {% endif %}
+  {% elif 're-member' == urlPath.1 or 're-group' == urlPath.1 or 're-auth' == urlPath.1 or 're-working-admin' == urlPath.1 %}
+    {% if "hr"|authMenu:request %}
+      {% include 'home/navbar/re_hr_navbar.html' %}
+    {% endif %}
+  {% elif 'ips' == urlPath.1 %}
+    {% if "ips"|authMenu:request %}
+      {% include 'home/navbar/ips_navbar.html' %}
+    {% endif %}
+  {% endif %}
+{% endwith %}
+
+<div id="code"><div></div></div>
+
+<script src="{% static '/js/moment.min.js' %}"></script>
+<!--
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+-->
+<script>
+  const code_vue = createApp({
+      data () {
+          return {
+            codes: [],
+            codeMap: [],
+            codeAliasMap: [],
+            codeDtls: [],
+            codeDtlMap: [],
+            codeDtlsMap: [],
+            codeDtlAliasMap: [],
+          }
+      },
+      methods: {
+        getCodes() {
+          axios.get("/getCodes")
+          .then((response) => {
+              this.codes = response.data.codes
+              this.codeAliasMap = this.codes.reduce((map, code) => {
+                if (typeof map[code.cd_alias] == 'undefined') {
+                    map[code.cd_alias] = [code]
+                } else {
+                    map[code.cd_alias].push(code)
+                }
+                return map
+              }, {})
+          })
+        },
+        getCodeDtls() {
+          axios.get("/getCodeDtls")
+          .then((response) => {
+              this.codeDtls = response.data.codeDtls
+
+              this.codeDtlMap = this.codeDtls.reduce((map, codeDtl) => {
+                if (typeof map[codeDtl.cd_dtl_no] == 'undefined') {
+                    map[codeDtl.cd_dtl_no] = [codeDtl]
+                } else {
+                    map[codeDtl.cd_dtl_no].push(codeDtl)
+                }
+                return map
+              }, {})
+
+              this.codeDtlAliasMap = this.codeDtls.reduce((map, codeDtl) => {
+                if (typeof map[codeDtl.cd_dtl_alias] == 'undefined') {
+                    map[codeDtl.cd_dtl_alias] = [codeDtl]
+                } else {
+                    map[codeDtl.cd_dtl_alias].push(codeDtl)
+                }
+                return map
+              }, {})
+
+              this.codeDtlsMap = this.codeDtls.reduce((map, codeDtl) => {
+                if (typeof map[codeDtl.cd_no] == 'undefined') {
+                    map[codeDtl.cd_no] = [codeDtl]
+                } else {
+                    map[codeDtl.cd_no].push(codeDtl)
+                }
+                return map
+              }, {})
+
+          })
+        },
+        getCdNoByAlias(alias) {
+          if (this.codeAliasMap.length == 0) return 0
+          return this.codeAliasMap[alias][0].cd_no
+        },
+        getCodeDtl(cdDtlNo) {
+          if (this.codeDtlMap.length == 0) return []
+          if (typeof this.codeDtlMap[cdDtlNo] == 'undefined') return []
+          return this.codeDtlMap[cdDtlNo][0]
+        },
+        getCdDtlNoByAlias(alias) {
+          if (this.codeDtlAliasMap.length == 0) return 0
+          return this.codeDtlAliasMap[alias][0].cd_dtl_no
+        },
+        getCdDtlByAlias(alias) {
+          if (this.codeDtlAliasMap.length == 0) return 0
+          return this.codeDtlAliasMap[alias][0]
+        },
+        getCdDtlsByCdAlias(alias) {
+          var cdNo = this.getCdNoByAlias(alias)
+          if (cdNo > 0) {
+            return this.codeDtlsMap[cdNo]
+          }
+          return []
+        }
+      },
+      created: function() {
+        this.getCodes()
+        this.getCodeDtls()
+      }
+  }).mount('#code')
+</script>

@@ -1,0 +1,90 @@
+{% load static %}
+<div id="targer_finder_upload_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="padding: 10px">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" id="sp" value="SP" v-model="type" @click="hideName">
+                        <label class="form-check-label" for="sp">Safety Panel</label>
+                    </div>
+                    <div class="form-check" style="margin-left: 10px;">
+                        <input class="form-check-input" type="radio" id="ac" value="AC" v-model="type" @click="showName">
+                        <label class="form-check-label" for="ac">Adverse & ctcae</label>
+                    </div>
+                </div>
+                <hr>
+                <div class="row" >
+                    <div style="display: inline-flex">
+                        <div style="padding: 0px 5px;">[[ name1 ]]</div>
+                        <div><input type="file" class="form-control-file" id="uploadFile_0"></div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div style="display: inline-flex">
+                        <div style="padding: 0px 5px;">[[ name2 ]]</div>
+                        <div><input type="file" class="form-control-file" id="uploadFile_1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" @click="upload">업로드</button>
+                <button type="button" class="btn btn-secondary" @click="close">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const target_finder_upload_vue = createApp({
+        delimiters: ["[[", "]]"],
+        data () {
+            return {
+                type: "SP",
+                name1: "",
+                name2: "",
+            }
+        },
+        methods: {
+            upload() {
+                let formData = new FormData()
+                formData.append('files_0', $("#uploadFile_0")[0].files[0]);
+                formData.append('files_1', $("#uploadFile_1")[0].files[0]);
+
+                // 파일 업로드
+                var url = ""
+                if (this.type == 'SP') {
+                    url = "target-finder/uploadTargetFinderSafetyPanel"
+                } else {
+                    url = "target-finder/uploadTargetFinderData"
+                }
+
+                axios.post(url, formData, {
+                    headers: {"Content-Type": "multipart/form-data"}
+                }).then((response) => {
+                    this.close()
+                })
+            },
+            hideName() {
+                this.name1 = ""
+                this.name2 = ""
+            },
+            showName() {
+                this.name1 = "Adverse"
+                this.name2 = "ctcae"
+            },
+            close() {
+                this.type= "SP"
+                this.name1 = ""
+                this.name2 = ""
+                $("#uploadFile_0").val('')
+                $("#uploadFile_1").val('')
+
+                $("#targer_finder_upload_modal").modal('hide')
+            }
+        },
+        mounted: function() {},
+    }).mount('#targer_finder_upload_modal')
+</script>

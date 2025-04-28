@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'home/navbar/re_navbar.html' %}
+
+<div id="working_weekend" class="row" style="padding: 1%; background-color: #f9f9f9;">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation"><a class="nav-link active" id="working-weekend-request-tab" data-toggle="tab" data-target="#working_weekend_request" type="button" role="tab" aria-controls="working-weekend-request" aria-selected="true">휴일근무</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" id="working-weekend-note-tab" data-toggle="tab" data-target="#working_weekend_note" type="button" role="tab" aria-controls="working-weekend-note" aria-selected="false">휴일근무일지</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- 휴일근무 신청 -->
+        {% include "working_weekend_request.html" %}
+        <!-- 휴일근무일지 신청 -->
+        {% include "working_weekend_note.html" %}
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,255 @@
+{% load static %}
+
+<div id="working_off_view_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">결재 요청 정보</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <!-- 작성 내용 -->
+                <div class="row" style="padding: 20px px 10px 0px; border-bottom: 0.5px solid #e2e4e7;">
+                    <div style="margin-top:20px; margin-left: 10px;">
+                        <h6>휴가 작성 내용</h6>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴가 제목</div>
+                    <div class="col" style="padding: 15px;" v-html="workingOffForm.working_off_form_title"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴가 구분</div>
+                    <div class="col" style="padding: 15px;" v-html="cdDtlNm(workingOffForm.working_off_form_type)"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴가 일</div>
+                    <div class="col" style="padding: 15px;" v-html="workingOffFormDate(workingOffForm.working_off_form_start_date, workingOffForm.working_off_form_end_date)"></div>
+                </div>
+                <!-- 결재 내역 -->
+                <div  v-if="workingOffs.length > 0" class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">휴가일 별 시간</div>
+                    <div class="col" style="padding-top:5px">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">휴가 일</th>
+                                    <th scope="col">휴가 타입</th>
+                                    <th scope="col">휴가 시간</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="workingOff in workingOffs">
+                                    <td v-html="workingOff.working_off_date"></td>
+                                    <td v-html="cdDtlNm(workingOff.working_off_time)"></td>
+                                    <td v-html="time(workingOff.working_off_start_datetime, workingOff.working_off_end_datetime)"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">요청 사유</div>
+                    <div class="col" style="padding: 15px;" v-html="workingOffForm.reason"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">첨부파일</div>
+                    <div class="col" style="padding: 15px;">
+                        <div class="row" v-for="approvalUploadFile in approvalUploadFiles">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" style="margin: 5px 0px 5px 10px" @click="downloadFile(approvalUploadFile.upload_file_id)" v-html="approvalUploadFile.upload_file_name"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">결재자</div>
+                    <div class="col" style="padding-top:5px">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">결재순서</th>
+                                    <th scope="col">결재자</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="approvalMember in approvalMembers">
+                                    <td v-html="approvalMember.step"></td>
+                                    <td v-html="approvalMember.member_name + ' (' + approvalMember.member_email + ')'"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">참조자</div>
+                    <div class="col" style="padding-top:5px" v-html="approvalRefMembers"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">수신자</div>
+                    <div class="col" style="padding-top:5px" v-html="approvalRecvMembers"></div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7;">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">작성일</div>
+                    <div class="col" style="padding: 15px;" v-html="date(workingOffForm.working_off_form_datetime)"></div>
+                </div>
+
+                <!-- 결재 내역 -->
+                <div class="row" style="padding: 20px 0px 10px 0px;">
+                    <div style="margin-top:10px; margin-left: 20px;">
+                        <h6>결재 내역</h6>
+                    </div>
+                </div>
+                <div class="row" style="padding: 0px 0px 10px 0px;">
+                    <div class="col">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">결재일</th>
+                                    <th scope="col">결재자</th>
+                                    <th scope="col">결재상태</th>
+                                    <th scope="col">내용</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="approvalHistory in approvalHistorys">
+                                    <td v-html="date(approvalHistory.approval_date)"></td>
+                                    <td v-html="approvalHistory.res_member_name"></td>
+                                    <td v-html="cdDtlNm(approvalHistory.approval_state)"></td>
+                                    <td v-html="approvalHistory.comment"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div v-if="workingOffForm.working_off_form_state == cdDtlNo('APPROVAL_REQUEST')" class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">커멘트</div>
+                    <div class="col" style="padding: 15px;">
+                        <textarea class="form-control" rows="4" cols="70" placeholder="휴가 요청 취소 시 커멘트를 남겨주세요"  v-model="comment"></textarea>
+                    </div>
+                </div>
+                <div id="working_off_view_layer_alert" class="toast toast-danger" role="working_off_view_layer_alert" aria-live="assertive" data-delay="1500" aria-atomic="true" style="position:absolute; left:25%; background-color:#f8d7da; z-index:999">
+                    <div class="toast-body" v-html="alertText"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="close">취소</button>
+                <button v-if="workingOffForm.working_off_form_state == cdDtlNo('APPROVAL_REQUEST')" type="button" class="btn btn-danger" @click="cancel">상신 취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const working_off_view_vue = createApp({
+        data () {
+            return {
+                workingOffFormId: 0,
+                workingOffForm: {},
+                workingOffs: [],
+                approvalUploadFiles: [],
+                approvalHistorys: [],
+                approvalMembers: [],
+                approvalRefMembers: "",
+                approvalRecvMembers: "",
+                comment: "",
+                alertText: "",
+            }
+        },
+        methods: {
+            getWorkingOffView(workingOffFormId) {
+                this.workingOffFormId = workingOffFormId
+                axios.get("/re-working/getWorkingOffView/" + workingOffFormId)
+                .then((response) => {
+                    var data = response.data
+                    this.workingOffForm = data.workingOffForm
+                    this.workingOffs = data.workingOffs
+                    this.approvalHistorys = data.approvalHistorys
+
+                    axios.get("/re-working/getApprovalEtcMembers/" + this.workingOffForm.approval_id)
+                    .then((response) => {
+                        var approvalEtcMembers = response.data.approvalEtcMembers
+
+                        var approvalRefMemberArr = approvalEtcMembers.filter(approvalEtcMember => approvalEtcMember.approval_etc_member_type == code_vue.getCdDtlNoByAlias("APPROVAL_ETC_MEMBER_TYPE_REF"))
+                        var approvalRefMemberStr = ""
+                        for (approvalRefMember of approvalRefMemberArr) {
+                            approvalRefMemberStr += approvalRefMemberStr == "" ? approvalRefMember.member_name + " (" + approvalRefMember.member_email + ")" : "," + approvalRefMember.member_name + " (" + approvalRefMember.member_email + ")"
+                        }
+                        this.approvalRefMembers = approvalRefMemberStr
+
+                        var approvalRecvMemberArr = approvalEtcMembers.filter(approvalEtcMember => approvalEtcMember.approval_etc_member_type == code_vue.getCdDtlNoByAlias("APPROVAL_ETC_MEMBER_TYPE_RECV"))
+                        var approvalRecvMemberStr = ""
+                        for (approvalRecvMember of approvalRecvMemberArr) {
+                            approvalRecvMemberStr += approvalRecvMemberStr == "" ? approvalRecvMember.member_name + " (" + approvalRecvMember.member_email + ")" : "," + approvalRecvMember.member_name + " (" + approvalRecvMember.member_email + ")"
+                        }
+                        this.approvalRecvMembers = approvalRecvMemberStr
+                    })
+
+                    axios.get("/re-working/getApprovalMembers/" + this.workingOffForm.approval_id)
+                    .then((response) => {
+                        this.approvalMembers = response.data.approvalMembers
+                    })
+
+                    axios.get("/re-working/getApprovalUploadFiles/" + this.workingOffForm.approval_id)
+                    .then((response) => {
+                        this.approvalUploadFiles = response.data
+                    })
+                })
+            },
+            workingOffFormDate(startDate, endDate) {
+                return startDate + " ~ " + endDate
+            },
+            cdDtlNm(cdDtlNo) {
+                return code_vue.getCodeDtl(cdDtlNo).cd_dtl_nm
+            },
+            cdDtlNo(alias) {
+                return code_vue.getCdDtlNoByAlias(alias)
+            },
+            date(datetime) {
+                if (typeof datetime != 'undefined') {
+                    return moment(datetime).format('YYYY-MM-DD HH:mm:ss')
+                }
+                return ""
+            },
+            time(startTime, endTime) {
+                return moment(startTime).format('HH:mm') + " ~ " +  moment(endTime).format('HH:mm')
+            },
+            approvalMember() {
+                return this.approvalMembers.map(approvalMember => approvalMember.member_name).join(', ')
+            },
+            downloadFile(uploadFileId) {
+                window.location.href = "/re-working/downloadFile/" + uploadFileId
+            },
+            cancel() {
+                var data = {
+                    "comment": this.comment
+                }
+                axios.post("/re-working/updateWorkingOffCancel/" + this.workingOffFormId, {data: data})
+                .then((response) => {
+                    if (response.data[0]) {
+                        // send mail
+                        axios.post("/re-working/sendMailWorkingCancel/working_off/" + response.data[1])
+
+                        $("#working_off_view_modal").modal('hide')
+                        vue.getWorkingOffs()
+                        this.comment = ""
+                    } else {
+                        console.log(response.data[1])
+                        this.alert(response.data[1])
+                    }
+                })
+            },
+            close() {
+                $("#working_off_view_modal").modal('hide')
+            },
+            alert(text) {
+                this.alertText = text
+                $('#working_off_view_layer_alert').toast('show')
+            },
+        },
+        mounted: function() {
+            var self = this
+            $('#working_off_view_layer_alert').on('hidden.bs.modal', function (e) {
+                self.close()
+            })
+        },
+    }).mount('#working_off_view_modal')
+</script>

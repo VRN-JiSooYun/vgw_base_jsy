@@ -1,0 +1,802 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% load floatFormatter %}
+{% load getItem %}
+{% load isnan %}
+{% load split %}
+{% load filters %}
+{% block content %}
+{% include 'utilities/navbar.html' %}
+
+{% comment %} <link rel="stylesheet" href="https://cdn.datatables.net/1.12.0/css/jquery.dataTables.min.css"> {% endcomment %}
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.3/css/fixedHeader.dataTables.min.css">
+<style>
+    .cdd-logo {
+        display:none;
+    }
+.both {
+    height:15px;
+}
+.date_search {
+    width:150px;
+    display:inline-block;
+}
+
+.font-12 {
+    font-size:12px;
+}
+.dataTables_wrapper .dataTables_scroll {
+    background: #fff;
+}
+table.dataTable thead th {
+    text-align:center;
+}
+th, td { white-space: nowrap; }
+div.dataTables_wrapper {
+    width: 100%;
+    margin: 0 auto;
+}
+table.dataTable thead tr>.dtfc-fixed-left, table.dataTable thead tr>.dtfc-fixed-right {
+    background-color: black;
+}
+div.dtfc-left-top-blocker, div.dtfc-right-top-blocker {
+    background-color: initial;
+}
+.dataTables_wrapper .dataTables_filter input {
+    width: 300px;
+}
+table.fixedHeader-floating.no-footer {
+    table-layout:auto !important;
+}
+.numb{
+    text-align:right;
+}
+.center {
+    text-align:center;
+}
+.checkb {
+    width:20px;
+    height:20px;
+    outline:none;
+    float:left;
+}
+.checklabel {
+    padding-left:5px;
+}
+
+.chart_font_title {
+    font-family: Open Sans,Helvetica,Arial,sans-serif;
+    font-size:16px;
+    font-weight:700;
+}
+.chart_font_subtitle {
+    font-family: Open Sans,Helvetica,Arial,sans-serif;
+    font-size:13px;
+    font-weight:700;
+}
+.chart_font_content {
+    font-family: Open Sans,Helvetica,Arial,sans-serif;
+    font-size:14px;
+    font-weight:200;
+}
+.chart_font_content_num {
+    font-family: Open Sans,Helvetica,Arial,sans-serif;
+    font-size:30px;
+    font-weight:200;
+}
+#chartExt {
+    display:none;
+}
+#chartExt2 {
+    display:none;
+}
+.chartDescription {
+    font-family: Open Sans,Helvetica,Arial,sans-serif;
+    height: 100px;
+    background: #fff;
+    display: flex;
+}
+.chartDescription .play-highlight {
+    margin-right: 10px;
+    transition: background-color .3s;
+    padding: 10px;
+    border-radius: 5px;
+}
+.chartDescription .play-highlight {
+    min-width: 100px;
+}
+.chartDescription .play-highlight .highlighted-value {
+    font-size: 30px;
+    font-weight: 200;
+}
+.chartDescription .play-highlight .highlighted-label {
+    font-size: 14px;
+    color: #97a0b7;
+    font-weight: 200;
+}
+#downloadDiv{
+    display:none;
+}
+.downloadBtn {
+    width: 200px;
+    {% comment %} height: 200px; {% endcomment %}
+    vertical-align: middle;
+    {% comment %} font-size: 40px; {% endcomment %}
+    {% comment %} padding-top: 65px; {% endcomment %}
+    background-color: #6293e9;
+}
+.downloadBtn:hover {
+    background-color: #3b80f9;
+}
+.downloadBtn:active {
+    background-color: #3b80f9;
+}
+.downloadBtn:focus {
+    background-color: #3b80f9;
+}
+.title {
+    display:none;
+    background-color: #fff;
+    padding: 15px;
+    font-weight: bold;
+    font-size: 20px;
+    border-bottom: 1px solid #ccc;
+}
+.strongest-pka .play-highlight {
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color .3s;
+}
+
+.play-highlight.acid .highlighted-value {
+    color: #c02727;
+}
+.play-highlight.basic .highlighted-value {
+    color: #3537c5;
+}
+.play-highlight .highlighted-value {
+    font-size: 30px;
+    font-weight: 200;
+}
+.play-highlight .highlighted-label {
+    font-size: 14px;
+    color: #97a0b7;
+    font-weight: 200;
+}
+#ver {
+    float: right;
+    font-size: 14px;
+}
+#logPSvgDiv > svg {
+    cursor:pointer;
+}
+#logPDiv {
+    background-color: #fff;
+    margin-right: 0px;
+    margin-left: 0px;
+}
+#logPSvgDiv svg{
+    width:100%;
+}
+#subTitleDiv {
+    background-color: #fff;
+    margin:0;
+    /*margin-right: 0px;
+    margin-left: 0px;*/
+}
+.subTitle {
+    background-color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+}
+</style>
+
+<div style="padding-top:30px; ">
+    <legend class="border-bottom mb-4">
+        CNS MPO
+    </legend>
+</div>
+<div class="both"></div>
+<div class="row">
+    <div class="col-md-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="chemdrawjs-container" style="left:0; top: 0; width: 100%; height: 830px;"></div>
+            </div>
+            <div class="col-md-12" style="text-align:right;">
+                <div class="both"></div>
+                <div id="downloadDiv">
+                    <a type="button" href="javascript:exportExcel();" class="btn btn-info btn-lg btn-c-w downloadBtn" name="button-search-property-filter">Download</a>
+                </div>
+            </div>
+            
+        </div>
+        {% comment %} smiles : <input type="text" id="smile" style="width:90%;" onBlur="loadSmiles();" onkeyup="if(window.event.keyCode==13){loadSmiles();}"> {% endcomment %}
+    </div>
+    <div class="col-md-7">
+        <div class="row" style="padding-bottom:20px;">
+            <div class="col-md-8">
+                <input type="text" id="smile" style="width:100%;font-size:20px;" placeholder="smiles">
+                <!--<input type='number' id='ph' style="font-size:20px;" name='ph' placeholder="PH" value="7.4">-->
+            </div>
+            <div class="col-md-4">
+                <a type="button" href="javascript:void(0);" class="btn btn-info btn-md" style="width:100%;height: 70px;font-size: 25px;padding-top: 15px;" id="applyBtn">Calculate</a>
+            </div>
+        </div>
+        <div class="title">
+            CNS MPO <span id="ver"></span>
+        </div>
+        <div class="row" id="logPDiv" style="display:none;height: 240px;">
+            <div class="col-md-5" id="formalCharge" style='font-size: 30px;font-weight: 200;padding-top: 25px;'></div>
+            <div class="col-md-2" style="padding-top: 30px;">
+                <div class="play-highlight acid">
+                    <div class="highlighted-value"></div>
+                    <div class="highlighted-label"></div>
+                </div>
+            </div>
+            <div class="col-md-5" id="totalChargeSvgDiv"></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" data-dismiss="modal" style="max-width:800px;">
+      <div class="modal-content"  >              
+        <div class="modal-body" id="modalDiv">
+            <span style='font-size: 20px;font-weight: bold;' id='label'></span>
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        </div> 
+        <div class="modal-footer">
+            <div class="col-xs-12">
+                 <p class="text-left" id='modalText'></p>
+              </div>
+          </div>
+      </div>
+    </div>
+</div>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.2.3/js/dataTables.fixedHeader.min.js"></script>
+{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script> {% endcomment %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.js"></script>
+<script src="{% static '/js/exceljs.js' %}"></script>
+
+<script>
+    function perkinelmerInit() {
+        /*
+         * ChemDrawJs 기동
+         */
+        perkinelmer.ChemdrawWebManager.attach({
+            id: 'chemdrawjs-container',
+            callback: chemdrawjsAttached,
+            errorCallback: chemdrawjsFailed,
+            //configUrl:'{% static '/js/chemdraw_config.json' %}',
+            config:{
+                "layout": {
+                "orientation": "Vertical",
+                "tools": [
+                    {
+                    "order": [
+                        "LassoSelection",
+                        "MarqueeSelection",
+                        "Undo",
+                        "Redo",
+                        "ZoomIn",
+                        "ZoomOut",
+                        "Copy",
+                        "Paste",
+                        "Eraser",
+                        {
+                        "group": "Single Bonds",
+                        "columns": "4",
+                        "collapse": "never",
+                        "order": [
+                            "SolidBond",
+                            "DashedBond",
+                            "BoldBond",
+                            "HashedBond",
+                            "WedgedBond",
+                            "HashedWedgedBond",
+                            "HollowWedgedBond",
+                            "WavyBond"
+                        ]
+                        },
+                        {
+                        "group": "Multiple Bonds",
+                        "columns": "4",
+                        "collapse": "always",
+                        "order": [
+                            "DoubleBond",
+                            "DashedDoubleBond",
+                            "DoubleEitherBond",
+                            "TripleBond",
+                            "BoldDoubleBond",
+                            "DoubleDashedDoubleBond",
+                            "DativeBond",
+                            "QuadrupleBond",
+                            "AnyBond",
+                            "SingleOrDoubleBond",
+                            "SingleOrAromaticBond",
+                            "DoubleOrAromaticBond"
+                        ]
+                        },
+                        {
+                        "group": "Chain Tools",
+                        "collapse": "always",
+                        "order": [
+                            "AcyclicChain",
+                            "SnakingChain"
+                        ]
+                        },
+                        {
+                        "group": "Arrows",
+                        "columns": "7",
+                        "collapse": "always",
+                        "order": [
+                            "ArrowSolidLarge",
+                            "ArrowSolidMedium",
+                            "ArrowSolidSmall",
+                            "ArrowHollowLarge",
+                            "ArrowHollowMedium",
+                            "ArrowRetrosyntheticLarge",
+                            "ArrowRetrosyntheticSmall",
+                            "ArrowBoldLarge",
+                            "ArrowBoldMedium",
+                            "ArrowBoldSmall",
+                            "Arrow270CW",
+                            "Arrow180CW",
+                            "Arrow120CW",
+                            "Arrow90CW",
+                            "ArrowDashedLarge",
+                            "ArrowDashedMedium",
+                            "ArrowDashedSmall",
+                            "Arrow270CCW",
+                            "Arrow180CCW",
+                            "Arrow120CCW",
+                            "Arrow90CCW",
+                            "ArrowOneSidedLeftLarge",
+                            "ArrowOneSidedLeftMedium",
+                            "ArrowOneSidedLeftSmall",
+                            "Arrow270SingleCW",
+                            "Arrow180SingleCW",
+                            "Arrow120SingleCW",
+                            "Arrow90SingleCW",
+                            "ArrowOneSidedRightLarge",
+                            "ArrowOneSidedRightMedium",
+                            "ArrowOneSidedRightSmall",
+                            "Arrow270SingleCCW",
+                            "Arrow180SingleCCW",
+                            "Arrow120SingleCCW",
+                            "Arrow90SingleCCW",
+                            "ArrowResonanceLarge",
+                            "ArrowResonanceMedium",
+                            "ArrowResonanceSmall",
+                            "Arrow270Double",
+                            "Arrow180Double",
+                            "Arrow120Double",
+                            "Arrow90Double",
+                            "ArrowNoGoCrossLarge",
+                            "ArrowNoGoCrossMedium",
+                            "ArrowNoGoCrossSmall",
+                            "ArrowEquilibriumLarge",
+                            "ArrowEquilibriumMedium",
+                            "ArrowEquilibriumSmall",
+                            "Arrow270ElipticalCW",
+                            "ArrowNoGoHashLarge",
+                            "ArrowNoGoHashMedium",
+                            "ArrowNoGoHashSmall",
+                            "ArrowUnbalancedELarge",
+                            "ArrowUnbalancedEMedium",
+                            "ArrowUnbalancedESmall",
+                            "Arrow270ElipticalCCW"
+                        ]
+                        },
+                        {
+                        "group": "Rings",
+                        "columns": "2",
+                        "collapse": "never",
+                        "writing-mode": "vertical",
+                        "order": [
+                            "Benzene",
+                            "Pentadiene",
+                            "Hexane",
+                            "Pentane",
+                            "Propane",
+                            "Butane",
+                            "Octane",
+                            "Heptane",
+                            "CyclohexaneChairRight",
+                            "CyclohexaneChairLeft"
+                        ]
+                        },
+                        "Text",
+                        "Formula",
+                        "Superscript",
+                        "Subscript",
+                        "Group",
+                        "Ungroup",
+                        "Integral",
+                        {
+                        "group": "Brackets",
+                        "collapse": "always",
+                        "columns": "4",
+                        "order": [
+                            "SquareBrackets",
+                            "RoundBrackets",
+                            "CurlyBrackets",
+                            "DoubleDaggerBrackets",
+                            "LeftSquareBracket",
+                            "LeftRoundBracket",
+                            "LeftCurlyBracket",
+                            "SingleDaggerBracket"
+                        ]
+                        },
+                        "StructureCleanup",
+                        "ReactionCleanup",
+                        "NameToStructure",
+                        "StructureToName",
+                        "ExpandLabel",
+                        "ContractLabel",
+                        "Templates",
+                        {
+                        "group": "Chemical Symbols",
+                        "columns": "2",
+                        "writingMode": "vertical",
+                        "collapse": "always",
+                        "order": [
+                            "CirclePlus",
+                            "CircleMinus",
+                            "Plus",
+                            "Minus",
+                            "RadicalCation",
+                            "RadicalAnion",
+                            "LonePair",
+                            "Radical",
+                            "ElectronPushing",
+                            "RadicalPushing",
+                            "HDot",
+                            "HDash",
+                            "AttachmentDiamond",
+                            "AttachmentStar",
+                            "AttachmentPolymerBead",
+                            "AttachmentWavy"
+                        ]
+                        },
+                        {
+                        "group": "Query Tools",
+                        "collapse": "always",
+                        "columns": "2",
+                        "order": [
+                            "AlternativeGroup",
+                            "ReactionAtomMap",
+                            "AddMultiCenterAttachment",
+                            "AddVariableAttachment"
+                        ]
+                        },
+                        "StructureProperties"
+                    ]
+                    }
+                ]
+                },
+                "features": {
+                "enabled": [
+                    "ShowWarnValence",
+                    "ShowWarnParens",
+                    "ShowWarnIsotopes",
+                    "ShowWarnStrayBonds",
+                    "ShowWarnStrayAtoms",
+                    "ShowWarnUndefinedStereo",
+                    "ShowWarnAmbigStereo",
+                    "ShowWarnStereoBtw",
+                    "ShowWarnLinearAtoms",
+                    "ShowWarnMisc",
+                    "AlwaysShowReactionMapping",
+                    "AutomaticReactionMapping",
+                    "ApplicationLogo",
+                    "WebService",
+                    "ExtendedCopyPaste"
+                ],
+                "disabled": [
+                    "AtomPropertiesDialog.ShowGenericLabels"
+                ]
+                },
+                "properties": {
+                "StyleSheet": "ACS Document 1996",
+                "chemservice": "https://chemdrawdirect.perkinelmer.cloud/rest/"
+                }
+            },
+            license:'<?xml version="1.0" encoding="UTF-8" standalone="no"?><License Version="1.0">  <!--PLEASE DO NOT MODIFY THIS FILE AND BE AWARE THAT THIS FILE CONTAINS CONFIDENTIAL INFORMATION.-->  <Field Name="ID" Value="fe147dc4-172a-4b45-8eb6-dd01855e3bf6"/>  <Field Name="Software" Value="ChemDraw JS"/>  <Field Name="Comment" Value="Generated by PerkinElmer Informatics, Inc."/>  <Signature Value="IGKpv95c5NsjhKb1nJzPEM97UiY="/></License>'
+        });
+    }
+</script>
+{% comment %} <script src="https://chemdrawdirect.perkinelmer.cloud/js/chemdrawweb/chemdrawweb.js" async onLoad="javascript:perkinelmerInit();"></script> {% endcomment %}
+<script src="{% static '/chemdrawweb/chemdrawweb.js' %}" async onLoad="javascript:perkinelmerInit()"></script>
+<script>
+    var dataTable;
+
+    $(function(){
+        dataTable = $('#data_table').DataTable({
+            order: [ [0, 'asc'] ],
+            ordering: true,
+            fixedHeader:true,
+            scrollX: true,
+            iDisplayLength: 25,
+            bStateSave: true,
+            search: {
+                'regex': true,
+            },
+        });
+
+        $("#smile").on('blur', (e)=>{
+            if( $("#smile").val() == "" ){
+                chemdrawjs.getSMILES(function(e){
+                    $("#smile").val(e);
+                });
+            } else {
+                chemdrawjs.loadSMILES($("#smile").val(),function(e){
+                });
+            }
+        });
+        $("#smile").on('change', (e)=>{
+            if( $("#smile").val() == "" ){
+                chemdrawjs.getSMILES(function(e){
+                    $("#smile").val(e);
+                });
+            } else {
+                chemdrawjs.loadSMILES($("#smile").val(),function(e){
+                });
+            }
+        });
+
+        $("#applyBtn").on('click', (e)=>{
+            if( $("#smile").val() == "" ){
+                chemdrawjs.getSMILES(function(e){
+                    if( e != "" ) {
+                        callApi(e);
+                    }
+                    $("#smile").val(e);
+                });
+            } else {
+                try{
+                    chemdrawjs.loadSMILES($("#smile").val(),function(e){
+                        if ( $("#smile").val() != "" ) {
+                            callApi($("#smile").val());
+                        }
+                    });
+                }catch(error){
+                    console.log(error);
+                    if ( $("#smile").val() != "" ) {
+                        callApi($("#smile").val());
+                    }
+                }
+                
+            }
+        });
+
+
+        $("#imagemodal").on('hidden.bs.modal', function(e){
+            $("#modalDiv > svg").remove();
+            $("#modalText").text("");
+            $("#label").text("");
+        });
+
+        $("#logPDiv>svg").on('click',(e)=>{
+            var clone = e.currentTarget.cloneNode(true);
+            $("#imagemodal > div > div > div.modal-body").append(clone);
+            $("#imagemodal").modal({show:true, backdrop:false});
+        });
+        
+
+        $(".loadingDiv").hide();
+    });
+
+
+    
+    function s2ab(s) { 
+        var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+        var view = new Uint8Array(buf);  //create uint8array as viewer
+        for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+        return buf;    
+    }
+    function exportExcel(){ 
+        if(logd == undefined || (logd.logDByPh.length == 0 ) ){
+            $.notify("다운로드할 데이터가 없습니다.", {
+                className:"error", 
+                position:"right bottom", 
+                autoHideDelay:10000 }
+            );
+            return;
+        }
+
+        /*
+        var wb = XLSX.utils.book_new();
+        wb.SheetNames.push("LogD");
+        var logdSheet = [['pH','value']];
+        for(i=0;i<logd.logDByPh.length;i++){
+            var d = [];
+            d.push(logd.logDByPh[i].pH);
+            d.push(logd.logDByPh[i].value);
+            logdSheet.push(d);
+        }
+        var ws1 = XLSX.utils.aoa_to_sheet(logdSheet);
+        wb.Sheets["LogD"] = ws1;
+        var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+        saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'logd_data.xlsx');
+        */
+
+        var export_rows = [];
+        for(di=0;di<logd.logDByPh.length;di++){
+            var d = [];
+            d.push(logd.logDByPh[di].pH);
+            d.push(logd.logDByPh[di].value);
+            export_rows.push(d);
+        }
+        var svg = document.querySelector("#logPSvgDiv>svg");
+
+        var svg_data = new XMLSerializer().serializeToString(svg);
+        var blob = new Blob([svg_data], {type: "image/svg+xml;charset=utf-8"});
+
+        var canvas = document.createElement("canvas");
+
+        var {width, height} = svg.getBoundingClientRect();
+
+        canvas.width = width; 
+        canvas.height = height;
+
+        var ctx = canvas.getContext('2d');
+
+        var img = new Image();
+
+        img.onload = (e) => {
+            ctx.drawImage(e.target, 0, 0);
+            image = canvas.toDataURL("image/png");
+            //console.log(image);
+
+            var workbook = new exceljs.Workbook();
+            logdSheet = workbook.addWorksheet('LogD');
+            logdSheet.addTable({
+                name: 'LogD',
+                ref: 'A1',
+                headerRow: true,
+                totalsRow: false,
+                style: {
+                    //theme: 'TableStyleDark3',
+                    showRowStripes: true,
+                },
+                columns: [
+                    {name: 'pH', totalsRowLabel: 'Totals:', filterButton: false},
+                    {name: 'value', totalsRowFunction: 'sum', filterButton: false},
+                ],
+                rows: export_rows,
+            });
+
+            logpSheet = workbook.addWorksheet('LogP');
+            imageId2 = workbook.addImage({
+                base64: image,
+                extension: "png",
+            });
+            logpSheet.addImage(imageId2, 'A1:J31');
+
+            logpSheet.addTable({
+                name: 'LogP',
+                ref: 'L2',
+                columns: [
+                  {name: 'LogP', },
+                ],
+                rows: [
+                  [logp.logP,],
+                ],
+              });
+
+            var promise = [];
+            Promise.all(promise).then(() => {
+                workbook.xlsx.writeBuffer().then((b) => {
+                var a = new Blob([b]);
+                    var url = window.URL.createObjectURL(a);
+                    var elem = document.createElement("a");
+                    elem.href = url;
+                    elem.download = `logd_logp_data.xlsx`;
+                    document.body.appendChild(elem);
+                    elem.style = "display: none";
+                    elem.click();
+                    elem.remove();
+                });
+            });
+        };
+        img.src = URL.createObjectURL(blob);
+    }
+
+    var chemdrawjsAttached = function (chemdraw) {
+        chemdrawjs = chemdraw;
+        // do something
+        chemdrawjs.setContentChangedHandler((e) => {
+            $("#smile").effect("highlight", {}, 1000);
+            chemdrawjs.getSMILES((e) => {
+                $("#smile").val(e);
+            });
+        });
+    };
+
+    var chemdrawjsFailed = function (error) {
+        alert(error);
+    };
+
+    function clear(){
+        chemdrawjs.clear();
+        // $("#imageDiv svg").remove();
+        // $("#display_smiles").text("");
+    }
+
+    function getSmiles(){
+        var returnVal;
+        chemdrawjs.getSMILES(function(e){
+            returnVal = e;
+        });
+        return returnVal;
+    }
+
+    function loadSmiles(){
+        chemdrawjs.loadSMILES($("#smile").val(),function(e){
+            if ( $("#smile").val() != "" ) {
+                callApi($("#smile").val());
+            }
+        });
+    }
+
+    var cns, form_svg_img, total_svg_img, version;
+    function callApi(s){
+        if( $("#ph").val() == "" ){
+            $.notify("pH값이 없습니다.", {
+                className:"error", 
+                position:"right bottom", 
+                autoHideDelay:10000 }
+            );
+            return;
+        }
+        $(".loadingDiv").show();
+        $("#formalCharge").text("");
+        $.ajax({
+            type:"post",
+            url:"cns/api",
+            data:"s="+encodeURIComponent(s),
+            success:function(msg){
+                console.log(msg);
+                data = [];
+                data_mm = [];
+                category = [];
+                $("#formalCharge").text("-");
+                cns = msg.cns;
+
+                $(".loadingDiv").hide();
+                version = msg.cns.version;
+                if(version == undefined ) version = "알 수 없음"
+                $("#ver").text("ver. "+version);
+
+                var str = "";
+                str = "Score : "+cns.score;
+
+                $("#formalCharge").html( str );
+                $("#logPDiv").show();
+                $(".title").show();
+                $("#subTitleDiv").show();
+
+                
+            },
+            error:function(e){
+                $(".loadingDiv").hide();
+                $.notify("장애가 발생했습니다.\n("+e+")\n관리자에게 문의하시기 바랍니다.", {
+                    className:"error", 
+                    position:"right bottom", 
+                    autoHideDelay:10000 }
+                );
+            }
+        });
+    }
+    
+</script>
+
+{% endblock content %}

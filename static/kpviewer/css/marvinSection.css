@@ -1,0 +1,77 @@
+.marvin-section {
+
+    /* flex: 33.6%; */
+
+    /* flex-grow: 1; */
+
+    /* background-color: violet; */
+    /* width: 40%; */
+    /* float: left; */
+}
+
+.marvin-form-left {
+    /* float: left;
+    width: 43%; */
+}
+
+.marvin-section:after {
+    /* content: "";
+    clear: both;
+    display: block; */
+}
+
+
+.marvin {
+    /* width: 860px;
+    height: 550px; */
+    /* display: inline-block; */
+    /* border-style: ridge; */
+    /* text-align: center; */
+}
+
+.marvin .text {
+    /* position: relative;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+
+    color: darkgrey; */
+}
+
+.search_field_label {
+    /* margin-left: 5%;
+    margin-top: 3%; */
+}
+
+.substructure-similarity-exactmatch {
+    /* width:100%;
+    display: flex; */
+}
+
+.substructure-rad, .similarity-rad, .exactmatch-rad {
+    /* width: 33.3%; */
+}
+
+.similarity-rad, .exactmatch-rad {
+    /* margin-left:5%; */
+}
+
+.properties {
+    /* height: 45%; */
+    /* border: solid 1px; */
+    /* border-style: ridge; */
+    /* float: left;
+    width: 50%; */
+    /* margin-left:5%; */
+}
+
+.chemical-option-input-number::-webkit-inner-spin-button, 
+.chemical-option-input-number::-webkit-outer-spin-button {
+   opacity: 1;
+
+}
+
+.chemical-option-input-number::-webkit-calendar-picker-indicator {
+    opacity: 100;
+}

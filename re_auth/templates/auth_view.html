@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'home/navbar/re_navbar.html' %}
+
+<template id="auth_view" class="row" style="background-color: #f9f9f9;">
+    <div class="col-md-2">
+        <div class="form-group form-row" style="padding-left:10px; padding-right:10px;position: relative;">
+            <div class="form-group col-md-12 treeDiv" style="height:76.6vh; width:100px; overflow-y: scroll; border: lightgray 1px solid; border-radius: 4px; margin-top:30px; margin-left:10px; margin-right:10px; background-color: #ffffff; "></div>
+            <div style="width: 20px; height: 76.3vh; background-color: #ffffff; position: absolute; bottom: 18px; right: 2px"></div>
+        </div>
+    </div>
+    <div class="col-md-14" style="position: relative;">
+        <div style="flex: auto; margin-top:30px; margin-left: 20px; width: 80vw; padding: 1%; border-radius:25px; background-color: #ffffff">
+            <Authtarget :targets="targets" :auth_checks="auth_checks"></Authtarget>
+        </div>
+
+        <div style="flex: auto; margin-top:20px; margin-left: 20px; width: 80vw; height: 58vh; padding: 1%; border-radius:25px; background-color: #ffffff; overflow-x: scroll; ">
+            <button type="button" class="btn btn-outline-primary" style="margin-left:20px;margin-top:5px;" v-show="isShow" @click="save">저장</button>
+            <div class="position-fixed top-0 end-0 translate-middle-x" style="z-index: 11">
+                <div id="auth_toast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-body">권한이 변경 되었습니다.</div>
+                </div>
+            </div>
+
+            <Authcheckheader :targets="targets" v-show="isShow"></Authcheckheader>
+            <div v-for="(item, index) in auth_checks">
+                <Authcheck :targets="targets" :item="item" :index="index"></Authcheck>
+            </div>
+            <div style="width: 10px; height: 53vh; border-radius: 0px 25px 0px 0px; background-color: #ffffff; position: absolute; bottom: 50px; right: 0px"></div>
+        </div>
+    </div>
+</template>
+
+<!-- components -->
+{% include "./components/auth_target.html" %}
+{% include "./components/auth_check_header.html" %}
+{% include "./components/auth_check.html" %}
+
+{{ tree|json_script:"data" }}
+<script src="{% static '/js/tree.min.js' %}"></script>
+<script>
+    const vue = createApp({
+        components: {
+            "Authcheck": authcheckComponent,
+            "Authcheckheader": authcheckheaderComponent,
+            "Authtarget": authtargetComponent,
+            "Authtype": authtypeComponent,
+        },
+        data () {
+            return {
+                isShow: false,
+                authority: {},
+                auth_checks: [],
+                auth_targets: [],
+                targets: [],
+                key: 1,
+            }
+        },
+        methods: {
+            getTargets() {
+                axios.get("/re-auth/getTargets")
+                .then((response) => {
+                    this.targets = response.data
+                })
+            },
+            getMemberTree() {
+                $('.treeDiv').html('');
+                let data = $.parseJSON($('#data')[0].innerText);
+
+                tree = new Tree('.treeDiv', {
+                    data: [ data ],
+                    closeDepth: 5,
+                    loaded: function () {},
+                    onChange: function () {
+                        if (this.values.length > 0) {
+                            vue.isShow = true
+                        } else {
+                            vue.isShow = false
+                        }
+
+                        var member_ids_a = []
+                        var member_ids_b = []
+                        if (vue.auth_checks.length > 0) {
+                            for(var auth_check of vue.auth_checks) {
+                                member_ids_a.push(auth_check["member_id"])
+                            }
+                        }
+
+                        for(var value of this.values) {
+                            if (value.indexOf('_') > -1) {
+                                var member_id = value.split("_")[1]
+                                if (!member_ids_b.includes(member_id)) {
+                                    member_ids_b.push(member_id)
+                                }
+                            }
+                        }
+
+                        // 이미 체크된 동일 아이디 있을 경우 제외
+                        if (member_ids_a.length == member_ids_b.length)  return
+
+                        axios.get("/re-auth/getAuth")
+                        .then((res) => {
+                            vue.authority = res.data
+                            vue.auth_checks = []
+                            vue.auth_targets = []
+
+                            for (target of vue.targets) {
+                                if (target.isActive) {
+                                    vue.auth_targets.push("auth_" + target.name + "_isActive_1")
+                                } else {
+                                    vue.auth_targets.push("auth_" + target.name + "_isActive_0")
+                                }
+                                vue.auth_targets.push("auth_" + target.name)
+                                vue.auth_targets.push("auth_" + target.name + "_register")
+                                vue.auth_targets.push("auth_" + target.name + "_validation")
+                                vue.auth_targets.push("auth_" + target.name + "_design")
+                            }
+
+                            for (member_id_b of member_ids_b) {
+                                var auth_check = {
+                                    member_name: this.nodesById[this.values.filter(value => value.split("_")[1] == member_id_b)[0]].text,
+                                    member_id: member_id_b,
+                                }
+
+                                for (auth_target of vue.auth_targets) {
+                                    if (auth_target.indexOf('isActive') > 0) {
+                                        if (auth_target.indexOf("_isActive_1") > 0) {
+                                            auth_check[auth_target.slice(0, auth_target.indexOf("_1"))] = true
+                                        } else {
+                                            auth_check[auth_target.slice(0, auth_target.indexOf("_0"))] = false
+                                        }
+                                    } else {
+                                        if (vue.authority[auth_target] != null) {
+                                            auth_check[auth_target] = vue.authority[auth_target].filter((auth) => auth == member_id_b).length > 0 ? true : false
+                                        } else {
+                                            vue.authority[auth_target] = []
+                                        }
+                                    }
+                                }
+                                vue.auth_checks.push(auth_check)
+
+                            }
+                        })
+                    }
+                })
+            },
+            save() {
+                if (this.auth_checks.length > 0) {
+                    var auths = {}
+                    const member_ids = []
+
+                    for (target of this.targets) {
+                        if (target.isActive) {
+
+                            // 기존 authority
+                            auths["auth_" + target.name] = this.authority["auth_" + target.name]
+                            auths["auth_" + target.name + "_register"] = this.authority["auth_" + target.name + "_register"]
+                            auths["auth_" + target.name + "_validation"] = this.authority["auth_" + target.name + "_validation"]
+                            auths["auth_" + target.name + "_design"] = this.authority["auth_" + target.name + "_design"]
+
+                            for (var auth_check of this.auth_checks) {
+                                var memberId = parseInt(auth_check["member_id"])
+
+
+                                if (auth_check["auth_" + target.name]) {
+
+                                    // 권한을 부여한 경우
+                                    if (typeof auths["auth_" + target.name] != 'undefined' && auths["auth_" + target.name].length > 0) {
+                                        if (!auths["auth_" + target.name].includes(memberId)) {
+                                            auths["auth_" + target.name].push(memberId)
+                                        }
+                                    } else {
+                                        auths["auth_" + target.name] = [memberId]
+                                    }
+                                } else {
+                                    // 권한을 부여하지 않은 경우
+                                    auths["auth_" + target.name] = auths["auth_" + target.name].filter(auth => auth != memberId)
+                                }
+
+                                if (auth_check["auth_" + target.name + "_register"]) {
+                                    // 권한을 부여한 경우
+                                    if (typeof auths["auth_" + target.name + "_register"] != 'undefined' && auths["auth_" + target.name + "_register"].length > 0) {
+                                        if (!auths["auth_" + target.name + "_register"].includes(memberId)) {
+                                            auths["auth_" + target.name + "_register"].push(memberId)
+                                        }
+                                    } else {
+                                        auths["auth_" + target.name + "_register"] = [memberId]
+                                    }
+                                } else {
+                                    // 권한을 부여하지 않은 경우
+                                    auths["auth_" + target.name + "_register"] = auths["auth_" + target.name + "_register"].filter(auth => auth != memberId)
+                                }
+
+                                if (auth_check["auth_" + target.name + "_validation"]) {
+                                    // 권한을 부여한 경우
+                                    if (typeof auths["auth_" + target.name + "_validation"] != 'undefined' && auths["auth_" + target.name + "_validation"].length > 0) {
+                                        if (!auths["auth_" + target.name + "_validation"].includes(memberId)) {
+                                            auths["auth_" + target.name + "_validation"].push(memberId)
+                                        }
+                                    } else {
+                                        auths["auth_" + target.name + "_validation"] = [memberId]
+                                    }
+                                } else {
+                                    // 권한을 부여하지 않은 경우
+                                    auths["auth_" + target.name + "_validation"] = auths["auth_" + target.name + "_validation"].filter(auth => auth != memberId)
+                                }
+
+                                if (auth_check["auth_" + target.name + "_design"]) {
+                                    // 권한을 부여한 경우
+                                    if (typeof auths["auth_" + target.name + "_design"] != 'undefined' && auths["auth_" + target.name + "_design"].length > 0) {
+                                        if (!auths["auth_" + target.name + "_design"].includes(memberId)) {
+                                            auths["auth_" + target.name + "_design"].push(memberId)
+                                        }
+                                    } else {
+                                        auths["auth_" + target.name + "_design"] = [memberId]
+                                    }
+                                } else {
+                                    // 권한을 부여하지 않은 경우
+                                    auths["auth_" + target.name + "_design"] = auths["auth_" + target.name + "_design"].filter(auth => auth != memberId)
+                                }
+                            }
+                        }
+                    }
+
+                    axios.post("/re-auth/updateAuth", {"auths": auths})
+                    .then(() => {
+                        vue.toast("권한을 변경하였습니다.")
+                    })
+                } else {
+                    vue.toast("권한을 변경할 대상을 선택해 주세요")
+                }
+            },
+            toast(text) {
+                $(".toast-body").html(text)
+                $("#auth_toast").toast({animation: false, delay: 1500});
+                $("#auth_toast").toast('show');
+            },
+            updateView() {
+                this.$forceUpdate();
+            }
+        },
+        mounted: function() {
+            this.getTargets()
+            this.getMemberTree()
+        }
+    }).mount('#auth_view')
+</script>
+
+{% endblock content %}

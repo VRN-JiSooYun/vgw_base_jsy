@@ -1,0 +1,189 @@
+
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<td>
+    {% if q_hrlayout.member.id in q_authority.auth_bd %}
+        <input type="checkbox" name="checkbox-auth-bd-id" value="{{ q_hrlayout.member.id }}" checked> P
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-bd-id" value="{{ q_hrlayout.member.id }}" unchecked> P
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_bd_register %}
+        <input type="checkbox" name="checkbox-auth-bd-register-id" value="{{ q_hrlayout.member.id }}" checked> R
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-bd-register-id" value="{{ q_hrlayout.member.id }}" unchecked> R
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_bd_validation %}
+        <input type="checkbox" name="checkbox-auth-bd-validation-id" value="{{ q_hrlayout.member.id }}" checked> V
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-bd-validation-id" value="{{ q_hrlayout.member.id }}" unchecked> V
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_bd_design %}
+        <input type="checkbox" name="checkbox-auth-bd-design-id" value="{{ q_hrlayout.member.id }}" checked> D
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-bd-design-id" value="{{ q_hrlayout.member.id }}" unchecked> D
+    {% endif %}
+</td>
+
+<td>
+    {% if q_hrlayout.member.id in q_authority.auth_bdqna %}
+        <input type="checkbox" name="checkbox-auth-bdqna-id" value="{{ q_hrlayout.member.id }}" checked> P
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-bdqna-id" value="{{ q_hrlayout.member.id }}" unchecked> P
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_bdqna_register %}
+        <input type="checkbox" name="checkbox-auth-bdqna-register-id" value="{{ q_hrlayout.member.id }}" checked> R
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-bdqna-register-id" value="{{ q_hrlayout.member.id }}" unchecked> R
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_bdqna_validation %}
+        <input type="checkbox" name="checkbox-auth-bdqna-validation-id" value="{{ q_hrlayout.member.id }}" checked> V
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-bdqna-validation-id" value="{{ q_hrlayout.member.id }}" unchecked> V
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_bdqna_design %}
+        <input type="checkbox" name="checkbox-auth-bdqna-design-id" value="{{ q_hrlayout.member.id }}" checked> D
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-bdqna-design-id" value="{{ q_hrlayout.member.id }}" unchecked> D
+    {% endif %}
+</td>
+
+<td>
+    {% if q_hrlayout.member.id in q_authority.auth_finance %}
+        <input type="checkbox" name="checkbox-auth-finance-id" value="{{ q_hrlayout.member.id }}" checked> P
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-finance-id" value="{{ q_hrlayout.member.id }}" unchecked> P
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_finance_register %}
+        <input type="checkbox" name="checkbox-auth-finance-register-id" value="{{ q_hrlayout.member.id }}" checked> R
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-finance-register-id" value="{{ q_hrlayout.member.id }}" unchecked> R
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_finance_validation %}
+        <input type="checkbox" name="checkbox-auth-finance-validation-id" value="{{ q_hrlayout.member.id }}" checked> V
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-finance-validation-id" value="{{ q_hrlayout.member.id }}" unchecked> V
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_finance_design %}
+        <input type="checkbox" name="checkbox-auth-finance-design-id" value="{{ q_hrlayout.member.id }}" checked> D
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-finance-design-id" value="{{ q_hrlayout.member.id }}" unchecked> D
+    {% endif %}
+</td>
+
+<td>
+    {% if q_hrlayout.member.id in q_authority.auth_hr %}
+        <input type="checkbox" name="checkbox-auth-hr-id" value="{{ q_hrlayout.member.id }}" checked> P
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-hr-id" value="{{ q_hrlayout.member.id }}" unchecked> P
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_hr_register %}
+        <input type="checkbox" name="checkbox-auth-hr-register-id" value="{{ q_hrlayout.member.id }}" checked> R
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-hr-register-id" value="{{ q_hrlayout.member.id }}" unchecked> R
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_hr_validation %}
+        <input type="checkbox" name="checkbox-auth-hr-validation-id" value="{{ q_hrlayout.member.id }}" checked> V
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-hr-validation-id" value="{{ q_hrlayout.member.id }}" unchecked> V
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_hr_design %}
+        <input type="checkbox" name="checkbox-auth-hr-design-id" value="{{ q_hrlayout.member.id }}" checked> D
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-hr-design-id" value="{{ q_hrlayout.member.id }}" unchecked> D
+    {% endif %}
+</td>
+
+<td>
+    {% if q_hrlayout.member.id in q_authority.auth_ip %}
+        <input type="checkbox" name="checkbox-auth-ip-id" value="{{ q_hrlayout.member.id }}" checked> P
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-ip-id" value="{{ q_hrlayout.member.id }}" unchecked> P
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_ip_register %}
+        <input type="checkbox" name="checkbox-auth-ip-register-id" value="{{ q_hrlayout.member.id }}" checked> R
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-ip-register-id" value="{{ q_hrlayout.member.id }}" unchecked> R
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_ip_validation %}
+        <input type="checkbox" name="checkbox-auth-ip-validation-id" value="{{ q_hrlayout.member.id }}" checked> V
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-ip-validation-id" value="{{ q_hrlayout.member.id }}" unchecked> V
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_ip_design %}
+        <input type="checkbox" name="checkbox-auth-ip-design-id" value="{{ q_hrlayout.member.id }}" checked> D
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-ip-design-id" value="{{ q_hrlayout.member.id }}" unchecked> D
+    {% endif %}
+</td>
+
+<td>
+    {% if q_hrlayout.member.id in q_authority.auth_material %}
+        <input type="checkbox" name="checkbox-auth-material-id" value="{{ q_hrlayout.member.id }}" checked> P
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-material-id" value="{{ q_hrlayout.member.id }}" unchecked> P
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_material_register %}
+        <input type="checkbox" name="checkbox-auth-material-register-id" value="{{ q_hrlayout.member.id }}" checked> R
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-material-register-id" value="{{ q_hrlayout.member.id }}" unchecked> R
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_material_validation %}
+        <input type="checkbox" name="checkbox-auth-material-validation-id" value="{{ q_hrlayout.member.id }}" checked> V
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-material-validation-id" value="{{ q_hrlayout.member.id }}" unchecked> V
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_material_design %}
+        <input type="checkbox" name="checkbox-auth-material-design-id" value="{{ q_hrlayout.member.id }}" checked> D
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-material-design-id" value="{{ q_hrlayout.member.id }}" unchecked> D
+    {% endif %}
+</td>
+
+<td>
+    {% if q_hrlayout.member.id in q_authority.auth_purchasing %}
+        <input type="checkbox" name="checkbox-auth-purchasing-id" value="{{ q_hrlayout.member.id }}" checked> P
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-purchasing-id" value="{{ q_hrlayout.member.id }}" unchecked> P
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_purchasing_register %}
+        <input type="checkbox" name="checkbox-auth-purchasing-register-id" value="{{ q_hrlayout.member.id }}" checked> R
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-purchasing-register-id" value="{{ q_hrlayout.member.id }}" unchecked> R
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_purchasing_validation %}
+        <input type="checkbox" name="checkbox-auth-purchasing-validation-id" value="{{ q_hrlayout.member.id }}" checked> V
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-purchasing-validation-id" value="{{ q_hrlayout.member.id }}" unchecked> V
+    {% endif %}
+    <br>
+    {% if q_hrlayout.member.id in q_authority.auth_purchasing_design %}
+        <input type="checkbox" name="checkbox-auth-purchasing-design-id" value="{{ q_hrlayout.member.id }}" checked> D
+    {% else %}
+        <input type="checkbox" name="checkbox-auth-purchasing-design-id" value="{{ q_hrlayout.member.id }}" unchecked> D
+    {% endif %}
+</td>
+

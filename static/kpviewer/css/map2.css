@@ -1,0 +1,158 @@
+.zoom_outer2 {
+    border-style: ridge;
+
+    width: 864px;
+    height: 1440px;
+
+    overflow: hidden;
+    margin:0px;
+    padding:0px;
+    position: relative;
+}
+
+#zoom2 {
+    width: 4800px;
+    height:8000px;
+
+    margin:0px;
+    padding:0px;
+    transform-origin: 0px 0px;
+    transform: scale(1) translate(0px, 0px);
+    cursor: grab;
+    position: relative;
+}
+
+#zoom-img2 {
+    width: 50%;
+    height:50%;
+
+    position: relative;
+
+    top: 2000px;
+    left: 1200px;
+
+    margin:0px;
+    padding:0px;
+
+    display: block;
+
+    pointer-events: none;
+}
+
+.targetOpacity2 {
+    position:absolute;
+    /* top:0px;
+    left:0px; */
+    background-color: cadetblue;
+    display: inline-block;
+    width: 200px;
+    /* height: 50px; */
+    z-index: 1;
+}
+
+.save-image-btn2 {
+    position:absolute;
+    z-index: 1;
+    right: 0px;
+    margin-top: 5px;
+    margin-right: 5px;
+    font-size: 15px;
+}
+
+.map-zoom-in-btn2 {
+    position:absolute;
+    z-index: 1;
+    right: 0px;
+    margin-top: 45px;
+    margin-right: 5px;
+    font-size: large;
+}
+
+.map-zoom-out-btn2 {
+    position:absolute;
+    z-index: 1;
+    right: 0px;
+    margin-top: 86px;
+    margin-right: 5px;
+    font-size: large;
+}
+
+.map-zoom-reset-btn2 {
+    position:absolute;
+    z-index: 1;
+    right: 0px;
+    margin-top: 132px;
+    margin-right: 5px;
+    font-size: large;
+}
+
+.kp-gadget2 {
+    display: block;
+    position: absolute;
+    pointer-events:none;
+}
+
+.save-image-btn2:after {
+    content: "";
+    clear: both;
+    display: block;
+}
+
+.target-list2 {
+    position:absolute;
+    z-index: 1;
+    right: 0px;
+}
+
+.target-block2 {
+    margin-top: 50px;
+    margin-right: -15px;
+    text-align: center;
+    width: 160px;
+    position: relative;
+}
+
+.target-block-switch2 {
+    position: absolute;
+    top: -10px;
+    left: 0px;
+}
+
+.target-block-close2 {
+    height: 15px;
+    width: 15px;
+    background-color: gainsboro;
+    /* border-radius: 50%; */
+    border-radius: 5px;
+    display: inline-block;
+
+    color:grey;
+    position:absolute;
+    top: -10px;
+    right: 20px;
+
+    cursor:pointer;
+}
+
+.target2,.target-default2 {
+    border-radius: 50%;
+    display: inline-block;
+    border: solid 1px;
+    position: absolute;
+    /* opacity: 0.5; */
+}
+
+.info2 {
+    /* width: 80px; */
+    background-color:white;
+    color: black;
+    border: cornflowerblue solid;
+    /* text-align: center; */
+    /* border-radius: 6px; */
+    /* padding: 5px 0; */
+    font-size: 8px;;
+  
+    /* Position the tooltip */
+    /* position: absolute; */
+    z-index: 7;
+}

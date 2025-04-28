@@ -1,0 +1,614 @@
+{% load getCode %}
+{% load getCodeDtls %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+    .modal-fullscreen .modal-content {
+        margin: auto;
+        display: block;
+        width: 100% !important;
+        height: auto !important;
+        max-width: 100vw !important;
+    }
+
+    .title {
+        margin: auto;
+        margin-top: 21px;
+        margin-left: 10px;
+        padding-top: 3px;
+        width: 100px;
+        height: 32px;
+        text-align: center;
+        border-radius: 5px;
+        border: 1px solid rgb(13, 110, 253);
+        color: rgb(13, 110, 253);
+        background: white;
+    }
+
+    .info-box {
+        margin: 3px 60px 0px 10px;
+        padding: 30px;
+        border: 1px solid rgb(204, 204, 204);
+        border-radius: 10px;
+        background-color: #ffffff;
+    }
+
+    .add-btn {
+        text-align: center;
+        margin: 10px 60px 50px 10px;
+        padding: 20px;
+        border: 1px solid rgb(051, 051, 000);
+        border-radius: 10px;
+        background-color: #ffffff;
+        cursor: pointer;
+    }
+
+    .remove-btn {
+        width: 30px;
+        height: 30px;
+        float: right;
+        text-align: center;
+        margin: 10px 70px 0px 0px;
+        padding: 2px;
+        border: 1px solid red;
+        border-radius: 10px;
+        background-color: #ffffff;
+        cursor: pointer;
+    }
+
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
+    }
+
+    #ui-datepicker-div {
+        z-index: 9999;
+        display: block;
+    }
+
+
+</style>
+<div class="modal fade" id="member_info_card_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">인사기록카드</h1>
+                <input type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" tabindex="-1"></button>
+            </div>
+
+            <div class="modal-body" style="background-color: #f9f9f9">
+
+                <!-- 사진 -->
+                <form name="member-image-upload-form"  enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="info-box" style="width: 220px" id="member-image-upload">
+                        <div style="height: 150px; width: 150px;">
+                            {% if member.member_image == null %}
+                            <img id="layer-member-image" src="/static/images/logo.png" style="width: 100%; height: 100%; object-fit:cover; background-color:black; border-radius:25px;">
+                            {% else %}
+                            <img id="layer-member-image" src="/media/re-member/{{ member.member_image}}" style="width: 100%; height: 100%; object-fit:cover; background-color:black; border-radius:25px;">
+                            {% endif %}
+                        </div>
+                        <div style="position: absolute; top: 205px; left: 210px">
+                            <span class="material-symbols-outlined" style="color:black">add_photo_alternate</span>
+                        </div>
+                    </div>
+                    <input type="file" id="member-image-file" style="display: none"  accept="image/*" onchange="handleFiles(this, this.files)" value="" >
+                </form>
+
+                <!-- 개인정보 -->
+                <div class="title">개인정보</div>
+                <Memberprivateinfo :item="member_private_info"></Memberprivateinfo>
+
+                <!-- 학교 -->
+                <div class="title">학교</div>
+                <div v-for="(item, index) in member_colleges">
+                    <Membercollege :item="item" :index="index" v-on:click="removeMemberCollege"></Membercollege>
+                </div>
+                <div class="add-btn" v-on:click="addMemberCollege"><span class="material-symbols-outlined">expand_more</span></div>
+
+                <!-- 병역 -->
+                <div class="title">병역</div>
+                <Membermilitary :item="member_military"></Membermilitary>
+
+                <!-- 자격증 -->
+                <div class="title">자격증</div>
+                <div v-for="(item, index) in member_certificates">
+                    <Membercertificate :item="item" :index="index" v-on:click="removeMemberCertificate"></Membercertificate>
+                </div>
+                <div class="add-btn" v-on:click="addMemberCertificate"><span class="material-symbols-outlined">expand_more</span></div>
+
+                <!-- 어학능력 -->
+                <div class="title">어학능력</div>
+                <div v-for="(item, index) in member_foreign_langs">
+                    <Memberforeignlang :item="item" :index="index" v-on:click="removeMemberForeignLang"></Memberforeignlang>
+                </div>
+                <div class="add-btn" v-on:click="addMemberForeignLang"><span class="material-symbols-outlined">expand_more</span></div>
+
+                <!-- 경력사항 -->
+                <div class="title">경력사항</div>
+                <div v-for="(item, index) in member_companys">
+                    <Membercompany :item="item" :index="index" v-on:click="removeMemberCompany"></Membercompany>
+                </div>
+                <div class="add-btn" v-on:click="addMemberCompany"><span class="material-symbols-outlined">expand_more</span></div>
+
+                <!-- 가족관계 -->
+                <div class="title">가족관계</div>
+                <div v-for="(item, index) in member_familys">
+                    <Memberfamily :item="item" :index="index" v-on:click="removeMemberFamily"></Memberfamily>
+                </div>
+                <div class="add-btn" v-on:click="addMemberFamily"><span class="material-symbols-outlined">expand_more</span></div>
+
+                <!-- 기타사항 -->
+                <div class="title">기타사항</div>
+                <Memberetcinfo :item="member_etc_info"></Memberetcinfo>
+            </div>
+            <div class="modal-footer">
+                <div id="layer_alert" class="toast toast-danger" role="layer_alert" aria-live="assertive" data-delay="500" aria-atomic="true" style="position:absolute; left:40%; background-color:#f8d7da; z-index:999">
+                    <div class="toast-body" v-html="alertText"></div>
+                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" tabindex="-1">취소</button>
+                <button type="button" class="btn btn-primary" v-on:click="save" tabindex="-1">수정</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "../components/member_private_info.html" %}
+{% include "../components/member_college.html" %}
+{% include "../components/member_military.html" %}
+{% include "../components/member_certificate.html" %}
+{% include "../components/member_foreign_lang.html" %}
+{% include "../components/member_company.html" %}
+{% include "../components/member_family.html" %}
+{% include "../components/member_etc_info.html" %}
+
+<Script>
+    var memberImage
+    $(document).ready(function() {
+        $('#member-image-upload').click(function() {
+            $("#member-image-file").click()
+        })
+
+    });
+
+    function handleFiles(e, files) {
+        var file = files[0]
+
+        if (!file.type.match("image/.*")) {
+            alert('이미지 파일만 업로드가 가능합니다.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        // 파일 업로드
+        $.ajax({
+            type:"POST",
+            url: "/re-member/uploadMemberImage/{{ member.member_id }}",
+            processData: false,
+            contentType: false,
+            data: formData,
+            success: function(res){
+                memberImage = res[1]
+                $("#layer-member-image").attr("src", "/media/re-member/" + memberImage)
+            },
+          })
+    }
+</script>
+
+
+<script>
+    createApp({
+        delimiters: ["[[", "]]"],
+        components: {
+            "Memberprivateinfo": memberPrivateInfoComponent,
+            "Membercollege": memberCollegeComponent,
+            "Membermilitary": memberMilitaryComponent,
+            "Membercertificate": memberCertificateComponent,
+            "Memberforeignlang": memberForeignLangComponent,
+            "Membercompany": memberCompanyComponent,
+            "Memberfamily": memberFamilyComponent,
+            "Memberetcinfo": memberEtcInfoComponent,
+        },
+        data () {
+            return {
+                // 개인정보
+                member_private_info: {},
+                // 학교
+                member_colleges: [],
+                // 병역
+                member_military: {},
+                // 자격증
+                member_certificates: [],
+                // 어학능력
+                member_foreign_langs: [],
+                // 경력사항
+                member_companys: [],
+                // 가족관계
+                member_familys: [],
+                // 그외 정보
+                member_etc_info: {},
+                alertText: "",
+                isLoading: false,
+            }
+        },
+        methods: {
+            getMemberInfoCard() {
+                this.getMember()              // 개인정보 & 병역 & etc
+                this.getMemberColleges()      // 학교
+                this.getMemberCertificates()  // 자격증
+                this.getMemberForeignLang()   // 어학능력
+                this.getMemberCompanys()      // 경력사항
+                this.getMemberFamilys()       // 가족관계
+            },
+            getMember() {
+                // Member
+				axios.get("/re-member/getMember/{{ member.member_id }}")
+				.then((response) => {
+                    let item = response.data
+                    if (item.member_id != null ) {
+                        // 개인정보
+                        this.member_private_info.member_name = item.member_name
+                        this.member_private_info.member_eng_name = item.member_eng_name
+                        this.member_private_info.member_chinese_name = item.member_chinese_name
+                        this.member_private_info.member_social_id_first = item.member_social_id != "" && item.member_social_id != null ? item.member_social_id.split("-")[0] : ""
+                        this.member_private_info.member_social_id_second = item.member_social_id != "" && item.member_social_id != null ? item.member_social_id.split("-")[1] : ""
+                        this.member_private_info.member_addr = item.member_addr
+                        this.member_private_info.member_hp_er = item.member_hp_er
+                        this.member_private_info.member_hp_er_name = item.member_hp_er_name
+                        this.member_private_info.member_bank = item.member_bank
+                        this.member_private_info.member_bank_num = item.member_bank_num
+
+                        // 병역
+                        if (item.military_discharge_type == null) {
+                            this.member_military.military_discharge_type = "008001"
+                            this.member_military.military_etc_type = ""
+                            this.member_military.military_type = ""
+                            this.member_military.military_discharge_rank = ""
+                            this.member_military.military_skill = ""
+                            this.member_military.military_start_date = ""
+                            this.member_military.military_end_date = ""
+                            this.member_military.military_num = ""
+                            this.member_military.military_memo = ""
+                        } else {
+                            this.member_military.military_discharge_type = item.military_discharge_type
+                            this.member_military.military_etc_type = item.military_etc_type
+                            this.member_military.military_type = item.military_type
+                            this.member_military.military_discharge_rank = item.military_discharge_rank
+                            this.member_military.military_skill = item.military_skill
+                            this.member_military.military_start_date = item.military_start_date
+                            this.member_military.military_end_date = item.military_end_date
+                            this.member_military.military_num = item.military_num
+                            this.member_military.military_memo = item.military_memo
+                        }
+
+                        // etc
+                        this.member_etc_info.researcher_num = item.researcher_num
+                        this.member_etc_info.ministry_patriots = item.ministry_patriots
+                        this.member_etc_info.disabled_level = item.disabled_level
+                        this.member_etc_info.disabled_type = item.disabled_type
+
+                    }
+                })
+				.catch(() => {
+                    console.log('Error!')
+				})
+            },
+            getMemberColleges() {
+                // Member College
+				axios.get("/re-member/getMemberColleges/{{ member.member_id }}")
+				.then((response) => {
+                    for (let inx = 0; inx < response.data.length; inx++) {
+                        let item = response.data[inx]
+
+                        let obj;
+                        if (item.college_type == null ) {
+                            obj = {
+                                college_type: "006001",
+                                college_name: "",
+                                college_start_date: "1980-03-01",
+                                college_end_date: "1984-02-28",
+                                college_status: "007001",
+                                college_major: "",
+                                college_degree_num: "",
+                            }
+                        } else {
+                            obj = {
+                                college_type: item.college_type,
+                                college_name: item.college_name,
+                                college_start_date: item.college_start_date,
+                                college_end_date: item.college_end_date,
+                                college_status: item.college_status,
+                                college_major: item.college_major,
+                                college_degree_num: item.college_degree_num,
+                            }
+                        }
+                        this.member_colleges.push(obj)
+                    }
+                })
+				.catch(() => {
+                    console.log('Error!')
+				})
+            },
+            addMemberCollege() {
+                this.member_colleges.push({
+                    college_type: "006001",
+                    college_name: "",
+                    college_start_date: "1980-03-01",
+                    college_end_date: "1984-02-28",
+                    college_status: "007001",
+                    college_major: "",
+                    college_degree_num: "",
+                })
+            },
+            removeMemberCollege(index) {
+                if (typeof index == "number") {
+                    if (this.member_colleges.length > 1) {
+                        this.member_colleges.splice(index, 1)
+                    }
+                }
+            },
+            // Member Certificate
+            getMemberCertificates() {
+				axios.get("/re-member/getMemberCertificates/{{ member.member_id }}")
+				.then((response) => {
+                    for (let inx = 0; inx < response.data.length; inx++) {
+                        let item = response.data[inx]
+
+                        let obj;
+                        if (item.certificate_name == null ) {
+                            obj = {
+                                certificate_name: "",
+                                certificate_date: "",
+                                certificate_issuer: "",
+                            }
+                        } else {
+                            obj = {
+                                certificate_name: item.certificate_name,
+                                certificate_date: item.certificate_date,
+                                certificate_issuer: item.certificate_issuer,
+                            }
+                        }
+                        this.member_certificates.push(obj)
+                    }
+                })
+				.catch(() => {
+                    console.log('Error!')
+				})
+            },
+            addMemberCertificate() {
+                this.member_certificates.push({
+                    certificate_name: "",
+                    certificate_date: "",
+                    certificate_issuer: "",
+                })
+            },
+            removeMemberCertificate(index) {
+                if (typeof index == "number") {
+                    if (this.member_certificates.length > 1) {
+                        this.member_certificates.splice(index, 1)
+                    }
+                }
+            },
+            // Member Foreign Lang
+            getMemberForeignLang() {
+				axios.get("/re-member/getMemberForeignLangs/{{ member.member_id }}")
+				.then((response) => {
+                    for (let inx = 0; inx < response.data.length; inx++) {
+                        let item = response.data[inx]
+
+                        let obj;
+                        if (item.foreign_lang_name == null ) {
+                            obj = {
+                                foreign_lang_name: "",
+                                foreign_lang_exam: "",
+                                foreign_lang_exam_level: "",
+                                foreign_lang_date: "",
+                            }
+                        } else {
+                            obj = {
+                                foreign_lang_name: item.foreign_lang_name,
+                                foreign_lang_exam: item.foreign_lang_exam,
+                                foreign_lang_exam_level: item.foreign_lang_exam_level,
+                                foreign_lang_date: item.foreign_lang_date,
+                            }
+                        }
+                        this.member_foreign_langs.push(obj)
+                    }
+                })
+				.catch(() => {
+                    console.log('Error!')
+				})
+            },
+            addMemberForeignLang() {
+                this.member_foreign_langs.push({
+                    foreign_lang_name: "",
+                    foreign_lang_exam: "",
+                    foreign_lang_exam_level: "",
+                    foreign_lang_date: "",
+                })
+            },
+            removeMemberForeignLang(index) {
+                if (typeof index == "number") {
+                    if (this.member_foreign_langs.length > 1) {
+                        this.member_foreign_langs.splice(index, 1)
+                    }
+                }
+            },
+            // Member Company
+            getMemberCompanys() {
+				axios.get("/re-member/getMemberCompanys/{{ member.member_id }}")
+				.then((response) => {
+                    for (let inx = 0; inx < response.data.length; inx++) {
+                        let item = response.data[inx]
+
+                        let obj;
+                        if (item.company_name == null ) {
+                            obj = {
+                                company_name: "",
+                                working_start_date: "",
+                                working_end_date: "",
+                                division: "",
+                                position: "",
+                                job: "",
+                                annual_income: "",
+                                resign_memo: "",
+                            }
+                        } else {
+                            obj = {
+                                company_name: item.company_name,
+                                working_start_date: item.working_start_date,
+                                working_end_date: item.working_end_date,
+                                division: item.division,
+                                position: item.position,
+                                job: item.job,
+                                annual_income: item.annual_income,
+                                resign_memo: item.resign_memo,
+                            }
+                        }
+                        this.member_companys.push(obj)
+                    }
+                })
+				.catch(() => {
+                    console.log('Error!')
+				})
+            },
+            addMemberCompany() {
+                this.member_companys.push({
+                    company_name: "",
+                    working_start_date: "",
+                    working_end_date: "",
+                    division: "",
+                    position: "",
+                    job: "",
+                    annual_income: "",
+                    resign_memo: "",
+                })
+            },
+            removeMemberCompany(index) {
+                if (typeof index == "number") {
+                    if (this.member_companys.length > 1) {
+                        this.member_companys.splice(index, 1)
+                    }
+                }
+            },
+            // Member Family
+            getMemberFamilys() {
+				axios.get("/re-member/getMemberFamilys/{{ member.member_id }}")
+				.then((response) => {
+                    for (let inx = 0; inx < response.data.length; inx++) {
+                        let item = response.data[inx]
+
+                        let obj;
+                        if (item.relationship == null ) {
+                            obj = {
+                                relationship: "",
+                                name: "",
+                                birthday: "",
+                                is_live: "Y",
+                                addr: "",
+                            }
+                        } else {
+                            obj = {
+                                relationship: item.relationship,
+                                name: item.name,
+                                birthday: item.birthday,
+                                is_live: item.is_live,
+                                addr: item.addr,
+                            }
+                        }
+                        this.member_familys.push(obj)
+                    }
+                })
+				.catch(() => {
+                    console.log('Error!')
+				})
+            },
+            addMemberFamily() {
+                this.member_familys.push({
+                    relationship: "",
+                    name: "",
+                    birthday: "",
+                    is_live: "",
+                    addr: "",
+                })
+            },
+            removeMemberFamily(index) {
+                if (typeof index == "number") {
+                    if (this.member_familys.length > 1) {
+                        this.member_familys.splice(index, 1)
+                    }
+                }
+            },
+            save() {
+                if (this.member_private_info.member_eng_name == '') {
+                    this.alert("성명(영문)을 입력해 주세요.")
+                    return
+                }
+
+                if (this.member_private_info.member_social_id_first == '') {
+                    this.alert("주민번호 앞 6자리를 입력해 주세요.")
+                    return
+                }
+
+                if (this.member_private_info.member_social_id_second == '') {
+                    this.alert("주민번호 뒤 7자리를 입력해 주세요.")
+                    return
+                }
+
+                if (this.member_private_info.member_addr == '') {
+                    this.alert("현주소를 입력해 주세요.")
+                    return
+                }
+
+                if (this.member_private_info.member_bank == '') {
+                    this.alert("은행명을 입력해 주세요.")
+                    return
+                }
+
+                if (this.member_private_info.member_bank_num == '') {
+                    this.alert("계좌번호를 입력해 주세요.")
+                    return
+                }
+
+                if (this.isLoading) {
+                    this.alert("저장중 입니다.")
+                    return
+                }
+
+                this.isLoading = true
+
+                axios.post("/re-member/updateMemberInfoCard/{{ member.member_id }}", {
+                    "member_private_info": this.member_private_info,
+                    "member_colleges": this.member_colleges,
+                    "member_military": this.member_military,
+                    "member_certificates": this.member_certificates,
+                    "member_foreign_langs": this.member_foreign_langs,
+                    "member_companys": this.member_companys,
+                    "member_familys": this.member_familys,
+                    "member_etc_info": this.member_etc_info,
+                })
+                .then((response) => {
+                    this.isLoading = false
+                    member_info_card_vue.getMemberInfoCard()
+                    $("#member_info_card_modal").modal("hide");
+                })
+
+                if (typeof memberImage != 'undefined') {
+                    axios.post("/re-member/updateMemberImage/{{ member.member_id }}", {
+                        "member_image": memberImage,
+                    }).then((response) => {
+                        $("#member-image").attr("src", "/media/re-member/" + memberImage)
+                    })
+                }
+            },
+            alert(text) {
+                this.alertText = text
+                $('#layer_alert').toast('show')
+            }
+        },
+        mounted: function() {
+            this.getMemberInfoCard()
+        }
+    }).mount('#member_info_card_modal')
+</script>

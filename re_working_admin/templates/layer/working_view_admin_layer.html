@@ -1,0 +1,159 @@
+<div id="working_view_admin_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">출퇴근 내역 - [[ memberName ]] 님</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row justify-content-between" style="padding-bottom: 10px; padding-left: 20px;">
+                    <div class="col-16" style="display: flex">
+                        <input type="date" class="form-control" style="width: 200px" v-model="startDate">
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="date" class="form-control" style="width: 200px" v-model="endDate">
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <button type="button" class="btn btn-outline-danger" @click="getWorkingHistorys">검색</button>
+                    </div>
+                </div>
+
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">근무일</th>
+                            <th scope="col">실출근시간</th>
+                            <th scope="col">출근상태</th>
+                            <th scope="col">실퇴근시간</th>
+                            <th scope="col">퇴근상태</th>
+                            <th scope="col">실근무시간</th>
+                            <th scope="col">근무상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-if="workingHistorys.length > 0" v-for="(item, index) in workingHistorys">
+                            <td v-html="item.working_date"></td>
+                            <td v-html="checkWorkingStartDatetime(item.working_start_check_datetime, item.working_start_check_ori_datetime)"></td>
+                            <td v-html="workingStartStatus(item.working_date, item.working_start_datetime, item.working_start_check_datetime)"></td>
+                            <td v-html="checkWorkingEndDatetime(item.working_end_check_datetime, item.working_end_check_ori_datetime)"></td>
+                            <td v-html="workingEndStatus(item.working_end_datetime, item.working_end_check_datetime)"></td>
+                            <td v-html="workingTime(item.working_start_check_datetime, item.working_end_check_datetime)"></td>
+                            <td v-html="workingStatus(item.working_off_type, item.working_out_type, item.working_start_check_datetime, item.working_end_check_datetime)"></td>
+                        </tr>
+                        <tr v-else>
+                            <td colspan ="7">출퇴근 내역이 없습니다.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="close">취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const working_view_admin_vue = createApp({
+        delimiters: ["[[", "]]"],
+        data () {
+            return {
+                startDate: "",
+                endDate: "",
+                workingHistorys: [],
+                memberId: 0,
+                memberName: "",
+            }
+        },
+        methods: {
+            loadData(memberId, memberName) {
+                this.memberId = memberId
+                this.memberName = memberName
+
+                this.getWorkingHistorys()
+            },
+            getWorkingHistorys() {
+                axios.get("/re-working-admin/getWorkingHistorys?memberId=" + this.memberId + "&startDate=" + this.startDate + "&endDate=" + this.endDate)
+                .then((response) => {
+                    this.workingHistorys = response.data.workingHistorys
+                })
+            },
+            checkWorkingStartDatetime(workingStartCheckDatetime, workingStartCheckOriDatetime) {
+                if (workingStartCheckDatetime == null) return ""
+
+                console.log(workingStartCheckOriDatetime)
+                if (workingStartCheckOriDatetime != null) {
+                    if (moment(workingStartCheckDatetime).format('HH:mm') != moment(workingStartCheckOriDatetime).format('HH:mm')) {
+                        return "<div style='color: red'>" + moment(workingStartCheckDatetime).format('HH:mm') + "</div> (" + moment(workingStartCheckOriDatetime).format('HH:mm') + ")"
+                    }
+                }
+
+                return moment(workingStartCheckDatetime).format('HH:mm')
+            },
+            checkWorkingEndDatetime(workingEndCheckDatetime, workingEndCheckOriDatetime) {
+                if (workingEndCheckDatetime == null) return ""
+
+                if (workingEndCheckOriDatetime != null) {
+                    if (moment(workingEndCheckDatetime).format('HH:mm') != moment(workingEndCheckOriDatetime).format('HH:mm')) {
+                        return "<div style='color: red'>" + moment(workingEndCheckDatetime).format('HH:mm') + "</div> (" + moment(workingEndCheckOriDatetime).format('HH:mm') + ")"
+                    }    
+                }
+                return moment(workingEndCheckDatetime).format('HH:mm')
+            },          
+            workingStartStatus(workingDate, workingStartDatetime, workingStartCheckDatetime) {
+                if (workingStartCheckDatetime == null) return ""
+
+                var weekday = moment(workingDate).isoWeekday()
+                if (weekday < 6) {
+                    if (moment(workingStartCheckDatetime).isAfter(moment(workingStartDatetime))) {
+                        return "지각"
+                    }    
+                }
+
+                return "출근"
+            },
+            workingEndStatus(workingEndDatetime, workingEndCheckDatetime) {
+                if (workingEndCheckDatetime == null) return ""
+
+                if (moment(workingEndCheckDatetime).isAfter(moment(workingEndDatetime).add(1, 'hours'))) {
+                    return "연장근로"
+                } else if (moment(workingEndCheckDatetime).isBefore(moment(workingEndDatetime).add(-30, 'minutes'))) {
+                    return "조기퇴근"
+                }
+                return "퇴근"
+            },
+            workingTime(workingStartCheckDatetime, workingEndCheckDatetime) {
+                if (workingStartCheckDatetime == null || workingEndCheckDatetime == null) return ""
+
+                var durationTime = moment(workingEndCheckDatetime).diff(moment(workingStartCheckDatetime), 'minutes')
+                return parseInt(durationTime / 60) + " 시간 " + (durationTime % 60) + "분 근무"
+            },
+            workingStatus(workingOffType, workingOutType, workingStartCheckDatetime, workingEndCheckDatetime) {
+                if (workingOffType != null) {
+                    return code_vue.getCodeDtl(workingOffType).cd_dtl_nm
+                }
+
+                if (workingOutType != null) {
+                    return code_vue.getCodeDtl(workingOutType).cd_dtl_nm
+                }
+
+                if (workingStartCheckDatetime == null && workingEndCheckDatetime == null) {
+                    return ""
+                }
+
+                return "출근"
+            },
+            close() {
+                $("#working_view_admin_modal").modal('hide')
+            },
+        },
+        mounted: function() {
+            var self = this
+            $('#working_view_admin_modal').on('hidden.bs.modal', function (e) {
+                self.close()
+            })
+
+            this.startDate = moment().add(-1, 'M').format("YYYY-MM-DD")
+            this.endDate = moment().format("YYYY-MM-DD")
+        },
+    }).mount('#working_view_admin_modal')
+</script>

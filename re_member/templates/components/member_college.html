@@ -1,0 +1,73 @@
+{% load getCode %}
+{% load getCodeDtls %}
+
+<template id="member-college">
+    <div>
+        <div class="remove-btn" v-on:click="removeMemberCollege(index)">X</div>
+        <div class="info-box">
+            <form class="row g-3">
+                <div class="col-4">
+                    <label for="college_type" class="form-label">학교</label>
+                    <select class="form-select" v-model="item.college_type">
+                        {% with codes|getCdNo:"COLLEGE_TYPE" as cdNo %}
+                        {% for codeDtl in codeDtls|getCodeDtls:cdNo %}
+                        <option value="{{ codeDtl.cd_dtl_no }}">{{ codeDtl.cd_dtl_desc }}</option>
+                        {% endfor %}
+                        {% endwith %}
+                    </select>
+                </div>
+                <div class="col-4">
+                    <label for="college_name" class="form-label">학교명</label>
+                    <input type="text" class="form-control" v-model="item.college_name">
+                </div>
+                <div class="col-2">
+                    <label for="college_start_date" class="form-label">재학 시작일</label>
+                    <input type="date" class="form-control" v-model="item.college_start_date" placeholder="YYYY-MM-DD">
+                </div>
+                <div class="col-2">
+                    <label for="college_end_date" class="form-label">재학 종료일</label>
+                    <input type="date" class="form-control" v-model="item.college_end_date" placeholder="YYYY-MM-DD">
+                </div>
+                <div class="col-4">
+                    <label for="college_status" class="form-label">졸업구분</label>
+                    <select class="form-select" v-model="item.college_status">
+                        {% with codes|getCdNo:"COLLEGE_STATUS" as cdNo %}
+                        {% for codeDtl in codeDtls|getCodeDtls:cdNo %}
+                        <option value="{{ codeDtl.cd_dtl_no }}">{{ codeDtl.cd_dtl_desc }}</option>
+                        {% endfor %}
+                        {% endwith %}
+                    </select>
+                </div>
+                <div class="col-4">
+                    <label for="college_major" class="form-label">전공/계열</label>
+                    <input type="text" class="form-control" v-model="item.college_major">
+                </div>
+                <div class="col-4">
+                    <label for="college_degree_num" class="form-label">학위번호</label>
+                    <input type="text" class="form-control" v-model="item.college_degree_num">
+                </div>
+            </form>
+        </div>
+    </div>
+</template>
+
+
+<script>
+    const memberCollegeComponent = {
+        props: {
+            item: {
+                type: Object,
+            },
+            index: {
+                type: Number,
+            },
+        },
+        methods: {
+            removeMemberCollege(index) {
+                this.$parent.removeMemberCollege(index);
+            },
+        },
+        mounted: function() {},
+        template:'#member-college',
+    }
+</script>

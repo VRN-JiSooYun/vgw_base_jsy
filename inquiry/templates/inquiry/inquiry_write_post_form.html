@@ -1,0 +1,40 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+<div>
+    <form class="inquiry-write-question-form" method="POST" action="{% url 'inquiries-write-question' %}">
+        {% csrf_token%}
+        <label for="inquiry-category">질문 카테고리: </label>
+        <select name="inquiry-category" id="inquiry-category">
+            <option selected value="general"> 일반 </option>
+            {% if is_d == 1 %}<option value="notice"> 공지 </option>{% endif %}
+            {% for inquiry_category in inquiry_category_list %}
+                {% if inquiry_category.category != 'general' and inquiry_category.category != 'notice' %}
+                    <option value="{{ inquiry_category.category }}">{{ inquiry_category.category }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <hr>
+        <div class="form-group">
+            <label for="write-inquiry-post-title">Title</label>
+            <input type="text" class="form-control write-inquiry-post-title" id="write-inquiry-post-title" name="write-inquiry-post-title" aria-describedby="emailHelp" placeholder="" required>
+        </div>
+        <div class="form-group">
+            <label for="write-inquiry-post-content">Content</label>
+            <!-- <textarea class="form-control rounded-0 write-inquiry-post-content" id="write-inquiry-post-content" name="write-inquiry-post-content" rows="10" required></textarea> -->
+            <div class="inquiry-rich-text-form-to-post-form" style="background-color: white;">
+                <!-- {{ quill_form.content }} -->
+            </div>
+        </div>
+        <button class="inquiry-form-write-complete" type="submit" style="border: solid 1px;">완료 &#9989;</button>
+    </form>
+</div>
+
+<script>
+    {% if 'inquiry-post-form' in pagesToLoad %}
+    $(".inquiry-rich-text-form").detach().appendTo(".inquiry-rich-text-form-to-post-form");
+    // $('.ql-blank').css('height', '400px');
+    $('.ql-blank').css('min-height', '500px');
+    {% endif %}
+</script>

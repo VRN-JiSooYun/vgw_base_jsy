@@ -1,0 +1,266 @@
+<style>
+    .approval_member {
+        display: inline-flex; margin: 1vh 0.5vh; border: 0.5px solid #e2e4e7; border-radius: 5px; padding: 5px; text-align: center; background-color: #e9ecef
+    }
+</style>
+
+<template id="working_approval_template">
+    <div style="margin-top: 10px">
+        <div class="row" >
+            <div class="col-2"><div style="width: 8vh; border: 0.5px solid #e2e4e7; border-radius: 5px; padding: 5px; text-align: center; background-color: #e9ecef" v-html="title"></div></div>
+            <div class="col-3">
+                <input :id="'approval_' + type + index" type="text" class="form-control" v-model="searchStr" :placeholder="placeholder()">
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <select class="form-control" v-model="selStr" @click="addApproval">
+                        <option v-for="option in options" :value="option.value" v-html="option.text"></option>
+                    </select>
+                </div>
+                <!--
+                <div v-if="recommendApprovalMembers.length > 0" class="row" style="margin-top: 10px">
+                    <div style="border: 1px solid #ced4da; border-radius : 5px; padding: 4px; width: 400px">
+                        <div>-- 추천 --</div>
+                        <div v-for="recommendApprovalMember in recommendApprovalMembers" v-html="recommendApprovalMember.display" @click="addRecommendApproval(recommendApprovalMember)" style="cursor: pointer"></div>
+                    </div>
+                </div>
+                -->
+            </div>
+        </div>
+        <div class="row" style="margin-top: 10px; padding: 10px">
+            <div class="col-2"><div style="width: 8vh; padding: 5px; text-align: center;"></div></div>
+            <div class="col" style="width: auto;">
+                <div v-for="(approvalMember, inx) in setApprovalMembers()" class="approval_member">
+                    <div v-html="approvalMember.display"></div>
+                    <div v-show="index != '2'" style="padding-left: 10px; padding-right:10px; cursor: pointer" @click="removeApprovalMember(inx)">x</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    const workingApprovalComponent = {
+        props: {
+            type: {
+                type: String
+            },
+            title: {
+                type: String
+            },
+            index: {
+                type: Number,
+            },
+            members: {
+                type: Array,
+            }
+        },
+        data() {
+            return {
+                options: [],
+                searchStr: "",
+                selStr: "",
+                approvalMembers: [],
+                recommendApprovalMembers: [],
+                memberMap: {},
+            }
+        },
+        methods : {
+            setApprovalMembers() {
+                this.approvalMembers = this.members
+                return this.approvalMembers
+            },
+            addApproval() {
+                if (this.selStr == "") return
+
+                var member = this.memberMap[this.selStr]
+                if (typeof member != 'undefined') {
+                    this.approvalMembers.push({
+                        "member_id": this.selStr,
+                        "member_name": member.member_name,
+                        "member_email": member.member_email,
+                        "display": member.member_name + " (" + member.member_email + ")"
+                    })
+                }
+
+                this.options = []
+                this.options.push({
+                    "value": "",
+                    "text": "--선택하세요--",
+                })
+                this.selStr = ""
+                this.searchStr = ""
+                if (this.index == 0) {
+                    this.makeDispalyOrderNum()
+                    this.$parent.approvalMembers = this.approvalMembers
+                } else if (this.index == 1) {
+                    this.$parent.approvalRefMembers = this.approvalMembers
+                } else if (this.index == 2) {
+                    this.$parent.approvalRecvMembers = this.approvalMembers
+                }
+            },
+            addRecommendApproval(recommendApprovalMember) {
+                // 중복 체크
+                for (var approvalMember of this.approvalMembers) {
+                    if (approvalMember.member_id == recommendApprovalMember.member_id) return
+                }
+
+                this.approvalMembers.push({
+                    "member_id": recommendApprovalMember.member_id,
+                    "member_name": recommendApprovalMember.member_name,
+                    "member_email": recommendApprovalMember.member_email,
+                    "display": recommendApprovalMember.member_name + " (" + recommendApprovalMember.member_email + ")"
+                })
+
+                if (this.index == 0) {
+                    this.makeDispalyOrderNum()
+                    this.$parent.approvalMembers = this.approvalMembers
+                } else if (this.index == 1) {
+                    this.$parent.approvalRefMembers = this.approvalMembers
+                } else if (this.index == 2) {
+                    this.$parent.approvalRecvMembers = this.approvalMembers
+                }
+            },
+            removeApprovalMember(index) {
+                this.approvalMembers.splice(index, 1)
+                if (this.index == 0) {
+                    this.makeDispalyOrderNum()
+                    this.$parent.approvalMembers = this.approvalMembers
+                } else if (this.index == 1) {
+                    this.$parent.approvalRefMembers = this.approvalMembers
+                } else if (this.index == 2) {
+                    this.$parent.approvalRecvMembers = this.approvalMembers
+                }
+            },
+            makeDispalyOrderNum() {
+                var inx = 1
+                var approvalMembers = this.approvalMembers
+                this.approvalMembers = []
+                for (approvalMember of approvalMembers) {
+                    this.approvalMembers.push({
+                        "member_id": approvalMember.member_id,
+                        "member_name": approvalMember.member_name,
+                        "member_email": approvalMember.member_email,
+                        "display": inx++ + ". " + approvalMember.member_name + " (" + approvalMember.member_email + ")"
+                    })
+                }
+            },
+            placeholder() {
+                if (this.index == 0) {
+                    return "결재자 검색"
+                } else if (this.index == 1) {
+                    return "참조자 검색"
+                } else if (this.index == 2) {
+                    return "수신자 검색"
+                }
+            },
+            getRecommendApprovalMembers() {
+                axios.get("/re-working/getRecommendApprovalMembers")
+                .then((response) => {
+                    var recommendApprovalMembers = response.data
+                    this.recommendApprovalMembers = []
+                    if (recommendApprovalMembers.length > 0 ) {
+                        for (var recommendApprovalMember of recommendApprovalMembers) {
+                            if (recommendApprovalMember.leave_date == null || recommendApprovalMember.leave_date == '') {
+                                this.recommendApprovalMembers.push({
+                                    "member_id": recommendApprovalMember.member_id,
+                                    "member_name": recommendApprovalMember.member_name,
+                                    "member_email": recommendApprovalMember.member_email,
+                                    "display": recommendApprovalMember.member_name + " (" + recommendApprovalMember.member_email + ")"
+                                })
+
+                            }
+                        }
+                    }
+                })
+            },
+            getRecommendApprovalRefMembers() {
+                axios.get("/re-working/getRecommendApprovalRefMembers")
+                .then((response) => {
+                    var recommendApprovalRefMembers = response.data
+                    this.recommendApprovalMembers = []
+                    if (recommendApprovalRefMembers.length > 0 ) {
+                        for (var recommendApprovalRefMember of recommendApprovalRefMembers) {
+                            console.log(recommendApprovalRefMember.leave_date)
+                            if (recommendApprovalRefMember.leave_date == null || recommendApprovalRefMember.leave_date == '') {
+                                this.recommendApprovalMembers.push({
+                                    "member_id": recommendApprovalRefMember.member_id,
+                                    "member_name": recommendApprovalRefMember.member_name,
+                                    "member_email": recommendApprovalRefMember.member_email,
+                                    "display": recommendApprovalRefMember.member_name + " (" + recommendApprovalRefMember.member_email + ")"
+                                })
+                            }
+                        }
+                    }
+                })
+            }
+        },
+        mounted: function() {
+            var self = this
+
+            /*
+            추천 기능 홍팀장님의 요청으로 기능 제거 (소장님가 협의 필요)
+            if (this.index == 0) {
+                this.getRecommendApprovalMembers()
+            } else if (this.index == 1) {
+                this.getRecommendApprovalRefMembers()
+            }
+            */
+
+            $("#approval_" + this.type + this.index).autocomplete({
+                source : function(request, response) {
+                    $.ajax({
+                        type : 'get',
+                        url: '/re-member/getSearch?search=' + request.term,
+                        dataType : 'json',
+                        success : function(members) {
+                            self.memberMap = members.reduce((map, member) => {
+                                map[member.member_id] = member
+                                return map
+                            }, {})
+
+                            var approvalMembers = []
+                            if (self.index == 0) {
+                                approvalMembers = self.$parent.approvalMembers
+                            } else if (self.index == 1) {
+                                approvalMembers = self.$parent.approvalRefMembers
+                            } else if (self.index == 2) {
+                                approvalMembers = self.$parent.approvalRecvMembers
+                            }
+
+                            self.options = []
+                            self.options.push({
+                                "value": "",
+                                "text": "-- 선택하세요 --",
+                            })
+                            self.selStr = ""
+                            for (member of members) {
+
+                                // 선택한 멤버 중복제거
+                                var isExist = false
+                                for (approvalMember of approvalMembers) {
+                                    if (approvalMember.member_id == member.member_id) {
+                                        isExist = true
+                                        break
+                                    }
+                                }
+
+                                if (!isExist) {
+                                    self.options.push({
+                                        "value": member.member_id,
+                                        "text": member.member_name + " (" + member.member_email + ")",
+                                    })
+                                }
+                            }
+                        }
+                    })
+                },
+                minLength: 1,
+                autoFocus: false,
+                disable : false,
+            })
+
+        },
+        template:'#working_approval_template',
+    }
+</script>

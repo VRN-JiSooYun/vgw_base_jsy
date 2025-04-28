@@ -1,0 +1,181 @@
+{% load static %}
+
+<div id="working_out_modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">외근·출장 <span style="font-size:12px; color:#ff5a5a">#단순 근태 관리를 위해 등록바랍니다</span></h5>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="border-top: 0.5px solid #e2e4e7; border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">항목선택</div>
+                    <div class="col-3" style="padding: 15px;">
+                        <select class="form-control" aria-label=".form-select-sm" v-model="workingOutFormType">
+                            <option v-for="codeDtl in codeDtls" :value="codeDtl.cd_dtl_no" v-html="codeDtl.cd_dtl_nm"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 0.5px solid #e2e4e7">
+                    <div class="col-2" style="padding: 15px; background: #f7f6f9;">일자</div>
+                    <div class="col-3" style="padding: 15px;">
+                        <input class="form-control" id="working_out_form_start_datePicker" v-model="workingOutFormStartDate" autocomplete="off" readonly style="background: #ffffff">
+                    </div>
+                    <div style="display:flex; margin-top:25px;">
+                        <span class="material-symbols-outlined">more_vert</span>
+                    </div>
+                    <div class="col-3" style="padding: 15px;">
+                        <input class="form-control" id="working_out_form_end_datePicker" v-model="workingOutFormEndDate" autocomplete="off" readonly style="background: #ffffff">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button v-if="workingOutFormId > 0" type="button" class="btn btn-danger" @click="remove">삭제</button>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-secondary" @click="close">취소</button>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-primary" @click="save">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const working_out_vue = createApp({
+        data () {
+            return {
+                workingOutFormId: 0,
+                workingOutFormType: "",
+                workingOutFormStartDate: '',
+                workingOutFormEndDate: '',
+            }
+        },
+        computed: {
+            codeDtls() {
+                this.workingOutFormType = code_vue.getCdDtlNoByAlias("WORKING_OUT_TYPE_OUT")
+                return code_vue.getCdDtlsByCdAlias("WORKING_OUT_TYPE")
+            }
+        },
+        methods: {
+            getWorkingOutForm(workingOutFormId) {
+                this.workingOutFormId = workingOutFormId
+                axios.get("/re-working/getWorkingOutForm/" + workingOutFormId)
+                .then((response) => {
+                    var workingOut = response.data
+                    this.workingOutFormType = workingOut.working_out_form_type
+                    this.workingOutFormStartDate = workingOut.working_out_form_start_date
+                    this.workingOutFormEndDate = workingOut.working_out_form_end_date
+                })
+            },
+            save() {
+                var data = {
+                    working_out_form_type: this.workingOutFormType,
+                    working_out_form_start_date: this.workingOutFormStartDate,
+                    working_out_form_end_date: this.workingOutFormEndDate,
+                }
+
+                var url = "/re-working/createWorkingOut"
+                if (this.workingOutFormId > 0) {
+                    url = "/re-working/updateWorkingOut/" + this.workingOutFormId
+                }
+
+                axios.post(url, {data: data})
+                .then((response) => {
+                    $("#working_out_modal").modal('hide')
+                    vue.getWorkingMonthData()
+                    vue.alert("외부근무 일정이 등록 되었습니다.")
+
+                    this.workingOutFormId = 0
+                    this.workingOutFormType = code_vue.getCdDtlNoByAlias("WORKING_OUT_TYPE_OUT")
+                    this.workingOutFormStartDate = ''
+                    this.workingOutFormEndDate = ''
+                })
+            },
+            close() {
+                $("#working_out_modal").modal('hide')
+
+                this.workingOutFormId = 0
+                this.workingOutFormType = code_vue.getCdDtlNoByAlias("WORKING_OUT_TYPE_OUT")
+                this.workingOutFormStartDate = ''
+                this.workingOutFormEndDate = ''
+            },
+            remove() {
+                axios.post("/re-working/deleteWorkingOut/" + this.workingOutFormId)
+                .then((response) => {
+                    vue.getWorkingMonthData()
+                    vue.alert("외부근무 일정을 삭제 하였습니다.")
+
+                    $("#working_out_modal").modal('hide')
+
+                    this.workingOutFormId = 0
+                    this.workingOutFormType = code_vue.getCdDtlNoByAlias("WORKING_OUT_TYPE_OUT")
+                    this.workingOutFormStartDate = ''
+                    this.workingOutFormEndDate = ''
+                })
+            }
+        },
+        mounted: function() {
+            var self = this;
+            $('#working_out_modal').on('hidden.bs.modal', function (e) {
+                self.close()
+            })
+
+            $('#working_out_form_start_datePicker').datepicker({
+                dateFormat: 'yy-mm-dd',
+                closeText: "닫기",
+                currentText: "오늘",
+                prevText: '이전 달',
+                nextText: '다음 달',
+                monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+                weekHeader: "주",
+                yearSuffix: '년',
+                showOtherMonths: true,
+                showMonthAfterYear:true,
+                selectOtherMonths: true,
+                changeYear: true,
+                changeMonth: true,
+                onSelect:function(selectedDate, datePicker) {
+                    if (self.workingOutFormEndDate < selectedDate) {
+                        self.workingOutFormEndDate = ""
+                    }
+                    self.workingOutFormStartDate = selectedDate
+                    if(self.workingOutFormEndDate < selectedDate) {
+                        self.workingOutFormEndDate = selectedDate
+                    }
+                }
+            });
+
+            $('#working_out_form_end_datePicker').datepicker({
+                dateFormat: 'yy-mm-dd',
+                closeText: "닫기",
+                currentText: "오늘",
+                prevText: '이전 달',
+                nextText: '다음 달',
+                monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+                weekHeader: "주",
+                yearSuffix: '년',
+                showOtherMonths: true,
+                showMonthAfterYear:true,
+                selectOtherMonths: true,
+                changeYear: true,
+                changeMonth: true,
+                onSelect:function(selectedDate, datePicker) {
+                    if (self.workingOutFormStartDate == "") {
+                        return
+                    }
+                    self.workingOutFormEndDate = selectedDate
+                    if (self.workingOutFormStartDate > selectedDate) {
+                        self.workingOutFormStartDate = selectedDate
+                    }
+                }
+            });
+        },
+    }).mount('#working_out_modal')
+</script>

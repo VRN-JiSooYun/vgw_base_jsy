@@ -1,0 +1,42 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load bootstrap %}
+
+
+
+
+
+<div class="modal fade bd-example-modal-xl" id="hrWorkingtimeIssuedUncheckedMemberListModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">
+					<strong>
+						{{ q_mysettings_hr.date_selected_workingtime|date:"Y-m-d" }} 일자 미출근자 리스트
+					</strong>
+				</h5>
+				<button type="submit" name="button-hr-workingtime-issued-today-unchecked-member-list-modal-view" value="false" class="btn btn-dark btn-sm" >Close</button>
+			</div>
+
+			<div class="modal-body">
+				<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+					<!--
+						미출근자 리스트
+					-->
+					{% include 'hr/hr_workingtime_issued_unknown_checkin_member_modal_contents_table.html' %}
+				</div>
+			</div>
+
+
+			<div class="modal-footer">
+				<button type="submit" name="button-hr-workingtime-issued-today-unchecked-member-list-modal-view" value="false" class="btn btn-dark btn-sm" >Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+.modal-content {
+		max-width:none;
+	}
+</style>

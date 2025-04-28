@@ -1,0 +1,91 @@
+{% load static %}
+{% load split %}
+{% load authMenu %}
+<style>
+  .beta {
+    font-style: italic;
+    font-weight: bold;
+    color: #ff6060;
+  }
+</style>
+<header class="site-header">
+
+  {% with request.path|split:"/" as urlPath %}
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a href="{% url 'home' %}" target="self">
+      <img src="{% static '/images/logo.png' %}">
+    </a>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+
+        {% if "news"|authMenu:request %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-dark btn-sm {% if 'my' in urlPath.1 %}active{% endif %}"  href="{% url 'my-home' %}">
+           보로노이 소식
+          </a>
+        </li>
+        {% endif %}
+
+        {% if "myhome"|authMenu:request %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-dark btn-sm {% if 're-working' == urlPath.1 or 're-todo' == urlPath.1 %}active{% endif %}"  href="{% url 're-working-month-home' %}">
+           My Home
+          </a>
+        </li>
+        {% endif %}
+
+        {% if "hr"|authMenu:request %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-dark btn-sm {% if 're-member' == urlPath.1 or 're-group' == urlPath.1 or 're-auth' == urlPath.1 or 're-working-admin' == urlPath.1 %}active{% endif %}"  href="{% url 're-member-list-home' %}">
+           Human R.
+          </a>
+        </li>
+        {% endif %}
+
+        {% if "ips"|authMenu:request %}
+        <li class="nav-item active">
+          <a type="button" class="btn btn-dark btn-sm {% if 'ips' == urlPath.1 %}active{% endif %}"  href="{% url 'ips-home' %}">
+           IPS
+          </a>
+        </li>
+        {% endif %}
+
+        <li class="nav-item active">
+          <a type="button" class="btn btn-dark btn-sm {% if 'conference' == urlPath.1 %}active{% endif %}"  href="{% url 'conference-home' %}">
+            Conference
+          </a>
+        </li>
+
+      </ul>
+
+    </div>
+    <!-- Navbar Right Side -->
+
+    {% comment %}
+    {% if user.is_authenticated %}
+    <div>
+      <a type="button" class="btn btn-dark btn-sm {% if 'todo' in urlPath.1 %}active{% endif %}" href="{% url 'my-daily-todo' %}">
+        Todo
+      </a>
+    </div>
+    {% endif %}
+    {% endcomment %}
+
+    <div class="navbar-nav">
+      {% if user.is_authenticated %}
+      <a class="nav-item nav-link" href="javascript:void(0);">{{ request.user }}</a>
+      <a class="nav-item nav-link" href="{% url 'member-logout' %}">Logout</a>
+      {% else %}
+      <a class="nav-item nav-link" href="#">Guest</a>
+      <a class="nav-item nav-link" href="{% url 'member-login' %}">Login</a>
+      {% comment %}
+      <a class="nav-item nav-link" href="{% url 'member-register' %}">Register</a>
+      {% endcomment %}
+      {% endif %}
+    </div>
+
+
+  </nav>
+  {% endwith %}
+</header>

@@ -1,0 +1,84 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+{% if is_d == 1 %}
+<div style="">
+    <button class="add-how-to-slide btn btn-primary" value="add" style="border: solid 1px;">새 항목 추가하기</button>
+    <button style="float:right; border: solid 1px;" class="reset-how-to-slides btn btn-primary" value="reset">항목 전부 삭제</button>
+</div>
+<div style="clear:both;"></div>
+<form class="inquiry-slide-form" method="post" action=""  enctype="multipart/form-data" style="margin-bottom:15px; display:none;">
+    {% csrf_token%}
+    <input class="inquiry-slide-form-action" name="inquiry-slide-form-action" type="text" value="" style="display:none;">
+    <input class="inquiry-slide-id" name="inquiry-slide-id" type="text" value="" style="display:none;">
+    <input class="inquiry-slide-parent-id" name="inquiry-slide-parent-id" type="text" value="" style="display:none;">
+    <br>
+    <input class="inquiry-slide-title-input" style="width: 100%; height:35px;" placeholder="소제목" name="title"/>
+    <br><br>
+    <div class="inquiry-how-to-slide-form-content" style="background-color: white;">
+        {{ form.content }}
+    </div>
+    <br>
+    <div style="width:180px; margin: 0 auto;">
+        <input class="btn btn-primary" type="submit" value="submit" style="border: solid 1px;">
+        <input class="inquiry-slide-form-cancel-btn btn btn-primary" type="submit" value="cancel" style="border: solid 1px;">
+    </div>
+</form>
+<div style="clear:both;"></div>
+<hr>
+{% endif %}
+
+<div>
+    {% csrf_token %}
+    <h5 style="margin-left:20px;">목차</h5>
+    <div class="inquiry-howto-cot-div">
+    </div>
+
+    {% if is_d == 1 %}
+    <div><button class="inquiry-howto-modified-cot-save-btn btn btn-success btn-sm" style="border: solid 1px; margin-left:30px;">목차 저장</button></div>
+    {% endif %}
+</div>
+<hr>
+<div class="inquiry-howto-block-div">
+</div>
+
+<script>
+    function compareOrderValue( a, b ) {
+        if ( a['parent_how_to_id'] == b['parent_how_to_id'] && a['order_value'] < b['order_value']) return -1;
+        if ( a['parent_how_to_id'] == b['parent_how_to_id'] && a['order_value'] > b['order_value']) return 1;
+
+        return 0;
+    };
+
+    let is_d = {{ is_d }};
+    
+    let how_tos = [
+        {% for elem in inquiry_how_tos %}
+            {
+                "id": {{ elem.id }},
+                "parent_how_to_id": {% if elem.parent_how_to_id == None %} null {% else %} {{ elem.parent_how_to_id }} {% endif %},
+                "title": `{{ elem.title|safe }}`,
+                "content": `{{ elem.content|safe }}`,
+                "order_value": {{ elem.order_value }},
+            },
+        {% endfor %}
+    ];
+
+    for (var a = 0; a < how_tos.length; a++) {
+        for (var i = 0; i < how_tos.length; i++) {
+            if (how_tos[i]['parent_how_to_id'] == null) continue;
+            var p = false;
+            for (var j = 0; j < i; j++) if (how_tos[i]['parent_how_to_id'] == how_tos[j]['id']) p = true;
+            if (!p) how_tos.splice(i + 1, 0, how_tos.splice(i, 1)[0]);
+        }
+    }
+
+    how_tos.sort( compareOrderValue );
+
+    $('.inquiry-howto-cot-div').html(createInquiryHowtoSection(is_d, how_tos, 'cot'));
+    $('.inquiry-howto-block-div').html(createInquiryHowtoSection(is_d, how_tos, 'block'));
+
+    // $('.ql-blank').css('height', '500px');
+    $('.ql-blank').css('min-height', '500px');
+</script>

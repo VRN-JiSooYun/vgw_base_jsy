@@ -1,0 +1,35 @@
+.activity, .molWt, .logP, .toxicity, .similarity2, .target-action-activity {
+    /* display: block; */
+    width: 100%;
+    height: 15px;
+    position: relative;
+    z-index: -1;
+}
+
+.cm, .mm {
+    position: absolute;
+    border-left: solid 1px;
+}
+
+.cm:after {
+    position: absolute;
+    bottom: -15px;
+    left: -5px;
+    font: 11px/1 sans-serif;
+}
+
+.cm {
+    height: 15px;
+}
+
+.mm {
+    height: 8px;
+}
+
+/* .mm:nth-of-type(even) {
+    height: 5px;
+}
+
+.mm:nth-of-type(odd) {
+    height: 8px;
+} */

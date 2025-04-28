@@ -1,0 +1,18 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load mathfilters %}
+
+
+
+
+
+
+<!-- Modal 연차촉진 사용자확인 -->
+
+{% if q_mysettings_hr.activate_modal_warning_delete_member_permanently == True %}
+	<script type="text/javascript">
+		$(window).on('load', function() {
+			$('#hrMemberDeletePermanentlyModal').modal({show:true, backdrop:false});
+		});
+	</script>
+{% endif %}

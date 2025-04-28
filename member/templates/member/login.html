@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+    .google-btn {
+        /*margin: 25px;*/
+        width: 80%;
+        min-width: 184px;
+        max-width: 184px;
+        height: 42px;
+        background-color: #fcfcfc;
+        border-radius: 2px;
+        box-shadow: 0 3px 4px 0 rgba(0, 0, 0, .2);
+        cursor: pointer;
+        cursor: hand;
+        align-self: center;
+        user-select: none;
+        transition: all 400ms ease 0s;
+        display: flex;
+    }
+    .google-btn .google-icon-wrapper {
+        position: absolute;
+        margin-top: 1px;
+        margin-left: 1px;
+        width: 40px;
+        height: 40px;
+        border-radius: 2px;
+        user-select: none
+    }
+    .google-btn .google-icon-svg {
+        position: absolute;
+        margin-top: 11px;
+        margin-left: 11px;
+        width: 18px;
+        height: 18px;
+        user-select: none
+    }
+    .google-btn .btn-text {
+        float: right;
+        margin: 11px 14px 40px 40px;
+        color: #757575;
+        font-size: 14px;
+        letter-spacing: .2px;
+        font-family: Roboto;
+        user-select: none;
+        white-space: nowrap;
+    }
+    .google-btn:hover {
+        box-shadow: 0 3px 8px rgba(117, 117, 117, .5);
+        user-select: none
+    }
+    .google-btn:active {
+        box-shadow: 0 1px 1px #757575;
+        background: #F8F8F8;
+        color: #fff;
+        user-select: none
+    }
+
+    .normal-btn {
+        /*margin: 25px;*/
+        width: auto;
+        display: inline-block;
+        min-width: auto;
+        max-width: 184px;
+        height: 42px;
+        background-color: #fcfcfc;
+        border-radius: 2px;
+        box-shadow: 0 3px 4px 0 rgba(0, 0, 0, .2);
+        cursor: pointer;
+        cursor: hand;
+        align-self: center;-webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        transition: all 400ms ease 0s
+    }
+    .normal-btn .btn-text {
+        float: left;
+        margin: 11px 14px 11px 14px;
+        color: #757575;
+        font-size: 14px;
+        letter-spacing: .2px;
+        font-family: Roboto;
+        user-select: none
+    }
+    .normal-btn:hover {
+        box-shadow: 0 3px 8px rgba(117, 117, 117, .5);
+        user-select: none
+    }
+    .normal-btn:active {
+        box-shadow: 0 1px 1px #757575;
+        background: #F8F8F8;
+        color: #fff;
+        user-select: none
+    }
+
+    .form-group {
+        {% if 'voronoi.app' in request.build_absolute_uri %}
+        display:none;
+        {% endif %}
+    }
+</style>
+<script>
+    /*
+    //처음 실행하는 함수
+    function init() {
+        gapi.load('auth2', function() {
+            gapi.auth2.init();
+            options = new gapi.auth2.SigninOptionsBuilder();
+            options.setPrompt('select_account');
+            // 추가는 Oauth 승인 권한 추가 후 띄어쓰기 기준으로 추가
+            options.setScope('email profile openid https://www.googleapis.com/auth/user.birthday.read');
+            // 인스턴스의 함수 호출 - element에 로그인 기능 추가
+            // GgCustomLogin은 li태그안에 있는 ID, 위에 설정한 options와 아래 성공,실패시 실행하는 함수들
+            gapi.auth2.getAuthInstance().attachClickHandler('GgCustomLogin', options, onSignIn, onSignInFailure);
+        })
+    }
+    function onSignIn(googleUser) {
+        var access_token = googleUser.getAuthResponse().access_token
+        $.ajax({
+            // people api를 이용하여 프로필 및 생년월일에 대한 선택동의후 가져온다.
+            url: 'https://people.googleapis.com/v1/people/me'
+            // key에 자신의 API 키를 넣습니다.
+            , data: {personFields:'birthdays', key:'AIzaSyDW20_rzm764qUNaMhKHA0yL_5pky2R3XI', 'access_token': access_token}
+            , method:'GET'
+        })
+        .done(function(e){
+            //프로필을 가져온다.
+            //console.log(e);
+            var profile = googleUser.getBasicProfile();
+            var email = profile.getEmail();
+            $("#id_username").val(email);
+            $("#id_password").val("vgwdjemals12");
+            $("#login-form-1 > div > button").click();
+        })
+        .fail(function(e){
+            console.log(e);
+        })
+    }
+    function onSignInFailure(t){
+        console.log(t);
+    }
+    */
+
+    function onSignIn(response) {
+        const responsePayload = parseJwt(response.credential);
+
+        console.log("ID: " + responsePayload.sub);
+        console.log('Full Name: ' + responsePayload.name);
+        console.log('Given Name: ' + responsePayload.given_name);
+        console.log('Family Name: ' + responsePayload.family_name);
+        console.log("Image URL: " + responsePayload.picture);
+        console.log("Email: " + responsePayload.email);
+
+        var k = "voronoi";
+        $("#id_username").val(responsePayload.email);
+        $("#id_password").val(decodeByAES256(k.padEnd(32, '+'),'IoWytmc+Pmt5QajDUCkldA=='));
+        $("#login-form-1 > div > button").click();
+
+    }
+
+    function parseJwt (token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    };
+    function decodeByAES256(key, data){
+        const cipher = CryptoJS.AES.decrypt(data, CryptoJS.enc.Utf8.parse(key), {
+            iv: CryptoJS.enc.Utf8.parse(""),
+            padding: CryptoJS.pad.Pkcs7,
+            mode: CryptoJS.mode.CBC
+        });
+        return cipher.toString(CryptoJS.enc.Utf8);
+    };
+    {% comment %}
+    function encodeByAES56(key, data){
+        const cipher = CryptoJS.AES.encrypt(data, CryptoJS.enc.Utf8.parse(key), {
+            iv: CryptoJS.enc.Utf8.parse(""),
+            padding: CryptoJS.pad.Pkcs7,
+            mode: CryptoJS.mode.CBC
+        });
+        return cipher.toString();
+    }
+    {% endcomment %}
+</script>
+<div class="row">
+<div class="col-md-4">
+</div>
+
+<div class="col-md-4">
+<hr>
+<div class="content-section">
+    <form method="POST" action="/security/sns/" id="login-form-1">
+        {% csrf_token %}
+        <legend class="border-bottom mb-4 kkong">Log In</legend>
+        <fieldset class="form-group fieldset-form-group-login">
+            {{ form|crispy }}
+        </fieldset>
+        <fieldset class="form-group fieldset-form-group-sns"></fieldset>
+        <div class="form-group">
+            <button class="btn btn-info btn-lg fieldset-form-group-login-btn" type="submit">Login</button>
+        </div>
+        {% if request.GET.next %}
+            {% comment %} <input type="text" name="next" class="class-next" value="{{ request.GET.next }}" style="display: none"> {% endcomment %}
+        {% endif %}
+    </form>
+
+    {% if 'voronoi.app' in request.build_absolute_uri or 'my.voronoi.app' in request.build_absolute_uri %}
+    <div>
+        <div id="g_id_onload"
+            data-client_id="652389828694-jk1sfnd4v09beo8atcc1rq89jbr438ga.apps.googleusercontent.com"
+            data-context="signin"
+            data-ux_mode="popup"
+            data-callback="onSignIn"
+            data-auto_prompt="false">
+        </div>
+
+        <div class="g_id_signin"
+            data-type="standard"
+            data-shape="rectangular"
+            data-theme="filled_blue"
+            data-text="signin_with"
+            data-size="large"
+            data-logo_alignment="left">
+        </div>
+
+
+        {% comment %} <div class="google-btn" id="GgCustomLogin">
+            <div class="google-icon-wrapper">
+                <img class="google-icon-svg" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"/>
+            </div>
+            <p class="btn-text"><b>Sign in with Google</b></p>
+        </div> {% endcomment %}
+    </div>
+    {% endif %}
+    {% comment %}
+    <div class="border-top pt-3">
+        <small class="text-muted">
+            Need An Account? <a class="ml-2" href="{% url 'member-register' %}">Sign Up Now</a>
+        </small>
+    </div>
+    {% endcomment %}
+</div>
+</div>
+<div class="col-md-4">
+</div>
+</div>
+<script>
+$(".kkong").on('click', function(e){
+    $(".form-group").toggle();
+});
+</script>
+{% comment %} <script src="https://apis.google.com/js/platform.js?onload=init" async defer></script> {% endcomment %}
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer" async></script>
+
+{% endblock content %}

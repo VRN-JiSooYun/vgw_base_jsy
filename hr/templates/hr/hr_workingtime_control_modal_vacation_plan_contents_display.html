@@ -1,0 +1,47 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load mathfilters %}
+
+
+
+
+
+<div class="modal fade bd-example-modal-xl" id="hrWorkingtimeVacationPlanDisplayModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+			<h5 class="modal-title" id="exampleModalLabel">
+				<strong>
+					{{ q_mysettings_hr.vacation_plan_wkt.owner.profile.name_korean }}님의 휴가계획서 ({{ q_mysettings_hr.vacation_plan_wkt.datetime_start|date:"Y-m-d" }}부터 ~  {{ q_mysettings_hr.vacation_plan_wkt.datetime_end|date:"Y-m-d" }}까지)
+				</strong>
+			</h5>
+			<button type="submit" name="button-hr-workingtime-control-close-modal-for-vacation-plan" value="true" class="btn btn-dark btn-sm" >Close</button>
+			</div>
+			<div class="modal-body">
+
+				<!--
+					휴가컨트롤 종합정보
+				-->
+				{% include 'hr/hr_vacation_control_plan_registered_plan_detail_control_info.html' %}
+				<hr>
+
+				<!--
+					해당휴가계획서 디테일 정보
+				-->
+				{% include 'hr/hr_vacation_control_plan_registered_plan_detail_plan_info.html' %}
+
+			</div>
+
+
+			<div class="modal-footer">
+				<button type="submit" name="button-hr-workingtime-control-close-modal-for-vacation-plan" value="true" class="btn btn-dark btn-sm" >Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+.modal-content {
+		max-width:none;
+	}
+</style>

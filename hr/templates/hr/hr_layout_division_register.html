@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+{% block content %}
+{% include 'hr/hr_navbar_layout.html' %}
+{% include 'hr/hr_navbar_layout_register_division.html' %}
+
+
+
+<div class="row">
+
+    <div class="col-md-12">
+    <legend class="border-bottom mb-4">
+        <strong>
+            부서 관리
+        </strong>
+    </legend>
+    </div>
+
+    <div class="col-md-9">
+        <div class="card card-body" style="background-color:rgb(255,255,255,0.5)">
+            <table class="table table-hover table-striped">
+                <tr>
+                    <th>
+                        등록된 부서명
+                    </th>
+                    <th>
+                        부서에 등록된 팀명
+                    </th>
+                    <th>
+                        코멘트
+                    </th>
+                    <th>
+                        수정
+                    </th>
+                </tr>
+
+                {% for q_division in qs_division %}
+                <tr >
+                    <td>
+                        {{ q_division.division_name }}
+                    </td>
+                    <td>
+                        {% for k_q_division, v_qs_t2d in dict_t2d.items %}
+                            {% if q_division == k_q_division %}
+                            <ul>
+                                {% for v_q_t2d in v_qs_t2d %}
+                                    <li>
+                                        {{ v_q_t2d.member2team.team.team_name }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {{ q_division.comment }}
+                    </td>
+                    <td>
+                        <a href="{% url 'hr-layout-update-division' q_division.id %}" type="button" class="btn btn-info btn-sm" >Update</a>
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </table>
+
+        </div>
+    </div>
+
+
+
+
+    <!--
+        부서 등록하기
+    -->
+    <div class="col-md-3">
+        <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+            <form method = "POST" action = "{% url 'hr-layout-register-division' %}">
+                {% csrf_token %}
+                {{ form|bootstrap}}
+                <button name="button-register-division-individual" value="true" type="submit" class="btn btn-info btn-lg" >Save</button>
+            </form>
+        </div>
+
+
+    </div>
+
+</div>
+
+{% endblock content %}
+
+
+
+{% comment %}
+
+<hr>
+
+<legend class="border-bottom mb-4">
+    Division 파일로 등록하기
+</legend>
+<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+    <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Excel파일 업로드하기</legend>
+        <div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+            <form method="POST" action="{% url 'hr-layout-register-division' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <h6>파일 업로드를 통해 VGW DB에 Division 등록하기</h6>
+                <input class="btn btn-sm btn-success" type="file" name="division-upload"><br>
+
+                <small class="text-muted">
+                    <ul>
+                        <li>
+                            Upload Member Profile CSV Format File
+                        </li>
+                        <li>
+                            Check The Layout Before Submitting The File
+                        </li>
+                        <li>
+                            파일명은 영어/숫자만 인식
+                        </li>
+                    </ul>
+                </small>
+
+                <button class="btn btn-primary btn-lg" name="button-register-division-file" value="true" type="submit">Upload Division File</button>
+            </form>
+        </div>
+        <br>
+    </fieldset>
+</div>
+
+
+{% endcomment %}

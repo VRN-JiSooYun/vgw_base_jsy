@@ -1,0 +1,166 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% load static %}
+
+
+
+<div
+{% if q_mysettings_hr.check_display_size_workingtime_today_table_fullwidth == True %}
+	class="col-md-12"
+{% else %}
+	class="col-md-9"
+{% endif %}
+>
+
+
+		<div class="content-section">
+			<fieldset class="form-group">
+
+				<table class="table">
+					<tr>
+						<td>
+							<legend class="border-bottom mb-4">
+								<strong>
+									출퇴근 수정요청 현황
+								</strong>
+							</legend>
+						</td>
+
+						<form method="POST" action="{% url 'hr-workingtime-control' %}"  enctype="multipart/form-data">
+							{% csrf_token %}
+							<td>
+
+							<td>
+								<input type="text" class="form-control" name="text-hr-workingtime-control-member-search-keyword" placeholder="이름 입력">
+							</td>
+							<td>
+								<button type="submit" name="button-hr-workingtime-control-search-workingtime" value="true" class="btn btn-info btn-md">Search</button>
+							</td>
+						</form>
+						<form method="POST" action="{% url 'hr-workingtime-control' %}"  enctype="multipart/form-data">
+							{% csrf_token %}
+
+							<td>
+								<button type="submit" name="button-hr-workingtime-control-reset-workingtime-search" value="true" class="btn btn-dark btn-sm">
+									Reset
+								</button>
+							</td>
+							<td>
+								<button type="submit" name="button-hr-workingtime-control-delete-selected-workingtime-view" value="true" class="btn btn-warning btn-sm">
+									Delete
+								</button>
+							</td>
+							<td>
+								<button type="submit" name="button-hr-workingtime-control-statistics-table-display-size-switch" value="true" class="btn btn-light btn-sm">
+									{% if q_mysettings_hr.check_display_size_workingtime_today_table_fullwidth == False %}
+										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
+											<path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"/>
+										</svg>
+									{% else %}
+										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-fullscreen-exit" viewBox="0 0 16 16">
+											<path d="M5.5 0a.5.5 0 0 1 .5.5v4A1.5 1.5 0 0 1 4.5 6h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5zm5 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 10 4.5v-4a.5.5 0 0 1 .5-.5zM0 10.5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 6 11.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zm10 1a1.5 1.5 0 0 1 1.5-1.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4z"/>
+										  </svg>
+									{% endif %}
+								</button>
+							</td>
+					</tr>
+				</table>
+
+
+
+				<div class="card card-body" style="background-color:rgb(240,240,240,0.5);">
+
+						<table class="table table-sm">
+							<tr>
+								{% for ITEM in LIST_WORKING_TIME_TABLE_COLUMN_INDEX_FOR_TODAY %}
+								<th>
+									{% if ITEM.0 == LIST_WORKING_TIME_TABLE_COLUMN_INDEX_FOR_TODAY.0 %}
+										<input type="checkbox" name="checkbox-hr-workingtime-select-member" value="all">
+									{% endif %}
+									<button type="submit" name="button-hr-workingtime-control-select-workingtime-request-table-column-index" value="{{ ITEM.0 }}" class="btn btn-link btn-sm">
+										{{ ITEM.1 }}
+									</button>
+								</th>
+								{% endfor %}
+								<th>
+									비고
+								</th>
+
+
+							</tr>
+
+							<!--
+								선택한 근무시간 쿼리
+							-->
+
+							{% for q_workingtime_issued in qs_wkt_issued_requested %}
+								{% if q_workingtime_issued == q_mysettings_hr.workingtime_issued %}
+									{% include 'hr/hr_workingtime_control_today_table_row.html' %}
+								{% endif %}
+							{% endfor %}
+
+							<!--
+								검색된 근무시간 쿼리 (선택된 쿼리 제외)
+							-->
+							{% for q_workingtime_issued in qs_wkt_issued_requested %}
+								{% if q_workingtime_issued.id in q_mysettings_hr.list_workingtime_issued_id_searched and q_workingtime_issued != q_mysettings_hr.workingtime_issued %}
+									{% include 'hr/hr_workingtime_control_today_table_row.html' %}
+								{% endif %}
+							{% endfor %}
+
+
+							<!--
+								나머지
+							-->
+							{% for q_workingtime_issued in qs_wkt_issued_requested %}
+								{% if q_workingtime_issued == q_mysettings_hr.workingtime_issued %}
+								{% else %}
+									{% if q_workingtime_issued.id in q_mysettings_hr.list_workingtime_issued_id_searched %}
+									{% else %}
+										{% include 'hr/hr_workingtime_control_today_table_row.html' %}
+									{% endif %}
+								{% endif %}
+							{% endfor %}
+
+
+
+						</table>
+					</form>
+				</div>
+			</fieldset>
+		</div>
+	</form>
+</div>
+
+
+
+{% if q_mysettings_hr.check_display_size_workingtime_today_table_fullwidth == False %}
+<div class="col-md-3">
+
+	<form method="POST" action="{% url 'hr-workingtime-control' %}"  enctype="multipart/form-data">
+		{% csrf_token %}
+		<ul class="nav nav-tabs">
+			{% for ITEM in LIST_HR_VACATION_CONTROL_ISSUED_SUBMENU_TYPE %}
+				<li class="nav-item">
+					<button type="submit" name="button-hr-workingtime-control-type-switch-submenu-issued" value="{{ ITEM.0 }}"
+					{% if q_mysettings_hr.vacation_control_issued_submenu_type == ITEM.0 %}
+						class="btn btn-dark btn-sm"
+					{% else %}
+						class="nav-link"
+					{% endif %}
+					>
+						{{ ITEM.1 }}
+					</button>
+				</li>
+			{% endfor %}
+		</ul>
+
+	</form>
+	<hr>
+	Side View
+
+</div>
+
+{% endif %}
+
+
