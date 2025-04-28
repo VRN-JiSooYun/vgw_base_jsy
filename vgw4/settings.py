@@ -62,6 +62,20 @@ elif HOSTNAME == 'VN-MunCheolHyun':
         os.path.join(BASE_DIR, 'static'),
     ]
     DEBUG = True
+else:
+    with open('C:\\workspace\\etc\\config.json') as config_file:
+        config = json.load(config_file)
+    SECRET_KEY = 'w)s(m6zfj1hbf)z&&^-_33u^y+*%9)k-j^oy9cks3hhy*$i!mu'
+    ENGINE = 'django.db.backends.postgresql'
+    NAME = 'sample_vgw'
+    USER = 'postgres'
+    PASSWORD = config["PASSWORD"]
+    HOST = 'localhost'
+    PORT= '5432'
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static'),
+    ]
+    DEBUG = True
 
 # Application definition
 
