@@ -3,10 +3,10 @@ import json
 import datetime
 from django.conf import settings
 from urllib import parse
-from hr.models import *
+# from hr.models import *
 # from dashboard.models import *
-from hr.functions import initiate_authority_for_superuser
-from home.functions import *
+# from hr.functions import initiate_authority_for_superuser
+# from home.functions import *
 from django.db import connection, transaction
 from utilities.models import *
 from rdkit import Chem
@@ -31,11 +31,11 @@ from openpyxl import Workbook
 # Target finder
 from django.db import connection
 # from kpviewer.models import KinaseProfilingAssayResult
-from home.function_common import checkStructureAuthority
+# from home.function_common import checkStructureAuthority
 from django.forms.models import model_to_dict
 import markdown as md
 import openpyxl
-
+from django.db.models import Q, Count, F, Value, Max
 import ast
 from collections import defaultdict
 from collections import Counter

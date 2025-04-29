@@ -34,7 +34,8 @@ def home_view(request):
     # else :
     #     return redirect('my-home')
 
-    return redirect('my-home')
+    # return redirect('my-home')
+    return redirect('utilities-home')
 
     template = 'home/home.html'
     if request.method == 'GET':
@@ -43,7 +44,8 @@ def home_view(request):
 
 @login_required(login_url='/security/login/')
 def re_home_view(request):
-    return redirect('re-home')
+    # return redirect('re-home')
+    return redirect('utilities-home')
 
 @csrf_exempt
 def get_codes(request) :

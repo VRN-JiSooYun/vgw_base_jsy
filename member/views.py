@@ -16,8 +16,8 @@ from member.models import *
 from member.forms import *
 from member.tasks import *
 from member.functions import *
-from hr.models import *
-from hr.functions import check_authority_function, initiate_authority_for_superuser
+# from hr.models import *
+# from hr.functions import check_authority_function, initiate_authority_for_superuser
 
 
 
@@ -63,7 +63,8 @@ def memberPublicDashboardView(request, pk):
 def member_home_view(request):
     # redirect dashboard
     if request.user.is_superuser == True:
-        initiate_authority_for_superuser(request)
+        # initiate_authority_for_superuser(request)
+        pass
     #--------------------------------------------------------------------------------------------------------------------------
     # 로그인 하면 실행되야 하는 함수
     # 사용자 근무년수/달수 계산
@@ -73,7 +74,7 @@ def member_home_view(request):
     if return_value == False:
         messages.warning(request, f'{q_profile.name_korean}님의 입사일 정보가 없습니다.')
     """
-    from hr.functions import update_member_vacation_and_inform_to_promote_comsuming_vc
+    # from hr.functions import update_member_vacation_and_inform_to_promote_comsuming_vc
     # return_value = update_member_vacation_and_inform_to_promote_comsuming_vc(request, q_profile)
 
     # 사용자 연차 자동 발행
@@ -84,7 +85,8 @@ def member_home_view(request):
     #     return redirect('my-home')
 
     # return redirect('my-home')
-    return redirect('re-working-month-home')
+    # return redirect('re-working-month-home')
+    return redirect('utilities-home')
 
 
     # list_access_level = ['auth_member',]

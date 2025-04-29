@@ -7,7 +7,7 @@ from django.db import connection, transaction
 from home.models import *
 # from compound.models import *
 # from compoundbank.models import *
-from hr.models import *
+# from hr.models import *
 # from project.models import *
 
 

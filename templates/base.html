@@ -1,6 +1,6 @@
 {% load static %}
 {% load filters %}
-{% load my_filter %}
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -166,15 +166,6 @@
     {% else %}
         {% comment %} 운영단 최상단 메뉴 {% endcomment %}
         {% include 'home/navbar_prod.html' %}
-    {% endif %}
-
-    {% if 'my.voronoi.app' not in request.build_absolute_uri %}
-    {% if request|check_if_mobile and not 'data-entry' in request.build_absolute_uri  %}
-        <div style="position:absolute; top: 55px; left:180px;">
-            <a class="btn btn-sm btn-{% if request.GET.assay == 'efficacy' %}warning{% else %}dark{% endif %}" href="/dashboard/data-entry?assay=efficacy" style="float:left;">Efficacy 데이터 입력</a>
-            <a class="btn btn-sm btn-{% if request.GET.assay == 'toxicity' %}warning{% else %}dark{% endif %}" href="/dashboard/data-entry?assay=toxicity" style="float:left; margin-left: 4px;">Toxicity 데이터 입력</a>
-        </div>
-    {% endif %}
     {% endif %}
 
     <!-- <p>Hello, this is message from blog-base default!</p> -->

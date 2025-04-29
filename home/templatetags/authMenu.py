@@ -1,8 +1,8 @@
 from django import template
 from django.db.models import *
-from hr.models import *
+# from hr.models import *
 from django.contrib.auth.models import User
-from hr.functions import initiate_authority_for_superuser
+# from hr.functions import initiate_authority_for_superuser
 
 register = template.Library()
 

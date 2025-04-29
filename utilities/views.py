@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from utilities.functions import *
-from home.function_common import checkStructureAuthority
+# from home.function_common import checkStructureAuthority
 # from project.functions import *
 # from inventory.functions import *
 # Create your views here.
@@ -15,7 +15,7 @@ from home.function_common import checkStructureAuthority
 @login_required(login_url='/security/login/')
 def utilities_home_view(request) :
 
-    return redirect('utilities-solubility')
+    return redirect('utilities-solubility-view')
 
 @login_required(login_url='/security/login/')
 def utilities_solubility_view(request) :

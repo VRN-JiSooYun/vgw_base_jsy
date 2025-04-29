@@ -24,17 +24,17 @@ admin.site.enable_nav_sidebar = False
 
 urlpatterns = [
     path('security/', include('security.urls')),
-    path('',  include('home.urls')),
+    # path('',  include('home.urls')),
     path('admin/', admin.site.urls),
     path('utilities/', include('utilities.urls')),
     path('member/', include('member.urls')),
-    path('hr/', include('hr.urls')),
-    path('inquiry/', include('inquiry.urls')),
+    # path('hr/', include('hr.urls')),
+    # path('inquiry/', include('inquiry.urls')),
 
-    path('re-member/', include('re_member.urls')),
-    path('re-group/', include('re_group.urls')),
-    path('re-auth/', include('re_auth.urls')),
-    path('re-todo/', include('re_todo.urls')),
-    path('re-working/', include('re_working.urls')),
-    path('re-working-admin/', include('re_working_admin.urls')),
+    # path('re-member/', include('re_member.urls')),
+    # path('re-group/', include('re_group.urls')),
+    # path('re-auth/', include('re_auth.urls')),
+    # path('re-todo/', include('re_todo.urls')),
+    # path('re-working/', include('re_working.urls')),
+    # path('re-working-admin/', include('re_working_admin.urls')),
 ]

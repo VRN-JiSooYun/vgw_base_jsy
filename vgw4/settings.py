@@ -55,7 +55,7 @@ elif HOSTNAME == 'VN-MunCheolHyun':
     ENGINE = 'django.db.backends.postgresql'
     NAME = 'sample_vgw'
     USER = 'postgres'
-    PASSWORD = config["PASSWORD"]
+    PASSWORD = '1234'
     HOST = 'localhost'
     PORT= '5432'
     STATICFILES_DIRS = [
@@ -63,13 +63,11 @@ elif HOSTNAME == 'VN-MunCheolHyun':
     ]
     DEBUG = True
 else:
-    with open('C:\\workspace\\etc\\config.json') as config_file:
-        config = json.load(config_file)
     SECRET_KEY = 'w)s(m6zfj1hbf)z&&^-_33u^y+*%9)k-j^oy9cks3hhy*$i!mu'
     ENGINE = 'django.db.backends.postgresql'
     NAME = 'sample_vgw'
     USER = 'postgres'
-    PASSWORD = config["PASSWORD"]
+    PASSWORD = '1234'
     HOST = 'localhost'
     PORT= '5432'
     STATICFILES_DIRS = [
@@ -88,17 +86,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'utilities',
     'member',
-    'dashboard',
     'security',
     'home',
-    'hr',
-    'inquiry',
-    're_working',
-    're_working_admin',
-    're_member',
-    're_auth',
-    're_group',
-    're_todo',
+    # 'inquiry',
 
     # # 3rd Party Apps
     'bootstrapform',

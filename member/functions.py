@@ -20,8 +20,8 @@ from django.urls import reverse
 # from django.views.generic import *
 from member.forms import *
 from member.models import *
-from hr.functions import *
-from hr.models import *
+# from hr.functions import *
+# from hr.models import *
 from home.models import *
 from home.functions import *
 

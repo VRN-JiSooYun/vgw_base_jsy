@@ -14,7 +14,7 @@ from home.models import *
 # from compoundsynthesis.models import Compoundsynthesis_My_Settings
 # from compoundscreening.models import Compoundscreening_My_Settings
 # from crystal.models import Crystal_My_Settings
-from hr.models import *
+# from hr.models import *
 # from kpviewer.models import KPViewer_My_Settings
 # from member.models import Member_My_Settings
 # from my.models import MY_My_Settings

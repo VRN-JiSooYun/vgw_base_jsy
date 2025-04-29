@@ -12,7 +12,7 @@
 
   {% with request.path|split:"/" as urlPath %}
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a href="{% url 'home' %}" target="self">
+    <a  target="self">
       <img src="{% static '/images/logo.png' %}">
       <div style="font-size: 40px;color:#ff6060;font-weight: bold;position: absolute;z-index: 20000;top: 3px;left: 45px;background: #343a40;">
         {% if 'localhost' in request.build_absolute_uri or '127.0.0.1' in request.build_absolute_uri or '172.16.1.35' in request.build_absolute_uri or '110.15.60.66:30035' in request.build_absolute_uri %}
@@ -45,8 +45,8 @@
     {% endcomment %}
     <div class="navbar-nav">
       {% if user.is_authenticated %}
-      <a class="nav-item nav-link" href="{% url 'get-blind-page' %}" value="a">Blind 게시판</a>
-      <a class="nav-item nav-link" href="{% url 'member-profile' %}">{{ request.user }}</a>
+      <a class="nav-item nav-link" href="" value="a">Blind 게시판</a>
+      <a class="nav-item nav-link" href="">{{ request.user }}</a>
       <a class="nav-item nav-link" href="{% url 'member-logout' %}">Logout</a>
       {% else %}
       <a class="nav-item nav-link" href="#">Guest</a>
