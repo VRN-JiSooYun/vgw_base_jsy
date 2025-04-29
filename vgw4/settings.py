@@ -49,8 +49,6 @@ if HOSTNAME == 'VN-JeongJaeheon':
     ]
     DEBUG = True
 elif HOSTNAME == 'VN-MunCheolHyun':
-    with open('C:\\workspace\\etc\\config.json') as config_file:
-        config = json.load(config_file)
     SECRET_KEY = 'w)s(m6zfj1hbf)z&&^-_33u^y+*%9)k-j^oy9cks3hhy*$i!mu'
     ENGINE = 'django.db.backends.postgresql'
     NAME = 'sample_vgw'
