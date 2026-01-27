@@ -1,0 +1,9 @@
+[submodule "vora"]
+	path = vora
+	url = https://github.com/voronoi-dev-team/vgw_vora.git
+	branch = thmoon
+
+[submodule "VDE"]
+	path = VDE
+	url = https://github.com/voronoi-dev-team/vgw_vora.git
+	branch = master
