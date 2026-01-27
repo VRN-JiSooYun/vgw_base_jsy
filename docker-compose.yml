@@ -1,0 +1,30 @@
+services:
+  groupware:
+    image: ghcr.io/voronoi-dev-team/vgw_for_vora:latest
+    container_name: vgw_compose_groupware
+    hostname: groupware-in-container
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SUPERUSER_EMAIL=admin@voronoi-virtual.app
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=1234
+    # command: python manage.py runserver
+  postgres:
+    image: postgres:17
+    container_name: vgw_compose_postgres
+    environment:
+      POSTGRES_DB: sample_vgw
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    expose:
+      - 5432
+    ports:
+      - "54321:5432"
+    volumes:
+      - vgw_compose_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  vgw_compose_postgres_data:

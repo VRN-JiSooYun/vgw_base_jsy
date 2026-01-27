@@ -56,3 +56,7 @@ static/files/token.json
 token.json
 
 .env
+
+# IntelliJ
+*.iml
+.idea/
